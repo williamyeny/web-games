@@ -2,6 +2,17 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-probes',
+    date: 'September 25',
+    title: 'Smarter probe design, more goals',
+    items: [
+      'When you have probe trust to spend, the + button for the skill your probes need most now glows yellow.',
+      'New multiverse trophies: finish a universe under every law of physics, max out every blueprint, and a speedrun challenge.',
+      'Laws you\u2019ve already finished get a check mark.',
+      'The games page shows which universe you\u2019re in.'
+    ]
+  },
+  {
     id: '2026-09-25-pacing',
     date: 'September 25',
     title: 'Less waiting, longer battery',

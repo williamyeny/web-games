@@ -137,7 +137,12 @@
     var time = D.run.playSeconds;
     D.stats.universes++;
     D.stats.clips += clips;
-    if (D.laws.length) D.finishedWithLaw = true;
+    if (D.laws.length) {
+      D.finishedWithLaw = true;
+      D.lawsFinished = D.lawsFinished || {};
+      D.laws.forEach(function (id) { D.lawsFinished[id] = true; });
+    }
+    D.stats.stardust = (D.stats.stardust || 0) + reward;
     if (D.run.fromStart && (!D.stats.fastestUniverse || time < D.stats.fastestUniverse)) D.stats.fastestUniverse = time;
     D.stardust += reward;
     D.pending = { kind: kind, reward: reward, universe: D.universe, time: time, finale: D.stats.universes === FINALE_AT };
@@ -299,7 +304,7 @@
       var b = el('button', 'law');
       b.setAttribute('aria-pressed', picked === id ? 'true' : 'false');
       var top = el('div', 'law-top');
-      top.appendChild(el('b', null, l.name));
+      top.appendChild(el('b', null, l.name + (id && (D.lawsFinished || {})[id] ? ' \u2713' : '')));
       var pct = Math.round(l.bonus * 100);
       top.appendChild(el('span', 'law-bonus' + (pct < 0 ? ' minus' : ''), (pct >= 0 ? '+' : '') + pct + '% Stardust'));
       b.appendChild(top);
@@ -370,6 +375,8 @@
       fill.style.width = (goal / FINALE_AT * 100) + '%';
       bar.appendChild(fill);
       box.appendChild(bar);
+      var done = Object.keys(D.lawsFinished || {}).length;
+      box.appendChild(el('p', 'sheet-p', 'Laws of physics finished: ' + done + ' of ' + LAWS.length + '.'));
       box.appendChild(el('h3', 'sheet-h', 'Blueprints'));
       renderShop(box, function () { UP.refreshMenu(); });
     }

@@ -164,8 +164,13 @@
     }
     try {
       var save = JSON.parse(localStorage.getItem('saveGame'));
+      var plusData = null;
+      try { plusData = JSON.parse(localStorage.getItem('up-plus')); } catch (e) { plusData = null; }
+      var universe = plusData && plusData.universe > 1 ? 'Universe ' + plusData.universe + ': ' : '';
       if (save && save.clips > 0) {
-        document.getElementById('paperclips-progress').textContent = words(save.clips) + ' clips so far';
+        document.getElementById('paperclips-progress').textContent = universe + words(save.clips) + ' clips so far';
+      } else if (universe) {
+        document.getElementById('paperclips-progress').textContent = universe + 'just getting started';
       }
     } catch (e) { /* no save yet */ }
     try {

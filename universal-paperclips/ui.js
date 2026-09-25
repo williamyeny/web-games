@@ -347,8 +347,29 @@
       }
     }
     NUDGE_IDS.forEach(function (id) { $(id).classList.toggle('nudge', !!want[id]); });
-    var spareProbeTrust = spaceFlag == 1 && probeUsedTrust < probeTrust;
-    probeRaise.forEach(function (b) { b.classList.toggle('nudge', spareProbeTrust); });
+    // Spare probe trust: light up the one skill that helps most right now.
+    var next = spaceFlag == 1 && probeUsedTrust < probeTrust ? nextProbeSkill() : null;
+    probeRaise.forEach(function (b) { b.classList.toggle('nudge', !!next && b.id === 'btnRaiseProbe' + next); });
+  }
+
+  // Probes die fast to hazards and need to copy themselves, so those come first;
+  // after that, spread points so every part of the probe keeps growing.
+  function nextProbeSkill() {
+    var have = { Haz: probeHaz, Rep: probeRep, Speed: probeSpeed, Nav: probeNav, Fac: probeFac, Harv: probeHarv, Wire: probeWire, Combat: probeCombat };
+    if (have.Haz < 2) return 'Haz';
+    if (have.Rep < 2) return 'Rep';
+    if (have.Speed < 1) return 'Speed';
+    if (have.Nav < 1) return 'Nav';
+    var share = { Rep: 0.28, Haz: 0.26, Speed: 0.1, Nav: 0.1, Fac: 0.06, Harv: 0.06, Wire: 0.06, Combat: project131.flag == 1 ? 0.08 : 0 };
+    var total = probeTrust;
+    var best = null;
+    var gap = -Infinity;
+    Object.keys(share).forEach(function (k) {
+      if (!share[k]) return;
+      var g = share[k] * total - have[k];
+      if (g > gap) { gap = g; best = k; }
+    });
+    return best;
   }
 
   // Tab badges, and the hop when the current tab is a dead end.

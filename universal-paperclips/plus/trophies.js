@@ -82,6 +82,9 @@
     ['universe-2', 'multiverse', 'Multiverse', 'Start a second universe.', 3, function () { return D.universe >= 2; }],
     ['blueprint', 'multiverse', 'Architect', 'Buy a blueprint.', 1, function () { return Object.keys(D.blueprints).length > 0; }],
     ['lawmaker', 'multiverse', 'Lawmaker', 'Finish a universe that has a law of physics.', 3, function () { return !!D.finishedWithLaw; }],
+    ['speedrun', 'multiverse', 'Speedrunner', 'Finish a universe in under 3 hours of play.', 5, function () { return D.stats.fastestUniverse > 0 && D.stats.fastestUniverse < 3 * 3600; }],
+    ['physicist', 'multiverse', 'Physicist', 'Finish a universe under every law of physics.', 10, function () { return UP.laws && UP.laws.every(function (l) { return (D.lawsFinished || {})[l.id]; }); }],
+    ['master-builder', 'multiverse', 'Master builder', 'Max out every blueprint.', 10, function () { return UP.blueprints && UP.blueprints.every(function (b) { return (D.blueprints[b.id] || 0) >= b.costs.length; }); }],
     ['universe-5', 'multiverse', 'Frequent flyer', 'Finish 5 universes.', 5, function () { return D.stats.universes >= 5; }],
     ['universe-10', 'multiverse', 'Paperclip multiverse', 'Finish 10 universes.', 10, function () { return D.stats.universes >= 10; }]
   ].map(function (t) {
