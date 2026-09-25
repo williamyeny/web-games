@@ -2,6 +2,17 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-multiverse',
+    date: 'September 25',
+    title: 'The game got 10\u00D7 bigger: the Multiverse',
+    items: [
+      'Turning the whole universe into paperclips is no longer the end. It\u2019s the beginning of the Multiverse!',
+      'Finish a universe to earn Stardust, then spend it on blueprints: upgrades you keep forever, in every universe after.',
+      'Each new universe has its own law of physics that you choose, like Heavy Stars or Golden Age. Harder laws give more Stardust.',
+      'Paperclip 10 universes to see the grand finale. So that\u2019s what Stardust is for!'
+    ]
+  },
+  {
     id: '2026-09-25-content',
     date: 'September 25',
     title: '16 new projects and a needy swarm',

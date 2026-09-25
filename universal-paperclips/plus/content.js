@@ -17,7 +17,10 @@
   // ---------------------------------------------------------------------------
   // Every so often the swarm needs something: sunlight (hungry), a lesson
   // (confused) or paperclip coats (cold). Its gifts pause until it gets it.
-  function schedule() { D.run.needAt = D.run.playSeconds + Math.round(UP.rand(360, 720)); }
+  function schedule() {
+    var restless = UP.hasLaw && UP.hasLaw('restless-swarm') ? 2 : 1;
+    D.run.needAt = D.run.playSeconds + Math.round(UP.rand(360, 720) / restless);
+  }
   if (!D.run.needAt) schedule();
 
   var WORDS = { 1: 'hungry', 2: 'confused', 4: 'cold' };

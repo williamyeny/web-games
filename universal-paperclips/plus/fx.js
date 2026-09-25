@@ -286,7 +286,7 @@
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('button');
     if (!b || b.id === 'btnMakePaperclip') return;
-    if (b.closest('.projectButton') || b.classList.contains('projectButton')) return; // has its own sound
+    if (b.closest('.projectButton') || b.classList.contains('projectButton') || b.classList.contains('bp-buy')) return; // own sounds
     if (b.matches('.buy, .multi .btn, .chip-btn')) { UP.sound('buy'); UP.haptic('light'); }
     else if (b.matches('.step, .seg button, .toggle')) { UP.sound('tick'); UP.haptic('light'); }
     else if (b.closest('.tabbar')) { UP.sound('tab'); }
