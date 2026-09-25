@@ -2,6 +2,15 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-war',
+    date: 'September 25',
+    title: 'Win the drifter war (again)',
+    items: [
+      'Losing to the drifters with no probe trust left? A − button lights up to take a point back, then Combat’s + lights up so you can fight back.',
+      'The probe hints keep harvester and wire drones even, so the swarm stays organized and keeps sending gifts.'
+    ]
+  },
+  {
     id: '2026-09-25-creativity2',
     date: 'September 25',
     title: 'Where did my creativity go?',

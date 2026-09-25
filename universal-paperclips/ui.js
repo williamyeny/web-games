@@ -329,6 +329,7 @@
                    'btnBatteryReboot', 'btnFarmReboot', 'btnHarvesterReboot', 'btnWireDroneReboot', 'btnFactoryReboot',
                    'btnLowerPrice'];
   var probeRaise = ['Speed', 'Nav', 'Rep', 'Haz', 'Fac', 'Harv', 'Wire', 'Combat'].map(function (s) { return $('btnRaiseProbe' + s); });
+  var probeLower = ['Speed', 'Nav', 'Rep', 'Haz', 'Fac'].map(function (s) { return $('btnLowerProbe' + s); });
   function isActive(p) { return p.flag != 1 && activeProjects.indexOf(p) >= 0 && p.element; }
 
   // Unsold clips, sampled about once a second, to tell if they're piling up.
@@ -390,6 +391,33 @@
     // Spare probe trust: light up the one skill that helps most right now.
     var next = spaceFlag == 1 && probeUsedTrust < probeTrust ? nextProbeSkill() : null;
     probeRaise.forEach(function (b) { b.classList.toggle('nudge', !!next && b.id === 'btnRaiseProbe' + next); });
+    // Losing the drifter war with every point already spent (and max trust
+    // only grows with honor from winning battles): take a point back from the
+    // biggest skill so it can go into Combat.
+    var donor = spaceFlag == 1 && probeUsedTrust >= probeTrust ? combatDonor() : null;
+    probeLower.forEach(function (b) { b.classList.toggle('nudge', !!donor && b.id === 'btnLowerProbe' + donor); });
+  }
+
+  // Tapping a glowing button (or a probe skill) moves the glow right away,
+  // so a quick double tap doesn't press a button that's no longer the right one.
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('button');
+    if (b && (b.classList.contains('nudge') || b.closest('#probeDesignDiv'))) updateNudges();
+  });
+
+  // Losing the war with too little Combat. The + and the "take a point back"
+  // hints both use this, so a freed point always lands in Combat (no ping-pong).
+  function combatShort() {
+    return project131.flag == 1 && drifterCount > probeCount * 0.5 && probeCombat < Math.max(2, Math.ceil(probeTrust * 0.25));
+  }
+  function combatDonor() {
+    if (!combatShort()) return null;
+    // How far above a safe minimum each skill is. Harvester and wire drones
+    // stay out of it: taking from just one would unbalance the swarm.
+    var spare = { Rep: probeRep - 2, Haz: probeHaz - 2, Speed: probeSpeed - 1, Nav: probeNav - 1, Fac: probeFac };
+    var best = null;
+    Object.keys(spare).forEach(function (k) { if (spare[k] > 0 && (!best || spare[k] > spare[best])) best = k; });
+    return best;
   }
 
   // Probes die fast to hazards and need to copy themselves, so those come first;
@@ -400,7 +428,10 @@
     if (have.Rep < 2) return 'Rep';
     if (have.Speed < 1) return 'Speed';
     if (have.Nav < 1) return 'Nav';
-    if (project131.flag == 1 && have.Combat < 2 && drifterCount > probeCount * 0.5) return 'Combat';
+    if (combatShort()) return 'Combat';
+    // Harvester and wire drones must stay even, or the swarm gets disorganized
+    // and stops sending gifts (the only way to get more memory out here).
+    if (have.Harv !== have.Wire) return have.Harv < have.Wire ? 'Harv' : 'Wire';
     // When drifters outnumber the probes, battles are what's killing them: fight back.
     var war = project131.flag == 1 && drifterCount > probeCount * 0.5;
     var share = { Rep: 0.26, Haz: 0.24, Speed: 0.08, Nav: 0.08, Fac: 0.05, Harv: 0.05, Wire: 0.05, Combat: project131.flag == 1 ? (war ? 0.3 : 0.08) : 0 };
