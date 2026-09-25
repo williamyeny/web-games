@@ -2,6 +2,16 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-seminar',
+    date: 'September 25',
+    title: 'Win the drifter war',
+    items: [
+      'New Probe Seminar project: trade creativity for probe trust, as many times as you like.',
+      'When drifters outnumber your probes, the Combat + button glows so you can fight back.',
+      'We played the whole game start to finish (with a robot!) to make sure every universe can be won.'
+    ]
+  },
+  {
     id: '2026-09-25-space',
     date: 'September 25',
     title: 'Space is friendlier',

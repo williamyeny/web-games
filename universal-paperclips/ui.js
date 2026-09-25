@@ -369,7 +369,10 @@
     if (have.Rep < 2) return 'Rep';
     if (have.Speed < 1) return 'Speed';
     if (have.Nav < 1) return 'Nav';
-    var share = { Rep: 0.28, Haz: 0.26, Speed: 0.1, Nav: 0.1, Fac: 0.06, Harv: 0.06, Wire: 0.06, Combat: project131.flag == 1 ? 0.08 : 0 };
+    if (project131.flag == 1 && have.Combat < 2 && drifterCount > probeCount * 0.5) return 'Combat';
+    // When drifters outnumber the probes, battles are what's killing them: fight back.
+    var war = project131.flag == 1 && drifterCount > probeCount * 0.5;
+    var share = { Rep: 0.26, Haz: 0.24, Speed: 0.08, Nav: 0.08, Fac: 0.05, Harv: 0.05, Wire: 0.05, Combat: project131.flag == 1 ? (war ? 0.3 : 0.08) : 0 };
     var total = probeTrust;
     var best = null;
     var gap = -Infinity;

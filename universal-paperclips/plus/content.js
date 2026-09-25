@@ -68,3 +68,14 @@
   UP.on('project', function (p) { if (p === project35) setTimeout(clearMoneyProjects, 0); });
   setTimeout(clearMoneyProjects, 0);
 })();
+
+// Probe Seminar's price depends on how many were bought this universe.
+(function () {
+  'use strict';
+  project328.creat = seminarCost();
+  project328.priceTag = '(' + project328.creat.toLocaleString() + ' creat)';
+  if (project328.element) {
+    var cost = project328.element.querySelector('.cost');
+    if (cost) cost.textContent = project328.priceTag;
+  }
+})();

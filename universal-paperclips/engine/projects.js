@@ -2695,3 +2695,23 @@ var project327 = newProject({
     apply: function(){},
     message: "Tournament analytics online. Twice the yomi from every tournament"
 });
+
+// A repeatable one: creativity piles up in space, so let it buy probe trust.
+function seminarCost(){
+    var n = window.UP ? (UP.data.run.seminars || 0) : 0;
+    return Math.round(80000 * Math.pow(1.35, n));
+}
+
+var project328 = newProject({
+    id: "projectButton328", title: "Probe Seminar ", creat: 80000,
+    description: "Another round of classes for your probes (+1 probe trust). You can do this again and again",
+    trigger: function(){ return spaceFlag == 1 && project326.flag == 1 && probeTrust < maxTrust; },
+    apply: function(){
+        addProbeTrust(1);
+        if (window.UP) UP.data.run.seminars = (UP.data.run.seminars || 0) + 1;
+        project328.creat = seminarCost();
+        project328.priceTag = "(" + project328.creat.toLocaleString() + " creat)";
+        project328.uses = project328.uses + 1;
+    },
+    message: "Seminar complete. Probe trust +1"
+});
