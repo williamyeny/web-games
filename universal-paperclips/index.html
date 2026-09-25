@@ -21,9 +21,9 @@
 <body>
 
 <!--
-  Every id below is read or written by the original game engine in engine/.
-  The engine files are untouched, so ids must not be renamed or removed.
-  Mobile-only additions use ids starting with "ui-".
+  Most ids below are read or written by the game engine in engine/ (the
+  original Universal Paperclips code, with additions marked in comments), so
+  they must not be renamed or removed. Ids added for this edition start with "ui-".
 -->
 
 <div id="cover"></div>
@@ -37,9 +37,15 @@
 <header class="top" id="ui-top">
   <div class="count" id="ui-count">
     <div id="clips" class="count-num">0</div>
-    <a class="back" href="../" aria-label="Back to all games">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 4.5l8 7M6.5 9.5V19h11V9.5"/></svg>
-    </a>
+    <div class="top-buttons">
+      <button class="icon-btn" id="ui-menu" aria-label="Menu">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg>
+        <i class="dot" hidden></i>
+      </button>
+      <a class="icon-btn" href="../" aria-label="Back to all games">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 4.5l8 7M6.5 9.5V19h11V9.5"/></svg>
+      </a>
+    </div>
     <div class="count-meta">
       <div class="count-label">paperclips <span id="clipCountCrunched" class="crunched"></span></div>
       <div class="count-side" id="ui-side"><b id="ui-side-num"></b> <span id="ui-side-label"></span></div>
@@ -566,7 +572,7 @@
 
 <!-- ============ DOCK ============ -->
 <div class="dock" id="ui-dock">
-  <button class="make" id="btnMakePaperclip" onclick="clipClick(1)">
+  <button class="make" id="btnMakePaperclip" onclick="handClip()">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 7.5v8.25a2.5 2.5 0 0 1-5 0V5a3.75 3.75 0 0 1 7.5 0v11.5a5 5 0 0 1-10 0V9"/></svg>
     <span>Make paperclip</span>
   </button>
@@ -596,6 +602,11 @@
 <script src="engine/globals.js"></script>
 <script src="engine/projects.js"></script>
 <script src="engine/main.js"></script>
+<!-- Additions for this edition: shared state, effects, menu, new features. -->
+<script src="changelog.js"></script>
+<script src="plus/core.js"></script>
+<script src="plus/fx.js"></script>
+<script src="plus/menu.js"></script>
 <!-- Mobile layer: tabs, saving on app switch, tap helpers. -->
 <script src="ui.js"></script>
 </body>

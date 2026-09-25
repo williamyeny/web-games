@@ -165,6 +165,11 @@ var testFlag = 0;
 var finalClips = 0;
 
 var resetFlag = 2;
+
+// Added for the mobile edition: multipliers from the multiverse (perk) and from
+// short-lived bonuses like lucky paperclips (boost). 1 = the original game.
+var perk = { tap: 1, wire: 1, demand: 1, clipper: 1, ops: 1, creat: 1, factory: 1, drone: 1, probe: 1, drift: 1, honor: 1, yomi: 1 };
+var boost = { demand: 1, clips: 1, ops: 1 };
 var threnodyAudio = new Audio();
 var threnodyLoadedBool = false; 
 

@@ -104,12 +104,22 @@
     font-size: 0.8125rem; font-weight: 800;
   }
   .game-progress:empty { display: none; }
+  .game-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .game-new {
+    display: inline-block; margin-top: 8px; padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--ink); color: var(--paper);
+    font-size: 0.8125rem; font-weight: 800;
+    animation: pop 0.5s cubic-bezier(.3,1.6,.5,1) 0.3s both;
+  }
+  .game-new[hidden] { display: none; }
+  @keyframes pop { from { transform: scale(0); } }
 
   footer { margin-top: 36px; font-size: 0.8125rem; color: var(--ink-2); }
   footer a { color: inherit; font-weight: 700; }
 
   @media (prefers-reduced-motion: reduce) {
-    .game { transition: none; }
+    .game, .game-new { transition: none; animation: none; }
   }
 </style>
 </head>
@@ -124,7 +134,10 @@
         <span>
           <span class="game-name">Universal Paperclips</span>
           <span class="game-blurb">Make paperclips. Then make more.</span>
-          <span class="game-progress" id="paperclips-progress"></span>
+          <span class="game-tags">
+            <span class="game-new" id="paperclips-new" hidden>Updated!</span>
+            <span class="game-progress" id="paperclips-progress"></span>
+          </span>
         </span>
       </a>
     </li>
@@ -136,8 +149,9 @@
   </footer>
 </main>
 
+<script src="universal-paperclips/changelog.js"></script>
 <script>
-  // Show how far along the saved paperclips game is.
+  // Show how far along the saved paperclips game is, and whether it has news.
   (function () {
     var names = ['', 'thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion',
       'sextillion', 'septillion', 'octillion', 'nonillion', 'decillion', 'undecillion',
@@ -154,6 +168,11 @@
         document.getElementById('paperclips-progress').textContent = words(save.clips) + ' clips so far';
       }
     } catch (e) { /* no save yet */ }
+    try {
+      var plus = JSON.parse(localStorage.getItem('up-plus'));
+      var log = window.CHANGELOG || [];
+      if (plus && log.length && plus.seenLog !== log[0].id) document.getElementById('paperclips-new').hidden = false;
+    } catch (e) { /* nothing seen yet */ }
   })();
 </script>
 </body>

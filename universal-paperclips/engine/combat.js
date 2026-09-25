@@ -323,7 +323,7 @@ function checkForBattleEnd(){
               
           if (numRightShips == 0){
             if (honorCount == 0){  
-            honorReward = battleRIGHTSHIPS + bonusHonor;     
+            honorReward = Math.round((battleRIGHTSHIPS + bonusHonor) * perk.honor);
             document.getElementById("honorAmount").innerHTML = honorReward;
             honor = honor + honorReward;    
                 

@@ -722,7 +722,7 @@ function toggleWireBuyer(){
 function buyWire(){
     if(funds >= wireCost){
         wirePriceTimer = 0;
-        wire = wire + wireSupply;
+        wire = wire + wireSupply * perk.wire;
         funds = funds - wireCost;
         wirePurchase = wirePurchase + 1;
         wireBasePrice = wireBasePrice + .05;
@@ -2122,12 +2122,13 @@ function declareWinner(){
           }        
         
        tourneyReport("TOURNAMENT RESULTS (roll over for payoff grid)");
-       yomi = yomi + strats[pick].currentScore * yomiBoost * beatBoost;
+       var yomiGained = Math.round(strats[pick].currentScore * yomiBoost * beatBoost * perk.yomi);
+       yomi = yomi + yomiGained;
        yomiDisplayElement.innerHTML = formatWithCommas(yomi);
         
     if (milestoneFlag < 15){    
        
-       displayMessage(strats[pick].name+" scored "+strats[pick].currentScore+" and beat "+bB+" "+w+". Yomi increased by "+strats[pick].currentScore * yomiBoost * beatBoost);
+       displayMessage(strats[pick].name+" scored "+strats[pick].currentScore+" and beat "+bB+" "+w+". Yomi increased by "+yomiGained);
            
         }
         
@@ -2322,6 +2323,11 @@ pick = stratPickerElement.value;
 
 //--------------------------------------------------------------------------------
 
+
+// One tap on "Make paperclip". Multiverse perks can make it more than one clip.
+function handClip(){
+    clipClick(perk.tap);
+}
 
 function clipClick(number){
     
@@ -3270,7 +3276,7 @@ function calculateCreativity(number){
     var creativityThreshold = 400;
     
     var s = prestigeS/10;
-    var ss = creativitySpeed+(creativitySpeed*s);
+    var ss = (creativitySpeed+(creativitySpeed*s)) * perk.creat;
     
     var creativityCheck = creativityThreshold/ss;
     
@@ -3434,7 +3440,7 @@ function calculateOperations(){
     operations = Math.floor(standardOps + Math.floor(tempOps));
     
     if (operations<memory*1000){
-        var opCycle = processors/10;
+        var opCycle = processors/10 * perk.ops * boost.ops;
         var opBuf = (memory*1000)-operations;
         
         if (opCycle > opBuf) {
@@ -3959,7 +3965,7 @@ function makeProbe(){
 }
 
 function spawnProbes(){
-    var nextGen = probeCount * probeRepBaseRate * probeRep;
+    var nextGen = probeCount * probeRepBaseRate * probeRep * perk.probe;
     
     // Cap Probe Growth
     if (probeCount>=999999999999999999999999999999999999999999999999){        
@@ -3991,7 +3997,7 @@ function spawnProbes(){
 
 function exploreUniverse(){ 
     availableMatterDisplayElement.innerHTML = spellf(availableMatter);
-    var xRate = Math.floor(probeCount) * probeXBaseRate * probeSpeed * probeNav;
+    var xRate = Math.floor(probeCount) * probeXBaseRate * probeSpeed * probeNav * perk.probe;
     if (xRate > totalMatter - foundMatter) {xRate = totalMatter - foundMatter;}
         foundMatter = foundMatter + xRate;
         availableMatter = availableMatter + xRate;
@@ -4069,7 +4075,7 @@ function spawnWireDrones(){
 }
 
 function drift(){
-    var amount = probeCount * probeDriftBaseRate * Math.pow(probeTrust, 1.2);
+    var amount = probeCount * probeDriftBaseRate * Math.pow(probeTrust, 1.2) * perk.drift;
     if (amount > probeCount) {amount = probeCount;}
     if (project148.flag==1){
         amount = 0;
@@ -4110,7 +4116,7 @@ function acquireMatter(){
             }
         
         
-        var mtr = powMod*dbsth*Math.floor(harvesterLevel)*harvesterRate;
+        var mtr = powMod*dbsth*Math.floor(harvesterLevel)*harvesterRate*perk.drone;
         
         
         mtr = mtr * ((200-sliderPos)/100);
@@ -4144,7 +4150,7 @@ function processMatter(){
             dbstw = droneBoost * Math.floor(wireDroneLevel);
             }
         
-        var a = powMod*dbstw*Math.floor(wireDroneLevel)*wireDroneRate;
+        var a = powMod*dbstw*Math.floor(wireDroneLevel)*wireDroneRate*perk.drone;
         
         a = a * ((200-sliderPos)/100);
         
@@ -4278,7 +4284,7 @@ if (factoryBoost > 1){
 
     
 if (dismantle<4){
-    clipClick(powMod*fbst*(Math.floor(factoryLevel)*factoryRate));    
+    clipClick(powMod*fbst*(Math.floor(factoryLevel)*factoryRate)*perk.factory*boost.clips);    
     }    
 // Then Other Probe Functions
 
@@ -4301,8 +4307,8 @@ war();
 // Auto-Clipper
     
 if (dismantle<4){
-    clipClick(clipperBoost*(clipmakerLevel/100));
-    clipClick(megaClipperBoost*(megaClipperLevel*5));
+    clipClick(clipperBoost*(clipmakerLevel/100)*perk.clipper*boost.clips);
+    clipClick(megaClipperBoost*(megaClipperLevel*5)*perk.clipper*boost.clips);
     }    
     
 // Demand Curve 
@@ -4313,6 +4319,7 @@ if (dismantle<4){
     marketing = (Math.pow(1.1,(marketingLvl-1)));
     demand = (((.8/margin) * marketing * marketingEffectiveness)*demandBoost);
     demand = demand + ((demand/10)*prestigeU);
+    demand = demand * perk.demand * boost.demand;
         
     }      
     
@@ -5574,7 +5581,7 @@ function load() {
     
     for(var i=0; i < allStrats.length; i++){
     
-    allStrats[i].active = loadStratsActive[i];
+    if (loadStratsActive[i] != null) allStrats[i].active = loadStratsActive[i];
         
     }
     
@@ -5848,8 +5855,8 @@ function load() {
     
     for(var i=0; i < projects.length; i++){
     
-    projects[i].uses = loadProjectsUses[i];
-    projects[i].flag = loadProjectsFlags[i]; 
+    if (loadProjectsUses[i] != null) projects[i].uses = loadProjectsUses[i];
+    if (loadProjectsFlags[i] != null) projects[i].flag = loadProjectsFlags[i]; 
         
     }
     
@@ -5882,8 +5889,8 @@ function load1() {
     
     for(var i=0; i < projects.length; i++){
     
-    projects[i].uses = loadProjectsUses[i];
-    projects[i].flag = loadProjectsFlags[i]; 
+    if (loadProjectsUses[i] != null) projects[i].uses = loadProjectsUses[i];
+    if (loadProjectsFlags[i] != null) projects[i].flag = loadProjectsFlags[i]; 
         
     }
     
@@ -5899,7 +5906,7 @@ function load1() {
     
     for(var i=0; i < allStrats.length; i++){
     
-    allStrats[i].active = loadStratsActive[i];
+    if (loadStratsActive[i] != null) allStrats[i].active = loadStratsActive[i];
         
     }
     
@@ -6186,8 +6193,8 @@ function load2() {
     
     for(var i=0; i < projects.length; i++){
     
-    projects[i].uses = loadProjectsUses[i];
-    projects[i].flag = loadProjectsFlags[i]; 
+    if (loadProjectsUses[i] != null) projects[i].uses = loadProjectsUses[i];
+    if (loadProjectsFlags[i] != null) projects[i].flag = loadProjectsFlags[i]; 
         
     }
     
@@ -6203,7 +6210,7 @@ function load2() {
     
     for(var i=0; i < allStrats.length; i++){
     
-    allStrats[i].active = loadStratsActive[i];
+    if (loadStratsActive[i] != null) allStrats[i].active = loadStratsActive[i];
         
     }
     

@@ -105,7 +105,7 @@
     return engineReset.apply(this, arguments);
   };
   function saveNow() {
-    if (resetting) return;
+    if (resetting || (window.UP && UP.skipSaveOnExit)) return;
     try { save(); } catch (e) { /* storage full or blocked; the engine's autosave will retry */ }
   }
   document.addEventListener('visibilitychange', function () {
@@ -566,6 +566,7 @@
     overlay.style.display = '';
     void overlay.offsetWidth;
     overlay.classList.add('playing');
+    if (window.UP) UP.sound('hypno');
     var hold = calm() ? 2200 : 3900;
     hypnoTimers = [
       setTimeout(function () { overlay.classList.add('leaving'); }, hold),
@@ -594,6 +595,7 @@
   var pendingReveals = [];
 
   function reveal(el, delay) {
+    if (window.UP && el.matches('.sec, .sub-sec')) UP.emit('unlock', el);
     if (calm()) return;
     el.animate(
       [{ opacity: 0, transform: 'translateY(-10px)' }, { opacity: 1, transform: 'none' }],
@@ -956,6 +958,9 @@
   }
   if (window.ResizeObserver) new ResizeObserver(measureDock).observe(dock);
   measureDock();
+
+  // Let the new features steer the screen.
+  if (window.UP) UP.ui = { selectTab: function (n) { selectTab(n); }, current: function () { return current; } };
 
   // Start on the last tab used, once the engine has shown/hidden its sections.
   setTimeout(function () {
