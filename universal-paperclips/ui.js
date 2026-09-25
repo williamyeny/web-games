@@ -58,6 +58,13 @@
     return engineFormat(num, decimal);
   };
 
+  // Word-style numbers ("3.3 nonillion") show small counts as "1.0" or "12.0".
+  var engineSpell = window.spellf;
+  window.spellf = function (n) {
+    if (typeof n === 'number' && n >= 1 && n < 1000) return String(Math.floor(n));
+    return engineSpell.apply(this, arguments);
+  };
+
   // A few counters are written as bare numbers (e.g. wire during the ending).
   ['transWire', 'factoryLevelDisplay', 'harvesterLevelDisplay', 'wireDroneLevelDisplay'].forEach(function (id) {
     var el = $(id);

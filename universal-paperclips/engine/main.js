@@ -893,7 +893,7 @@ function displayProjects(project){
     project.element = document.createElement("button");
 project.element.setAttribute("id", project.id);
     
-project.element.onclick = function(){project.effect()};
+project.element.onclick = function(){ if (project.cost()) project.effect(); };  // re-check: two quick taps can't spend twice
     
 project.element.setAttribute("class", "projectButton");
     projectListTopElement.appendChild(project.element, projectListTopElement.firstChild);
@@ -2889,6 +2889,7 @@ function cladSwarm(){
 }
 
 function synchSwarm(){
+        if (yomi < synchCost) return;
         yomi = yomi - synchCost;
         yomiDisplayElement.innerHTML = formatWithCommas(yomi);
         disorgFlag = 0;
@@ -2898,6 +2899,7 @@ function synchSwarm(){
 }
 
 function entertainSwarm(){
+        if (creativity < entertainCost) return;
         creativity = creativity - entertainCost;
         entertainCost = entertainCost + 10000;
         boredomFlag = 0;

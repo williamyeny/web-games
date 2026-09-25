@@ -2,6 +2,16 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-fixes',
+    date: 'September 25',
+    title: 'Little fixes',
+    items: [
+      'Fixed a bug where tapping two things at once could make your creativity go below zero.',
+      'Once the drones take over, the Make paperclip button goes away. It comes back for the very end.',
+      'Small numbers in space show as 1 instead of 1.0.'
+    ]
+  },
+  {
     id: '2026-09-25-record',
     date: 'September 25',
     title: 'Beat your best time',
