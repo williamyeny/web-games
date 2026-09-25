@@ -2,6 +2,17 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-moments',
+    date: 'September 25',
+    title: 'Welcome back gifts and big moments',
+    items: [
+      'Come back after a break and your AI will have kept working: a welcome back gift is waiting.',
+      'Launching into space now has a real liftoff!',
+      'Space exploration has a progress bar, so you can see how far across the universe you\u2019ve reached.',
+      'Once your machines make clips faster than you can tap, the Make paperclip button moves to the top of the Clips tab to make room. It comes back for the very end.'
+    ]
+  },
+  {
     id: '2026-09-25-lucky',
     date: 'September 25',
     title: 'Lucky paperclips and trophies',

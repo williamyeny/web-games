@@ -147,7 +147,7 @@
   function appear() {
     var at = spot();
     var b = document.createElement('button');
-    b.className = 'lucky';
+    b.className = 'lucky-clip';
     b.setAttribute('aria-label', 'Lucky paperclip! Tap it.');
     b.innerHTML = '<span class="lucky-glow"></span>' + CLIP;
     b.style.left = at.x + 'px';

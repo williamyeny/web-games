@@ -181,7 +181,7 @@
         var list = el('ul', 'trophy-list');
         items.forEach(function (t) {
           var got = !!D.trophies[t.id];
-          var li = el('li', 'trophy' + (got ? ' got' : ''));
+          var li = el('li', 'trophy-item' + (got ? ' got' : ''));
           var icon = el('span', 'trophy-icon');
           icon.innerHTML = ICON;
           li.appendChild(icon);

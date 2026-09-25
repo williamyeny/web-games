@@ -50,6 +50,7 @@
   UP.freshRun = freshRun;
 
   UP.save = function () {
+    if (UP.skipSaveOnExit) return; // a loaded save code is about to take over
     try { localStorage.setItem(KEY, JSON.stringify(UP.data)); } catch (e) { /* storage full or blocked */ }
   };
   // Save alongside the engine.
@@ -145,6 +146,14 @@
     if (h) return h + 'h ' + m + 'm';
     if (m) return m + 'm ' + s + 's';
     return s + 's';
+  };
+  UP.durationWords = function (seconds) {
+    var h = Math.floor(seconds / 3600);
+    var m = Math.round(seconds % 3600 / 60);
+    if (m === 60) { h++; m = 0; }
+    var hours = h ? h + (h === 1 ? ' hour' : ' hours') : '';
+    var mins = m ? m + (m === 1 ? ' minute' : ' minutes') : '';
+    return hours && mins ? hours + ' and ' + mins : hours || mins || 'a moment';
   };
   UP.rand = function (a, b) { return a + Math.random() * (b - a); };
   UP.pick = function (list) {

@@ -684,14 +684,13 @@
   makeBtn.addEventListener('click', function (e) {
     if (calm() || flying >= 14) return;
     var btnBox = makeBtn.getBoundingClientRect();
-    var dockBox = dock.getBoundingClientRect();
-    var x = (e.clientX || btnBox.left + btnBox.width / 2) - dockBox.left - 12;
-    var y = btnBox.top - dockBox.top - 4;
+    var x = (e.clientX || btnBox.left + btnBox.width / 2) - 12;
+    var y = btnBox.top - 4;
     var drift = (Math.random() - 0.5) * 70;
     var spin = (Math.random() - 0.5) * 80;
     var clip = clipShape.cloneNode(true);
     clip.setAttribute('class', 'clip-fly');
-    dock.appendChild(clip);
+    document.body.appendChild(clip);
     flying++;
     clip.animate([
       { transform: 'translate(' + x + 'px,' + y + 'px) scale(.5)', opacity: 0 },

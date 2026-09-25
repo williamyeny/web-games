@@ -946,7 +946,7 @@ table.payoff {
 /* ---------- a paperclip hopping up from the Make button ---------- */
 
 .clip-fly {
-  position: absolute; left: 0; top: 0;
+  position: fixed; left: 0; top: 0; z-index: 35;
   width: 24px; height: 24px;
   fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round;
   pointer-events: none;
@@ -1111,7 +1111,7 @@ table.payoff {
 
 /* ---------- lucky paperclips ---------- */
 
-.lucky {
+.lucky-clip {
   position: fixed; z-index: 60;
   width: 70px; height: 70px; padding: 12px;
   border: 0; border-radius: 50%;
@@ -1119,7 +1119,7 @@ table.payoff {
   animation: lucky-in 0.7s cubic-bezier(.2,1.4,.4,1) both, lucky-bob 2.4s ease-in-out 0.7s infinite;
   -webkit-tap-highlight-color: transparent;
 }
-.lucky svg {
+.lucky-clip svg {
   position: relative; z-index: 1;
   width: 100%; height: 100%;
   fill: none; stroke: #F4B400; stroke-width: 2.6; stroke-linecap: round;
@@ -1131,8 +1131,8 @@ table.payoff {
   background: radial-gradient(circle, rgba(255, 233, 138, 0.95), rgba(255, 210, 63, 0.35) 55%, transparent 70%);
   animation: lucky-glow 1.4s ease-in-out infinite;
 }
-.lucky.gone { animation: lucky-out 0.6s ease-in both; }
-.lucky.caught { animation: lucky-caught 0.45s ease-out both; }
+.lucky-clip.gone { animation: lucky-out 0.6s ease-in both; }
+.lucky-clip.caught { animation: lucky-caught 0.45s ease-out both; }
 @keyframes lucky-in { from { opacity: 0; scale: 0.2; rotate: -40deg; } }
 @keyframes lucky-bob { 50% { translate: 0 -10px; } }
 @keyframes lucky-spin { 0%, 100% { rotate: -12deg; } 50% { rotate: 12deg; } }
@@ -1168,19 +1168,140 @@ table.payoff {
 .dust { text-align: right; }
 .dust b::before { content: "\2726 "; color: #F4B400; }
 .trophy-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.trophy {
+.trophy-item {
   display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 12px;
   padding: 8px 12px 8px 8px;
   border: 2px dashed var(--wire); border-radius: 14px;
   color: var(--ink-2);
 }
-.trophy.got { border: 2px solid var(--edge); background: var(--card); color: var(--ink); box-shadow: 0 3px 0 var(--drop); }
+.trophy-item.got { border: 2px solid var(--edge); background: var(--card); color: var(--ink); box-shadow: 0 3px 0 var(--drop); }
 .trophy-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 2px dashed var(--wire); }
 .trophy-icon svg { width: 22px; height: 22px; fill: var(--wire); }
-.trophy.got .trophy-icon { background: #FFD23F; border: 2px solid var(--edge); }
-.trophy.got .trophy-icon svg { fill: #1C2A66; }
+.trophy-item.got .trophy-icon { background: #FFD23F; border: 2px solid var(--edge); }
+.trophy-item.got .trophy-icon svg { fill: #1C2A66; }
 .trophy-text { display: flex; flex-direction: column; min-width: 0; }
 .trophy-text b { line-height: 1.2; }
 .trophy-text span { font-size: 0.8125rem; line-height: 1.3; }
 .trophy-dust { font-size: 0.8125rem; font-weight: 800; white-space: nowrap; }
 .trophy-dust::after { content: " \2726"; color: #F4B400; }
+
+/* ---------- moments (intro, welcome back) ---------- */
+
+.moment-back {
+  position: fixed; inset: 0; z-index: 130;
+  display: grid; place-items: center;
+  padding: 24px 20px;
+  background: rgba(8, 14, 40, 0.5);
+  animation: fade-in 0.25s ease-out both;
+}
+.moment-back.out { animation: fade-out 0.25s ease-in both; }
+.moment {
+  width: 100%; max-width: 380px;
+  padding: 24px 20px 20px;
+  border: 2.5px solid var(--edge); border-radius: 24px;
+  background: var(--paper);
+  box-shadow: 0 6px 0 var(--drop), 0 20px 60px rgba(8, 14, 40, 0.35);
+  text-align: center;
+  animation: moment-in 0.5s cubic-bezier(.2,1.2,.4,1) both;
+}
+.moment-back.out .moment { animation: moment-out 0.25s ease-in both; }
+@keyframes moment-in { from { opacity: 0; transform: translateY(24px) scale(.9); } }
+@keyframes moment-out { to { opacity: 0; transform: scale(.95); } }
+.moment-art { display: grid; place-items: center; margin-bottom: 8px; }
+.moment-clip {
+  width: 64px; height: 64px; padding: 10px;
+  border: 2.5px solid var(--edge); border-radius: 20px;
+  background: var(--hi);
+  fill: none; stroke: #1C2A66; stroke-width: 2.4; stroke-linecap: round;
+  rotate: -12deg;
+  animation: wiggle 2.6s ease-in-out 0.5s infinite;
+}
+@keyframes wiggle { 0%, 70%, 100% { rotate: -12deg; } 80% { rotate: 8deg; } 90% { rotate: -16deg; } }
+.moment-kicker { margin: 0 0 4px; font-weight: 800; color: var(--ink-2); }
+.moment-title { --casl: 1; display: block; margin: 0 0 8px; font-size: 1.75rem; font-weight: 950; line-height: 1.1; }
+.moment-text { margin: 0 0 12px; font-size: 1.0625rem; line-height: 1.45; }
+.moment-list { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 6px; }
+.moment-list li {
+  padding: 8px 12px; border-radius: 12px;
+  background: var(--fill); font-weight: 800;
+}
+.moment-go { margin-top: 6px; }
+
+/* ---------- liftoff ---------- */
+
+.liftoff {
+  position: fixed; inset: 0; z-index: 130; overflow: hidden;
+  background: linear-gradient(#050A24, #13235E 70%, #1E3A8A);
+  animation: fade-in 0.5s ease-out both;
+}
+.liftoff.out { animation: fade-out 0.7s ease-in both; }
+.liftoff .stars {
+  position: absolute; inset: -20% 0 0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 20% 30%, #fff, transparent),
+    radial-gradient(1px 1px at 70% 20%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 40% 70%, #fff, transparent),
+    radial-gradient(1px 1px at 85% 60%, #fff, transparent),
+    radial-gradient(2px 2px at 60% 45%, #FFE141, transparent),
+    radial-gradient(1px 1px at 10% 80%, #fff, transparent);
+  background-size: 180px 180px;
+  animation: stars-fall 4.2s linear both;
+}
+@keyframes stars-fall { to { translate: 0 30%; } }
+.liftoff .planet {
+  position: absolute; left: 50%; bottom: -70vw;
+  width: 140vw; height: 140vw; margin-left: -70vw;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 20%, #9FD1FF, #3B7BD8 45%, #1C2A66 75%);
+  box-shadow: 0 0 60px rgba(159, 209, 255, 0.6);
+  animation: planet-drop 4.2s cubic-bezier(.5,0,.8,.4) both;
+}
+@keyframes planet-drop { to { translate: 0 60%; } }
+.liftoff .rocket {
+  position: absolute; left: 50%; bottom: 22%;
+  width: 56px; margin-left: -28px;
+  animation: rocket-up 4.2s cubic-bezier(.6,0,.4,1) both;
+}
+.liftoff .rocket svg { display: block; width: 56px; height: 56px; fill: none; stroke: #FFE141; stroke-width: 2.4; stroke-linecap: round; }
+.liftoff .flame {
+  display: block; width: 18px; height: 60px; margin: -6px auto 0;
+  border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
+  background: linear-gradient(#FFF6C7, #FFB020 40%, rgba(224, 65, 43, 0));
+  animation: flicker 0.12s ease-in-out infinite alternate;
+  transform-origin: top center;
+}
+@keyframes flicker { to { transform: scaleY(1.25) scaleX(0.85); } }
+@keyframes rocket-up {
+  0% { translate: 0 0; }
+  15% { translate: 0 6px; }
+  100% { translate: 0 -120vh; }
+}
+.liftoff-text {
+  --casl: 1;
+  position: absolute; left: 0; right: 0; top: 30%;
+  margin: 0; text-align: center;
+  color: #FFFFFF; font-size: min(14vw, 72px); font-weight: 950;
+  animation: word-in 0.9s cubic-bezier(.2,.8,.2,1) 1.6s both;
+}
+
+/* ---------- exploring space ---------- */
+
+.explore-bar { margin: 4px 0 14px; }
+.explore-bar .meter { margin-bottom: 4px; }
+.explore-labels { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; color: var(--ink-2); }
+
+/* Make paperclip, once machines have taken over: a small button on the Clips tab. */
+.make-slot { padding-top: 14px; }
+.make-slot[hidden] { display: none; }
+.make.compact {
+  min-height: 52px;
+  border-radius: 16px;
+  background: var(--card); color: var(--ink);
+  border-color: var(--edge);
+  box-shadow: 0 4px 0 var(--drop);
+  font-size: 1.0625rem;
+}
+.make.compact:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--drop); }
+.make.compact:disabled { background: transparent; box-shadow: none; border-color: var(--wire); }
+.make-slot + .sec { border-top: 0; }
+.dock.empty { display: none; }
