@@ -319,7 +319,7 @@
 
   // Highlight the button that fixes whatever is holding the player back.
   var NUDGE_IDS = ['btnBuyWire', 'btnMakeFactory', 'btnMakeFarm', 'btnMakeHarvester', 'btnMakeWireDrone', 'btnMakeBattery',
-                   'btnBatteryReboot', 'btnFarmReboot', 'btnHarvesterReboot', 'btnWireDroneReboot'];
+                   'btnBatteryReboot', 'btnFarmReboot', 'btnHarvesterReboot', 'btnWireDroneReboot', 'btnFactoryReboot'];
   var probeRaise = ['Speed', 'Nav', 'Rep', 'Haz', 'Fac', 'Harv', 'Wire', 'Combat'].map(function (s) { return $('btnRaiseProbe' + s); });
   function isActive(p) { return p.flag != 1 && activeProjects.indexOf(p) >= 0 && p.element; }
 
@@ -344,6 +344,15 @@
         for (var r = 0; r < refunds.length; r++) {
           if (refunds[r][1] >= short) { want[refunds[r][0]] = true; break; }
         }
+      }
+      // Earth is used up and space needs more unused clips than you have:
+      // disassembling machines (not batteries, space needs their power) gives clips back.
+      var earthDone = availableMatter <= 0 && acquiredMatter <= 0 && wire < 1;
+      if (earthDone && isActive(project46) && unusedClips < 5e27) {
+        var bills = [['btnFactoryReboot', factoryBill], ['btnHarvesterReboot', harvesterBill],
+                     ['btnWireDroneReboot', wireDroneBill], ['btnFarmReboot', farmBill]];
+        bills.sort(function (a, b) { return b[1] - a[1]; });
+        if (bills[0][1] > 0) want[bills[0][0]] = true;
       }
     }
     NUDGE_IDS.forEach(function (id) { $(id).classList.toggle('nudge', !!want[id]); });

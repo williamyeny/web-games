@@ -12,6 +12,7 @@
     if (project322.flag == 1) perk.hazard *= 0.5;
     if (project323.flag == 1) perk.drift *= 0.5;
     if (project324.flag == 1) perk.honor *= 1.5;
+    if (project327.flag == 1) perk.yomi *= 2;
   });
 
   // ---------------------------------------------------------------------------

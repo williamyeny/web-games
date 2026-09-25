@@ -2614,9 +2614,9 @@ var project321 = newProject({
 });
 
 var project322 = newProject({
-    id: "projectButton322", title: "Hazard Maps ", yomi: 40000,
+    id: "projectButton322", title: "Hazard Maps ", creat: 50000,
     description: "Chart every dust cloud and black hole. Half as many probes lost to hazards",
-    trigger: function(){ return spaceFlag == 1 && probesLostHaz >= 1000000; },
+    trigger: function(){ return spaceFlag == 1 && probesLostHaz >= 10000; },
     apply: function(){},
     message: "Hazard maps uploaded to every probe. Hazard losses halved"
 });
@@ -2661,4 +2661,37 @@ var project30a = newProject({
     trigger: function(){ return humanFlag == 1 && trust >= 80; },
     apply: function(){ trust = trust + 3; },
     message: "Free paperclips for everyone! People love you. TRUST INCREASED"
+});
+
+// --- Space, early: turn spare creativity and ops into probe progress ----------
+
+function addProbeTrust(n){
+    probeTrust = Math.min(maxTrust, probeTrust + n);
+    document.getElementById("probeTrustDisplay").innerHTML = probeTrust;
+    probeTrustCost = Math.floor(Math.pow(probeTrust+1, 1.47)*500);
+    document.getElementById("probeTrustCostDisplay").innerHTML = formatWithCommas(probeTrustCost);
+}
+
+var project325 = newProject({
+    id: "projectButton325", title: "Probe Tutoring ", creat: 60000,
+    description: "Teach your probes to teach each other (+2 probe trust)",
+    trigger: function(){ return spaceFlag == 1 && probeTrust >= 2; },
+    apply: function(){ addProbeTrust(2); },
+    message: "Probes are tutoring each other. Probe trust +2"
+});
+
+var project326 = newProject({
+    id: "projectButton326", title: "Swarm Scholars ", creat: 150000, ops: 150000,
+    description: "The swarm writes textbooks for probes (+3 probe trust)",
+    trigger: function(){ return spaceFlag == 1 && project325.flag == 1; },
+    apply: function(){ addProbeTrust(3); },
+    message: "Swarm scholars share everything they know. Probe trust +3"
+});
+
+var project327 = newProject({
+    id: "projectButton327", title: "Tournament Analytics ", creat: 120000,
+    description: "Study every game ever played. Tournaments give twice the yomi",
+    trigger: function(){ return spaceFlag == 1 && strategyEngineFlag == 1; },
+    apply: function(){},
+    message: "Tournament analytics online. Twice the yomi from every tournament"
 });

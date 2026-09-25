@@ -2855,9 +2855,9 @@ function updateSwarm(){
 var swarmNeed = 0;
 
 function swarmNeedCost(){
-    if (swarmNeed == 1) return Math.max(1000, Math.round(storedPower * 0.4));
+    if (swarmNeed == 1) return Math.max(1000, Math.round(storedPower * 0.1));
     if (swarmNeed == 2) return Math.max(500, Math.round(creativity * 0.1));
-    if (swarmNeed == 4) return Math.max(1000000, Math.round(unusedClips * 0.05));
+    if (swarmNeed == 4) return Math.max(1000000, Math.round(clipRate * 30));
     return 0;
 }
 

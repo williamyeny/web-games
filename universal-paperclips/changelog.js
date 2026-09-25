@@ -2,6 +2,18 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-space',
+    date: 'September 25',
+    title: 'Space is friendlier',
+    items: [
+      'New space projects turn spare creativity into probe trust: Probe Tutoring and Swarm Scholars.',
+      'Tournament Analytics doubles the yomi you win in space.',
+      'Hazard Maps now arrives early and costs creativity instead of yomi.',
+      'If Earth runs out before you have enough clips for space, the Disassemble button that gives clips back glows yellow.',
+      'Looking after the swarm no longer eats into the clips and power you\u2019re saving for space.'
+    ]
+  },
+  {
     id: '2026-09-25-probes',
     date: 'September 25',
     title: 'Smarter probe design, more goals',
