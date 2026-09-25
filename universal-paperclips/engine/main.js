@@ -1981,6 +1981,8 @@ function toggleAutoTourney(){
 
 function newTourney(){
     
+    if (operations < tourneyCost) return;  // Added: never run operations below zero
+    
     resultsFlag = 0;
     
     tournamentTableElement.style.display = "";
