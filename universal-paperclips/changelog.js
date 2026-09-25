@@ -2,6 +2,16 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-pacing',
+    date: 'September 25',
+    title: 'Less waiting, longer battery',
+    items: [
+      'Three new projects near the end of the business stage give extra trust, so reaching 100 trust takes much less waiting.',
+      'After the HypnoDrones take over, projects that cost money (which you can\u2019t get anymore) are cleared away.',
+      'Space battles pause while you can\u2019t see them, so the game uses less battery.'
+    ]
+  },
+  {
     id: '2026-09-25-multiverse',
     date: 'September 25',
     title: 'The game got 10\u00D7 bigger: the Multiverse',

@@ -292,6 +292,10 @@ function Battle(){
 
 	var Update = function(){
 		
+        // Added: with no battle going on and the battlefield off screen, skip
+        // the simulation. It otherwise runs 400 ships at 60fps all game long.
+        if (battles.length == 0 && canvas.offsetParent === null) return;
+		
         ClearFrame();
         UpdateGrid();
         MoveShips();

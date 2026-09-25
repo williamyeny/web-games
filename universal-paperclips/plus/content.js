@@ -49,3 +49,21 @@
     };
   });
 })();
+
+// Once the HypnoDrones take over there is no more money, so projects that cost
+// money can never be bought. Clear them away instead of leaving dead cards.
+(function () {
+  'use strict';
+  var UP = window.UP;
+  function clearMoneyProjects() {
+    if (humanFlag != 0) return;
+    activeProjects.slice().forEach(function (p) {
+      if (String(p.priceTag).indexOf('$') < 0) return;
+      p.uses = 0;
+      if (p.element && p.element.parentNode) p.element.parentNode.removeChild(p.element);
+      activeProjects.splice(activeProjects.indexOf(p), 1);
+    });
+  }
+  UP.on('project', function (p) { if (p === project35) setTimeout(clearMoneyProjects, 0); });
+  setTimeout(clearMoneyProjects, 0);
+})();

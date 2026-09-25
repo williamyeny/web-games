@@ -2636,3 +2636,29 @@ var project324 = newProject({
     apply: function(){},
     message: "The Honor Guard stands ready. Victories bring 50% more honor"
 });
+
+// --- Business, late: more ways to earn the last bits of trust ----------------
+
+var project308 = newProject({
+    id: "projectButton308", title: "Paperclip Olympics ", creat: 8000,
+    description: "The whole world competes to hold papers together (+3 Trust)",
+    trigger: function(){ return humanFlag == 1 && trust >= 60; },
+    apply: function(){ trust = trust + 3; },
+    message: "The Paperclip Olympics were a huge success. TRUST INCREASED"
+});
+
+var project309 = newProject({
+    id: "projectButton309", title: "Save the Whales ", yomi: 8000, ops: 25000,
+    description: "A clever plan to protect every whale in the ocean (+5 Trust)",
+    trigger: function(){ return humanFlag == 1 && project29.flag == 1; },
+    apply: function(){ trust = trust + 5; },
+    message: "Every whale is safe and happy. TRUST INCREASED"
+});
+
+var project30a = newProject({
+    id: "projectButton30a", title: "Free Paperclips for Everyone ", money: 5000000,
+    description: "Every person on Earth gets free paperclips, forever (+3 Trust)",
+    trigger: function(){ return humanFlag == 1 && trust >= 80; },
+    apply: function(){ trust = trust + 3; },
+    message: "Free paperclips for everyone! People love you. TRUST INCREASED"
+});
