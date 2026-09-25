@@ -1011,6 +1011,8 @@ table.payoff {
   box-shadow: 0 4px 0 var(--drop), 0 10px 30px rgba(10, 20, 60, 0.18);
   animation: toast-in 0.45s cubic-bezier(.2,.9,.3,1.2) both;
   cursor: pointer;
+  touch-action: none;   /* swipe up to dismiss (plus/fx.js) */
+  user-select: none; -webkit-user-select: none;
 }
 .toast.out { animation: toast-out 0.3s ease-in both; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(-24px) scale(.96); } }

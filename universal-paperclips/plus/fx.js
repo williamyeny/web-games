@@ -203,15 +203,68 @@
     toastBox.appendChild(el);
     showing = el;
     var timer = null;
+    var gone = false;
     function close() {
-      if (el.classList.contains('out')) return;
+      if (gone) return;
+      gone = true;
       clearTimeout(timer);
       el.classList.add('out');
+      el.style.animation = '';              // a finger may have paused the slide-in
       setTimeout(function () { el.remove(); next(); }, calm() ? 0 : 300);
     }
-    el.addEventListener('click', function () { close(); if (opts.onTap) opts.onTap(); });
+    function wait(ms) { clearTimeout(timer); timer = setTimeout(close, ms); }
+
+    // Swipe up to send it away (it follows the finger; a short drag springs back).
+    var drag = null;
+    var swiped = false;
+    el.addEventListener('pointerdown', function (e) {
+      if (gone || !e.isPrimary) return;
+      drag = { y: e.clientY, t: Date.now(), dy: 0, id: e.pointerId };
+      swiped = false;
+      clearTimeout(timer);                  // hold still while a finger is on it
+      el.style.animation = 'none';          // let the finger move it, not the slide-in
+      el.style.transition = 'none';
+      try { el.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+    el.addEventListener('pointermove', function (e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      var dy = e.clientY - drag.y;
+      if (Math.abs(dy) > 6) swiped = true;
+      drag.dy = dy;
+      // Up moves freely and fades; down only gives a little.
+      el.style.translate = '0 ' + (dy < 0 ? dy : dy * 0.25) + 'px';
+      el.style.opacity = dy < 0 ? Math.max(0.2, 1 + dy / 140) : 1;
+    });
+    function release(e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      var dy = drag.dy;
+      var fast = dy < -12 && dy / Math.max(1, Date.now() - drag.t) < -0.4;
+      drag = null;
+      if (gone) return;
+      if (swiped && (dy < -30 || fast)) {
+        gone = true;
+        if (calm()) { el.remove(); next(); return; }
+        el.style.transition = 'translate 0.2s ease-in, opacity 0.2s ease-in';
+        el.style.translate = '0 -140%';
+        el.style.opacity = '0';
+        setTimeout(function () { el.remove(); next(); }, 200);
+        return;
+      }
+      el.style.transition = 'translate 0.25s cubic-bezier(.2,1.3,.4,1), opacity 0.2s ease-out';
+      el.style.translate = '0 0';
+      el.style.opacity = '1';
+      wait(2000);
+    }
+    el.addEventListener('pointerup', release);
+    el.addEventListener('pointercancel', function (e) { swiped = true; release(e); });
+
+    el.addEventListener('click', function () {
+      if (swiped) { swiped = false; return; }   // that was a swipe, not a tap
+      close();
+      if (opts.onTap) opts.onTap();
+    });
     // Shorter when others are waiting, so a burst doesn't take forever.
-    timer = setTimeout(close, queue.length ? Math.min(2600, opts.time || 3800) : (opts.time || 3800));
+    wait(queue.length ? Math.min(2600, opts.time || 3800) : (opts.time || 3800));
   }
 
   // ---------------------------------------------------------------------------

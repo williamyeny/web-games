@@ -2,6 +2,15 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-swipe',
+    date: 'September 25',
+    title: 'Swipe away pop-ups',
+    items: [
+      'Swipe a pop-up up to make it go away, just like phone notifications.',
+      'Holding your finger on a pop-up keeps it from disappearing while you read it.'
+    ]
+  },
+  {
     id: '2026-09-25-war',
     date: 'September 25',
     title: 'Win the drifter war (again)',
