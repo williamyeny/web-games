@@ -335,7 +335,7 @@
     if (margin <= 0.01 || unsoldClips < 1) return false;
     // At this price a sale is zero clips: nothing will ever sell.
     if (Math.floor(0.7 * Math.pow(demand, 1.15)) < 1) return true;
-    if (stock.length < 16 || unsoldClips < 300) return false;
+    if (stock.length < 16 || unsoldClips < 200) return false;
     function grew(ago) { var then = stock[stock.length - 1 - ago][1]; return unsoldClips > then * 1.05 + 20; }
     return grew(15) && grew(5);   // piling up for a while, and still piling up now
   }
