@@ -356,6 +356,12 @@
       }
     }
     NUDGE_IDS.forEach(function (id) { $(id).classList.toggle('nudge', !!want[id]); });
+    // The swarm slider starts at "Work", where the swarm never gives gifts (and
+    // gifts are the only way to grow memory now). Glow until it's been moved.
+    var slider = $('swarmSliderDiv');
+    slider.classList.toggle('nudge', swarmFlag == 1 && humanFlag == 0 && sliderPos < 1 &&
+      shown(slider) && harvesterLevel + wireDroneLevel > 1 && dismantle == 0);
+
     // Spare probe trust: light up the one skill that helps most right now.
     var next = spaceFlag == 1 && probeUsedTrust < probeTrust ? nextProbeSkill() : null;
     probeRaise.forEach(function (b) { b.classList.toggle('nudge', !!next && b.id === 'btnRaiseProbe' + next); });
@@ -426,7 +432,7 @@
     var swarmAsks = panels.projects.querySelector('.swarm-act:not([style*="none"]) .btn:enabled');
     if (swarmAsks && shown($('swarmEngine'))) sig.projects.dot = true;
     ORDER.forEach(function (n) {
-      if (panels[n].querySelector('.nudge:enabled')) sig[n].dot = true;
+      if (panels[n].querySelector('.nudge:enabled, .slider-wrap.nudge')) sig[n].dot = true;
     });
     if (shown($('strategyEngine')) && stratPicker.value === '10') sig.strategy.dot = true;
     pendingReveals.forEach(function (el) { sig[el.closest('.panel').dataset.panel].dot = true; });
@@ -772,6 +778,13 @@
   // ---------------------------------------------------------------------------
   // The original shows "NaN" revenue for ~10 seconds after every page load.
   // Phones reload a lot, so show "…" instead until the real number arrives.
+  // With the swarm slider at "Work" the original shows "Next gift in Infinity hours".
+  (function () {
+    var el = $('giftCountdown');
+    function clean() { if (el.textContent.indexOf('Infinity') >= 0 || el.textContent.indexOf('NaN') >= 0) el.textContent = 'never'; }
+    new MutationObserver(clean).observe(el, { childList: true, characterData: true, subtree: true });
+  })();
+
   ['avgRev', 'avgSales'].forEach(function (id) {
     var el = $(id);
     function clean() { if (el.textContent.indexOf('NaN') >= 0) el.textContent = '…'; }

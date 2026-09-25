@@ -2,6 +2,15 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-gifts',
+    date: 'September 25',
+    title: 'Swarm gifts',
+    items: [
+      'If your drone swarm is all work and no play, the Think side of the slider lights up. Slide it over and the swarm sends you gifts.',
+      'The gift timer says “never” instead of a weird word when no gifts are coming.'
+    ]
+  },
+  {
     id: '2026-09-25-tidy',
     date: 'September 25',
     title: 'Tidier pop-ups',

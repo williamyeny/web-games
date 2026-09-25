@@ -1391,3 +1391,12 @@ table.payoff {
 .law-top b { --casl: 1; font-size: 1.125rem; font-weight: 900; }
 .law-bonus { flex: 0 0 auto; font-size: 0.8125rem; font-weight: 800; color: #FFE141; }
 .law-bonus.minus { color: #FF8F7D; }
+
+/* The swarm slider, when moving it toward Think would start the gifts. */
+.slider-wrap.nudge span:last-child {
+  padding: 2px 10px; border-radius: 999px;
+  background: var(--hi); color: var(--on-hi);
+  animation: nudge-hop 0.5s cubic-bezier(.3,1.6,.5,1);
+}
+.slider-wrap.nudge .slider::-webkit-slider-thumb { animation: thumb-glow 1.6s ease-in-out infinite; }
+@keyframes thumb-glow { 50% { box-shadow: 0 3px 0 var(--drop), 0 0 0 8px rgba(255, 225, 65, 0.45); } }
