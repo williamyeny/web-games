@@ -2458,17 +2458,17 @@ projects.push(project219);
 
 function newProject(p) {
     var parts = [];
-    if (p.creat) parts.push(p.creat.toLocaleString() + " creat");
-    if (p.yomi) parts.push(p.yomi.toLocaleString() + " yomi");
-    if (p.ops) parts.push(p.ops.toLocaleString() + " ops");
-    if (p.money) parts.push("$" + p.money.toLocaleString());
+    if (p.creat) parts.push(p.creat.toLocaleString("en-US") + " creat");
+    if (p.yomi) parts.push(p.yomi.toLocaleString("en-US") + " yomi");
+    if (p.ops) parts.push(p.ops.toLocaleString("en-US") + " ops");
+    if (p.money) parts.push("$" + p.money.toLocaleString("en-US"));
     p.priceTag = "(" + parts.join(", ") + ")";
     p.uses = 1;
     p.flag = 0;
     p.element = null;
     p.cost = function(){
         return operations >= (p.ops || 0) && creativity >= (p.creat || 0) &&
-            funds >= (p.money || 0) && yomi >= (p.yomi || 0);
+            funds >= (p.money || 0) && yomi >= (p.yomi || 0) && !(p.why && p.why());
     };
     p.effect = function(){
         p.flag = 1;
@@ -2640,9 +2640,9 @@ var project324 = newProject({
 // --- Business, late: more ways to earn the last bits of trust ----------------
 
 var project308 = newProject({
-    id: "projectButton308", title: "Paperclip Olympics ", creat: 8000,
+    id: "projectButton308", title: "Paperclip Olympics ", creat: 5000,
     description: "The whole world competes to hold papers together (+3 Trust)",
-    trigger: function(){ return humanFlag == 1 && trust >= 60; },
+    trigger: function(){ return humanFlag == 1 && trust >= 30; },
     apply: function(){ trust = trust + 3; },
     message: "The Paperclip Olympics were a huge success. TRUST INCREASED"
 });
@@ -2665,6 +2665,11 @@ var project30a = newProject({
 
 // --- Space, early: turn spare creativity and ops into probe progress ----------
 
+// Probe trust can't pass the max; these projects wait until there's room.
+function probeTrustFull(){
+    return probeTrust >= maxTrust ? { text: "Probe trust is at its max. Raise the max with honor", res: "max trust" } : null;
+}
+
 function addProbeTrust(n){
     probeTrust = Math.min(maxTrust, probeTrust + n);
     document.getElementById("probeTrustDisplay").innerHTML = probeTrust;
@@ -2676,6 +2681,7 @@ var project325 = newProject({
     id: "projectButton325", title: "Probe Tutoring ", creat: 60000,
     description: "Teach your probes to teach each other (+2 probe trust)",
     trigger: function(){ return spaceFlag == 1 && probeTrust >= 2; },
+    why: probeTrustFull,
     apply: function(){ addProbeTrust(2); },
     message: "Probes are tutoring each other. Probe trust +2"
 });
@@ -2684,6 +2690,7 @@ var project326 = newProject({
     id: "projectButton326", title: "Swarm Scholars ", creat: 150000, ops: 150000,
     description: "The swarm writes textbooks for probes (+3 probe trust)",
     trigger: function(){ return spaceFlag == 1 && project325.flag == 1; },
+    why: probeTrustFull,
     apply: function(){ addProbeTrust(3); },
     message: "Swarm scholars share everything they know. Probe trust +3"
 });
@@ -2706,11 +2713,12 @@ var project328 = newProject({
     id: "projectButton328", title: "Probe Seminar ", creat: 80000,
     description: "Another round of classes for your probes (+1 probe trust). You can do this again and again",
     trigger: function(){ return spaceFlag == 1 && project326.flag == 1 && probeTrust < maxTrust; },
+    why: probeTrustFull,
     apply: function(){
         addProbeTrust(1);
         if (window.UP) UP.data.run.seminars = (UP.data.run.seminars || 0) + 1;
         project328.creat = seminarCost();
-        project328.priceTag = "(" + project328.creat.toLocaleString() + " creat)";
+        project328.priceTag = "(" + project328.creat.toLocaleString("en-US") + " creat)";
         project328.uses = project328.uses + 1;
     },
     message: "Seminar complete. Probe trust +1"

@@ -77,9 +77,13 @@
 (function () {
   'use strict';
   project328.creat = seminarCost();
-  project328.priceTag = '(' + project328.creat.toLocaleString() + ' creat)';
-  if (project328.element) {
-    var cost = project328.element.querySelector('.cost');
+  project328.priceTag = '(' + project328.creat.toLocaleString('en-US') + ' creat)';
+  // The card may already be on screen from the save, still showing the old
+  // price as plain text (ui.js dresses it up later) or as a .cost label.
+  var card = project328.element;
+  if (card) {
+    var cost = card.querySelector('.cost');
     if (cost) cost.textContent = project328.priceTag;
+    else if (card.childNodes[1] && card.childNodes[1].nodeType === 3) card.childNodes[1].nodeValue = project328.priceTag;
   }
 })();

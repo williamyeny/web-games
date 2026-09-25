@@ -301,7 +301,8 @@
 
     <div class="row"><span>Operations</span><b><span id="operations">0</span> / <span id="maxOps">1,000</span></b></div>
     <div class="meter"><i id="ui-ops-bar"></i></div>
-    <div id="creativityDiv"><div class="row"><span>Creativity</span><b><span id="creativity">0</span></b></div></div>
+    <div id="creativityDiv"><div class="row"><span>Creativity</span><b><span id="creativity">0</span></b></div>
+      <div class="row sub"><span id="ui-creat-rate"></span></div></div>
 
     <div class="sub-sec" id="swarmEngine">
       <h3>Swarm computing</h3>
@@ -611,6 +612,16 @@
 </div>
 
 <!-- Original engine, loaded in the original order. -->
+<script>
+  // Added: the game is in English, so numbers are written the English way
+  // ("1,500") whatever language the phone uses. Prices get read back from text.
+  (function () {
+    var toLocale = Number.prototype.toLocaleString;
+    Number.prototype.toLocaleString = function (locales, options) {
+      return toLocale.call(this, locales === undefined ? 'en-US' : locales, options);
+    };
+  })();
+</script>
 <script src="engine/combat.js"></script>
 <script src="engine/globals.js"></script>
 <script src="engine/projects.js"></script>

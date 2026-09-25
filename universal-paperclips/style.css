@@ -329,6 +329,7 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
 .row > b { font-weight: 750; }
 .row.big > b { --casl: 1; font-size: 21px; font-weight: 900; }
 .row.sub { padding-top: 0; font-size: 0.875rem; color: var(--ink-2); }
+#creativityDiv .row.sub.growing { color: var(--ink); font-weight: 700; }
 .row.loss > b { color: var(--red); }
 .row.total { margin-top: 4px; border-top: 1.5px dashed var(--wire); padding-top: 8px; }
 

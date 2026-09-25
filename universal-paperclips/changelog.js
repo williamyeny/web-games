@@ -2,6 +2,18 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-creativity',
+    date: 'September 25',
+    title: 'Where did my creativity go?',
+    items: [
+      'Under Creativity, a little line now tells you how fast it’s growing, or why it’s paused. (Secret: creativity only grows while operations are full!)',
+      'The Paperclip Olympics show up sooner, at 30 trust.',
+      'Probe trust projects wait when probe trust is already at its max, instead of wasting your creativity.',
+      'Fixed prices looking wrong on phones set to other languages.',
+      'Tapping pop-ups no longer shows “Need more” bubbles for buttons hiding behind them.'
+    ]
+  },
+  {
     id: '2026-09-25-battles',
     date: 'September 25',
     title: 'Brighter space battles',

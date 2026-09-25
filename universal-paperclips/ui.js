@@ -737,6 +737,7 @@
     batteries: function () { return $('btnMakeBattery'); },
     honor: function () { return $('honorDisplay').closest('.row'); },
     'probe trust': function () { return $('btnIncreaseProbeTrust'); },
+    'max trust': function () { return $('btnIncreaseMaxTrust'); },
     gifts: function () { return $('swarmGiftDiv'); }
   };
   function shortBy(label, short) {
@@ -746,6 +747,9 @@
   // What's missing for a locked button: [{ text, resource }], most blocking first.
   function missingFor(b) {
     var out = [];
+    var proj = window[b.id.replace('projectButton', 'project')];
+    var why = proj && proj.why && proj.why();
+    if (why) out.push(why);
     if (b._costs) {
       b._costs.forEach(function (c) {
         var have = Math.max(0, c.kind.have() || 0);
@@ -772,10 +776,15 @@
     return out;
   }
   function pulse(el) {
-    if (!el || !onScreen(el) || calm()) return;
+    if (!el || calm()) return;
+    var hidden = el.closest('[style*="display: none"], [style*="display:none"], [hidden]');
+    if (hidden && !hidden.classList.contains('panel')) return;   // not unlocked yet
     var panel = el.closest('.panel');
-    if (panel && panel.dataset.panel !== current) el = tabButtons[panel.dataset.panel];
-    else {
+    if (panel && panel.dataset.panel !== current) {
+      el = tabButtons[panel.dataset.panel];                        // it lives on another tab
+      if (!el || el.hidden || !onScreen(el)) return;
+    } else {
+      if (!onScreen(el)) return;
       var r = el.getBoundingClientRect();
       if (r.bottom < 0 || r.top > window.innerHeight - dock.offsetHeight) return;
     }
@@ -819,7 +828,9 @@
     var t = tapAt;
     tapAt = null;
     if (!t || !current || Math.abs(e.clientX - t.x) > 10 || Math.abs(e.clientY - t.y) > 10 || Date.now() - t.t > 700) return;
-    if (e.target.closest && e.target.closest('button:enabled, a, input, select, .moment, .sheet')) return;
+    // Only taps that landed on the page itself (not a pop-up, the menu, or the bars on top).
+    if (!panels[current].contains(e.target) || (window.UP && UP.busy) || document.documentElement.classList.contains('sheet-open')) return;
+    if (e.target.closest && e.target.closest('button:enabled, a, input, select')) return;
     var locked = panels[current].querySelectorAll('.projectButton:disabled, .buy:disabled, .chip-btn:disabled, [id^="btnRaiseProbe"]:disabled');
     for (var i = 0; i < locked.length; i++) {
       var b = locked[i];
@@ -1073,6 +1084,7 @@
   // Everything that just mirrors engine numbers onto the new layout.
   var topEl = $('ui-top');
   var opsBar = $('ui-ops-bar');
+  var creatRate = $('ui-creat-rate');
   var storageBar = $('ui-storage-bar');
   var perfBar = $('ui-perf-bar');
   var chipPlus = document.querySelectorAll('.chip-plus');
@@ -1100,6 +1112,18 @@
     var opsShare = maxOps > 0 ? Math.min(1, Math.max(0, operations / maxOps)) : 0;
     opsBar.style.width = (opsShare * 100).toFixed(1) + '%';
     opsBar.parentNode.classList.toggle('full', opsShare >= 1);
+
+    // Creativity only grows while operations are full, and not at all with a
+    // single processor. The engine never says so; this line does.
+    if (creativityOn) {
+      var speed = (creativitySpeed + creativitySpeed * prestigeS / 10) * perk.creat;
+      var rate = speed > 0 ? 100 / Math.max(1, Math.ceil(400 / speed)) : 0;
+      if (speed > 400) rate = speed / 4;
+      setText(creatRate, !(speed > 0) ? 'Grows once you have 2 or more processors'
+        : operations < maxOps ? 'Paused until operations are full'
+        : '+' + (rate < 10 ? rate.toFixed(1) : UP.fmt(rate)) + ' per second');
+      creatRate.parentNode.classList.toggle('growing', speed > 0 && operations >= maxOps);
+    }
 
     var cap = batteryLevel * batterySize;
     storageBar.style.width = (cap > 0 ? Math.min(1, storedPower / cap) * 100 : 0).toFixed(1) + '%';

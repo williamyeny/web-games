@@ -40,8 +40,8 @@
     button.classList.toggle('compact', !h);
     if (h) dock.insertBefore(button, dock.firstChild);
     else slot.appendChild(button);
-    if (first || UP.calm()) return;
-    button.animate([{ opacity: 0, transform: 'scale(.85)' }, { opacity: 1, transform: 'none' }], { duration: 380, easing: 'cubic-bezier(.2,1.3,.4,1)' });
+    if (first) return;
+    if (!UP.calm()) button.animate([{ opacity: 0, transform: 'scale(.85)' }, { opacity: 1, transform: 'none' }], { duration: 380, easing: 'cubic-bezier(.2,1.3,.4,1)' });
     if (!h && wasHero && !D.run.makeRetired) {
       D.run.makeRetired = true;
       UP.save();
