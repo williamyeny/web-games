@@ -2757,6 +2757,12 @@ function updateSwarm(){
         swarmStatus = 5;
     }
     
+    // Added: the swarm's needs (hungry, confused, cold). The original had the
+    // buttons for these but nothing ever asked for them.
+    if (swarmNeed > 0 && swarmStatus == 0){
+        swarmStatus = swarmNeed;
+    }
+    
     
     if (swarmStatus == 0){
         
@@ -2831,8 +2837,55 @@ function updateSwarm(){
         swarmStatusElement.innerHTML="NO RESPONSE...";
         }  
     
+    if (swarmStatus == 1 || swarmStatus == 2 || swarmStatus == 4){
+        var needCost = swarmNeedCost();
+        document.getElementById("swarmFeedCost").innerHTML = formatWithCommas(needCost);
+        document.getElementById("swarmTeachCost").innerHTML = formatWithCommas(needCost);
+        document.getElementById("swarmCladCost").innerHTML = spellf(needCost);
+        document.getElementById("btnFeedSwarm").disabled = storedPower < needCost;
+        document.getElementById("btnTeachSwarm").disabled = creativity < needCost;
+        document.getElementById("btnCladSwarm").disabled = unusedClips < needCost;
+    }
+    
 
     
+}
+
+// Added: what each of the swarm's needs costs, and how to meet it.
+var swarmNeed = 0;
+
+function swarmNeedCost(){
+    if (swarmNeed == 1) return Math.max(1000, Math.round(storedPower * 0.4));
+    if (swarmNeed == 2) return Math.max(500, Math.round(creativity * 0.1));
+    if (swarmNeed == 4) return Math.max(1000000, Math.round(unusedClips * 0.05));
+    return 0;
+}
+
+function feedSwarm(){
+    var cost = swarmNeedCost();
+    if (swarmNeed == 1 && storedPower >= cost){
+        storedPower = storedPower - cost;
+        swarmNeed = 0;
+        displayMessage("The swarm feasts on sunlight and hums happily");
+    }
+}
+
+function teachSwarm(){
+    var cost = swarmNeedCost();
+    if (swarmNeed == 2 && creativity >= cost){
+        creativity = creativity - cost;
+        swarmNeed = 0;
+        displayMessage("The swarm learned something new and gets back to work");
+    }
+}
+
+function cladSwarm(){
+    var cost = swarmNeedCost();
+    if (swarmNeed == 4 && unusedClips >= cost){
+        unusedClips = unusedClips - cost;
+        swarmNeed = 0;
+        displayMessage("The swarm is warm and cozy in its new paperclip coats");
+    }
 }
 
 function synchSwarm(){
@@ -3997,7 +4050,7 @@ function spawnProbes(){
 
 function exploreUniverse(){ 
     availableMatterDisplayElement.innerHTML = spellf(availableMatter);
-    var xRate = Math.floor(probeCount) * probeXBaseRate * probeSpeed * probeNav * perk.probe;
+    var xRate = Math.floor(probeCount) * probeXBaseRate * probeSpeed * probeNav * perk.probe * perk.explore;
     if (xRate > totalMatter - foundMatter) {xRate = totalMatter - foundMatter;}
         foundMatter = foundMatter + xRate;
         availableMatter = availableMatter + xRate;
@@ -4010,7 +4063,7 @@ function exploreUniverse(){
 
 function encounterHazards(){
     var boost = Math.pow(probeHaz, 1.6);
-    var amount = probeCount * (probeHazBaseRate / ((3*boost)+1));
+    var amount = probeCount * (probeHazBaseRate / ((3*boost)+1)) * perk.hazard;
     if (project129.flag == 1){
         amount = .50 * amount;
         }

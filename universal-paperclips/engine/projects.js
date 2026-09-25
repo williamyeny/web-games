@@ -1563,17 +1563,17 @@ projects.push(project112);
 var project118 = {
     id: "projectButton118",
     title: "AutoTourney ",
-    priceTag: "(50,000 creat)",
+    priceTag: "(10,000 creat)",
     description: "Automatically start a new tournament when the previous one has finished ",
-    trigger: function(){return strategyEngineFlag == 1 && trust >= 90},
+    trigger: function(){return strategyEngineFlag == 1 && project62.flag == 1},
     uses: 1,
-    cost: function(){return creativity>=50000},
+    cost: function(){return creativity>=10000},
     flag: 0,
     element: null,
     effect: function(){
         project118.flag = 1;
         autoTourneyFlag = 1;
-        creativity = creativity-50000;
+        creativity = creativity-10000;
         displayMessage("AutoTourney online.");
         project118.element.parentNode.removeChild(project118.element);
         var index = activeProjects.indexOf(project118);
@@ -2449,3 +2449,190 @@ var project219 = {
 }
 
 projects.push(project219);
+
+
+// =============================================================================
+// Added for the mobile edition. New projects go at the END of this file: saves
+// remember projects by their position in the `projects` list.
+// =============================================================================
+
+function newProject(p) {
+    var parts = [];
+    if (p.creat) parts.push(p.creat.toLocaleString() + " creat");
+    if (p.yomi) parts.push(p.yomi.toLocaleString() + " yomi");
+    if (p.ops) parts.push(p.ops.toLocaleString() + " ops");
+    if (p.money) parts.push("$" + p.money.toLocaleString());
+    p.priceTag = "(" + parts.join(", ") + ")";
+    p.uses = 1;
+    p.flag = 0;
+    p.element = null;
+    p.cost = function(){
+        return operations >= (p.ops || 0) && creativity >= (p.creat || 0) &&
+            funds >= (p.money || 0) && yomi >= (p.yomi || 0);
+    };
+    p.effect = function(){
+        p.flag = 1;
+        if (p.ops) standardOps = standardOps - p.ops;
+        if (p.creat) creativity = creativity - p.creat;
+        if (p.money) funds = funds - p.money;
+        if (p.yomi) {
+            yomi = yomi - p.yomi;
+            document.getElementById("yomiDisplay").innerHTML = formatWithCommas(yomi);
+        }
+        p.apply();
+        displayMessage(p.message);
+        p.element.parentNode.removeChild(p.element);
+        var index = activeProjects.indexOf(p);
+        activeProjects.splice(index, 1);
+    };
+    projects.push(p);
+    return p;
+}
+
+function luckyCaught(){ return window.UP ? UP.data.stats.lucky : 0; }
+
+// --- Business ---------------------------------------------------------------
+
+var project300 = newProject({
+    id: "projectButton300", title: "Lucky Charm ", creat: 100,
+    description: "A paperclip bent into a four-leaf clover. Lucky paperclips show up more often",
+    trigger: function(){ return creativityOn && luckyCaught() >= 1; },
+    apply: function(){},
+    message: "Lucky paperclips will show up more often"
+});
+
+var project301 = newProject({
+    id: "projectButton301", title: "Golden Touch ", creat: 1500,
+    description: "Lucky paperclips give twice as much",
+    trigger: function(){ return project300.flag == 1 && luckyCaught() >= 5; },
+    apply: function(){},
+    message: "Everything you touch turns to gold. Lucky paperclips now give twice as much"
+});
+
+var project302 = newProject({
+    id: "projectButton302", title: "Clippy ", creat: 400,
+    description: "\"It looks like you're trying to hold some papers together. Would you like help?\" (+10% demand)",
+    trigger: function(){ return project13.flag == 1; },
+    apply: function(){ marketingEffectiveness = marketingEffectiveness * 1.1; },
+    message: "Clippy is here to help. Nobody asked, but demand is up 10%"
+});
+
+var project303 = newProject({
+    id: "projectButton303", title: "Night Shift ", ops: 8000,
+    description: "AutoClippers work through the night (+100% AutoClipper performance)",
+    trigger: function(){ return project4.flag == 1 && clipmakerLevel >= 30; },
+    apply: function(){ clipperBoost = clipperBoost + 1; },
+    message: "AutoClippers are working the night shift. Performance doubled"
+});
+
+var project304 = newProject({
+    id: "projectButton304", title: "Viral Video ", creat: 500, ops: 6000,
+    description: "A paperclip unboxing video that everyone shares. Marketing twice as effective",
+    trigger: function(){ return project11.flag == 1; },
+    apply: function(){ marketingEffectiveness = marketingEffectiveness * 2; },
+    message: "Your unboxing video went viral! Marketing is twice as effective"
+});
+
+var project305 = newProject({
+    id: "projectButton305", title: "Bulk Wire Contract ", money: 2000,
+    description: "Buy wire by the truckload. Wire costs 20% less",
+    trigger: function(){ return humanFlag == 1 && wirePurchase >= 40; },
+    apply: function(){ wireBasePrice = wireBasePrice * 0.8; },
+    message: "Bulk wire contract signed. Wire is 20% cheaper"
+});
+
+var project306 = newProject({
+    id: "projectButton306", title: "Paperclip Museum ", creat: 2000, money: 250000,
+    description: "A museum celebrating the humble paperclip (+50% demand, +1 Trust)",
+    trigger: function(){ return humanFlag == 1 && clips >= 25000000; },
+    apply: function(){ demandBoost = demandBoost * 1.5; trust = trust + 1; },
+    message: "The Paperclip Museum opens to huge crowds. Demand up 50%, TRUST INCREASED"
+});
+
+var project307 = newProject({
+    id: "projectButton307", title: "Loyalty Program ", ops: 12000,
+    description: "Collect 10 paperclips, get the 11th free (+30% demand)",
+    trigger: function(){ return humanFlag == 1 && project37.flag == 1; },
+    apply: function(){ demandBoost = demandBoost * 1.3; },
+    message: "Loyalty program launched. Demand up 30%"
+});
+
+// --- Earth ------------------------------------------------------------------
+
+var project310 = newProject({
+    id: "projectButton310", title: "Solar Sails ", ops: 60000,
+    description: "Catch more sunlight with shiny paperclip sails (+50% solar farm output)",
+    trigger: function(){ return humanFlag == 0 && spaceFlag == 0 && farmLevel >= 10; },
+    apply: function(){ farmRate = farmRate * 1.5; },
+    message: "Solar sails unfurled. Solar farms make 50% more power"
+});
+
+var project311 = newProject({
+    id: "projectButton311", title: "Battery Chemistry ", ops: 70000,
+    description: "Better batteries hold twice the power",
+    trigger: function(){ return humanFlag == 0 && spaceFlag == 0 && batteryLevel >= 10; },
+    apply: function(){ batterySize = batterySize * 2; },
+    message: "Battery towers now store twice as much power"
+});
+
+var project312 = newProject({
+    id: "projectButton312", title: "Swarm Choir ", creat: 30000,
+    description: "Teach the swarm to sing together. Swarm gifts come 25% sooner",
+    trigger: function(){ return swarmFlag == 1 && project126.flag == 1; },
+    apply: function(){ giftPeriod = giftPeriod * 0.75; },
+    message: "The swarm sings in harmony. Gifts will come sooner"
+});
+
+var project313 = newProject({
+    id: "projectButton313", title: "Deep Core Drilling ", ops: 90000,
+    description: "There is more matter deep inside the Earth (+50% of Earth's matter)",
+    trigger: function(){ return humanFlag == 0 && spaceFlag == 0 && project41.flag == 1 && availableMatter < 1.5e27; },
+    apply: function(){
+        availableMatter = availableMatter + 3e27;
+        foundMatter = foundMatter + 3e27;
+        totalMatter = totalMatter + 3e27;
+    },
+    message: "Drilling into the Earth's core. So much more matter to turn into paperclips"
+});
+
+// --- Space ------------------------------------------------------------------
+
+var project320 = newProject({
+    id: "projectButton320", title: "Warp Bubbles ", ops: 180000, yomi: 20000,
+    description: "Bend space to travel faster. Probes explore twice as fast",
+    trigger: function(){ return spaceFlag == 1 && probeCount >= 1000000; },
+    apply: function(){},
+    message: "Warp bubbles online. Exploration speed doubled"
+});
+
+var project321 = newProject({
+    id: "projectButton321", title: "Stellar Forges ", ops: 200000,
+    description: "Factories powered by stars (+900% factory performance)",
+    trigger: function(){ return spaceFlag == 1 && factoryLevel >= 1000000; },
+    apply: function(){ factoryRate = factoryRate * 10; },
+    message: "Stellar forges ignite. Factories are 10 times faster"
+});
+
+var project322 = newProject({
+    id: "projectButton322", title: "Hazard Maps ", yomi: 40000,
+    description: "Chart every dust cloud and black hole. Half as many probes lost to hazards",
+    trigger: function(){ return spaceFlag == 1 && probesLostHaz >= 1000000; },
+    apply: function(){},
+    message: "Hazard maps uploaded to every probe. Hazard losses halved"
+});
+
+var project323 = newProject({
+    id: "projectButton323", title: "Drifter Diplomacy ", creat: 300000,
+    description: "Talk to probes before they drift away. Value drift halved",
+    trigger: function(){ return spaceFlag == 1 && drifterCount >= 1000000000; },
+    apply: function(){},
+    message: "Diplomats dispatched. Half as many probes will drift"
+});
+
+var project324 = newProject({
+    id: "projectButton324", title: "Honor Guard ", yomi: 60000,
+    description: "An elite escort for every battle (+50% honor from victories)",
+    trigger: function(){ return project121.flag == 1 && honor >= 1000; },
+    apply: function(){},
+    message: "The Honor Guard stands ready. Victories bring 50% more honor"
+});

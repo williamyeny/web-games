@@ -1,0 +1,48 @@
+// Mobile edition additions: effects of the new projects, and the swarm's needs.
+(function () {
+  'use strict';
+  var UP = window.UP;
+  var D = UP.data;
+
+  // New projects whose effects aren't stored in the engine's own save.
+  UP.perkSource(function (perk) {
+    if (project300.flag == 1) perk.lucky *= 1.5;
+    if (project301.flag == 1) perk.luckyReward *= 2;
+    if (project320.flag == 1) perk.explore *= 2;
+    if (project322.flag == 1) perk.hazard *= 0.5;
+    if (project323.flag == 1) perk.drift *= 0.5;
+    if (project324.flag == 1) perk.honor *= 1.5;
+  });
+
+  // ---------------------------------------------------------------------------
+  // Every so often the swarm needs something: sunlight (hungry), a lesson
+  // (confused) or paperclip coats (cold). Its gifts pause until it gets it.
+  function schedule() { D.run.needAt = D.run.playSeconds + Math.round(UP.rand(360, 720)); }
+  if (!D.run.needAt) schedule();
+
+  var WORDS = { 1: 'hungry', 2: 'confused', 4: 'cold' };
+  UP.on('second', function () {
+    if (swarmNeed || swarmFlag != 1 || dismantle > 0 || swarmStatus != 0) return;
+    if (harvesterLevel + wireDroneLevel < 50 || D.run.playSeconds < D.run.needAt) return;
+    var options = [];
+    if (spaceFlag == 0 && batteryLevel > 0 && storedPower > 1000) options.push(1);
+    if (creativityOn) options.push(2);
+    if (unusedClips > 1e6) options.push(4);
+    schedule();
+    if (!options.length) return;
+    swarmNeed = options[Math.floor(Math.random() * options.length)];
+    displayMessage('The swarm is ' + WORDS[swarmNeed] + '. Its gifts are paused until it gets what it needs');
+    UP.sound('unlock');
+  });
+
+  // Count every time the swarm is looked after (for a trophy).
+  ['feedSwarm', 'teachSwarm', 'cladSwarm', 'entertainSwarm', 'synchSwarm'].forEach(function (name) {
+    var fn = window[name];
+    window[name] = function () {
+      var before = swarmNeed + ',' + boredomFlag + ',' + disorgFlag;
+      var r = fn.apply(this, arguments);
+      if (swarmNeed + ',' + boredomFlag + ',' + disorgFlag !== before) D.stats.swarmCare = (D.stats.swarmCare || 0) + 1;
+      return r;
+    };
+  });
+})();

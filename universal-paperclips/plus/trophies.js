@@ -57,6 +57,7 @@
     ['drones-100', 'earth', 'Swarm', 'Command 100 drones.', 2, function () { return harvesterLevel + wireDroneLevel >= 100; }],
     ['drones-10k', 'earth', 'Hive', 'Command 10,000 drones.', 3, function () { return harvesterLevel + wireDroneLevel >= 10000; }],
     ['gift', 'earth', 'Gift from the swarm', 'Receive a gift from the swarm.', 2, function () { return !!flags.gift; }],
+    ['caretaker', 'earth', 'Caretaker', 'Give the swarm what it needs 3 times.', 2, function () { return (D.stats.swarmCare || 0) >= 3; }],
     ['momentum', 'earth', 'Momentum', 'Run your machines at 200% or more.', 3, function () { return humanFlag == 0 && powMod >= 2; }],
     ['earth', 'earth', 'Nothing left', 'Turn all of Earth into paperclips.', 5, function () { return humanFlag == 0 && (availableMatter <= 0 || spaceFlag == 1) && (project46.flag == 1 || activeProjects.indexOf(project46) >= 0); }],
     // Space
@@ -71,6 +72,8 @@
     ['lucky-1', 'more', 'Lucky find', 'Catch a lucky paperclip.', 1, function () { return D.stats.lucky >= 1; }],
     ['lucky-25', 'more', 'Four-leaf clip', 'Catch 25 lucky paperclips.', 3, function () { return D.stats.lucky >= 25; }],
     ['lucky-100', 'more', 'Horseshoe', 'Catch 100 lucky paperclips.', 5, function () { return D.stats.lucky >= 100; }],
+    ['clippy', 'more', 'It looks like you\u2019re collecting trophies', 'Hire Clippy.', 1, function () { return project302.flag == 1; }, true],
+    ['charm', 'more', 'Charmed', 'Get the Lucky Charm.', 1, function () { return project300.flag == 1; }],
     ['haggler', 'more', 'Haggler', 'Change your price 100 times in one universe.', 1, function () { return D.run.priceChanges >= 100; }, true],
     ['chatty', 'more', 'Nosy', 'Open the message log 10 times.', 1, function () { return consoleTaps >= 10; }, true],
     ['hour', 'more', 'Seasoned', 'Play for 2 hours in total.', 2, function () { return D.stats.playSeconds >= 7200; }],

@@ -622,6 +622,8 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
 
 .swarm-act { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 10px; }
 .swarm-act > span { font-size: 0.875rem; color: var(--ink-2); }
+/* The swarm asking for something is a "do this now". */
+.swarm-act .btn:not(:disabled) { background: var(--hi); color: var(--on-hi); }
 
 /* Quantum computing */
 .qchips { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin: 6px 0 14px; }

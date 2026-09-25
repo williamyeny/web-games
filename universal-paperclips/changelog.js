@@ -2,6 +2,17 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-content',
+    date: 'September 25',
+    title: '16 new projects and a needy swarm',
+    items: [
+      'New projects in every stage: Lucky Charm, Golden Touch, Clippy, Night Shift, Viral Video, a Paperclip Museum, Deep Core Drilling, Warp Bubbles, Stellar Forges and more.',
+      'The swarm now sometimes gets hungry, confused or cold. Look after it and its gifts keep coming.',
+      'AutoTourney arrives much earlier, so you spend less time tapping Run.',
+      'New trophies to go with them, including a secret one.'
+    ]
+  },
+  {
     id: '2026-09-25-moments',
     date: 'September 25',
     title: 'Welcome back gifts and big moments',

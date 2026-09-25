@@ -299,11 +299,11 @@
       <div class="row"><span>Drones</span><b><span id="swarmSize">0</span></b></div>
       <div id="swarmStatusDiv"><div class="row"><span>Status</span><b><span id="swarmStatus"></span></b></div></div>
       <div id="giftTimer"><div class="row sub"><span>Next gift in <span id="giftCountdown"></span></span></div></div>
-      <!-- Feed/Teach/Clad statuses never occur in the original engine; kept for completeness. -->
-      <div id="feedButtonDiv" class="swarm-act"><button class="btn" id="btnFeedSwarm" onclick="feedSwarm()">Feed the swarm</button><span>Cost <span id="swarmFeedCost">0</span> MW</span></div>
-      <div id="teachButtonDiv" class="swarm-act"><button class="btn" id="btnTeachSwarm" onclick="teachSwarm()">Teach the swarm</button><span>Cost <span>0</span> MW</span></div>
+      <!-- Sometimes the swarm needs something; gifts pause until it gets it. -->
+      <div id="feedButtonDiv" class="swarm-act"><button class="btn" id="btnFeedSwarm" onclick="feedSwarm()">Feed the swarm</button><span>Cost <span id="swarmFeedCost">0</span> MW-s of stored power</span></div>
+      <div id="teachButtonDiv" class="swarm-act"><button class="btn" id="btnTeachSwarm" onclick="teachSwarm()">Teach the swarm</button><span>Cost <span id="swarmTeachCost">0</span> creativity</span></div>
       <div id="entertainButtonDiv" class="swarm-act"><button class="btn" id="btnEntertainSwarm" onclick="entertainSwarm()">Entertain the swarm</button><span>Cost <span id="swarmEntertainCost">0</span> creat</span></div>
-      <div id="cladButtonDiv" class="swarm-act"><button class="btn" id="btnCladSwarm" onclick="cladSwarm()">Clad the swarm</button><span>Cost <span>0</span> MW</span></div>
+      <div id="cladButtonDiv" class="swarm-act"><button class="btn" id="btnCladSwarm" onclick="cladSwarm()">Clad the swarm</button><span>Cost <span id="swarmCladCost">0</span> clips</span></div>
       <div id="synchButtonDiv" class="swarm-act"><button class="btn" id="btnSynchSwarm" onclick="synchSwarm()">Synchronize the swarm</button><span>Cost 5,000 yomi</span></div>
     </div>
 
@@ -611,6 +611,7 @@
 <script src="plus/fx.js"></script>
 <script src="plus/menu.js"></script>
 <script src="plus/lucky.js"></script>
+<script src="plus/content.js"></script>
 <script src="plus/trophies.js"></script>
 <script src="plus/moments.js"></script>
 <script src="plus/dock.js"></script>

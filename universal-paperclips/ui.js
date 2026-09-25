@@ -363,7 +363,7 @@
     projectCards().forEach(function (b) { seenProjects[b.id] = true; });
   }
 
-  var ACTIONS = '.projectButton:enabled, .chip-btn:enabled, .buy:enabled, .nudge:enabled, .multi .btn:enabled, #btnRunTournament:enabled';
+  var ACTIONS = '.projectButton:enabled, .chip-btn:enabled, .buy:enabled, .nudge:enabled, .multi .btn:enabled, #btnRunTournament:enabled, .swarm-act .btn:enabled';
   function hasAction(panel) {
     var els = panel.querySelectorAll(ACTIONS);
     for (var i = 0; i < els.length; i++) {
@@ -389,6 +389,9 @@
       if (!seenProjects[b.id]) sig.projects.dot = true;
     });
     if (shown($('processorDisplay')) && !$('btnAddProc').disabled) sig.projects.count++;
+    // The swarm asking for something counts as something to do.
+    var swarmAsks = panels.projects.querySelector('.swarm-act:not([style*="none"]) .btn:enabled');
+    if (swarmAsks && shown($('swarmEngine'))) sig.projects.dot = true;
     ORDER.forEach(function (n) {
       if (panels[n].querySelector('.nudge:enabled')) sig[n].dot = true;
     });
@@ -587,7 +590,7 @@
     'revPerSecDiv', 'wireBuyerDiv', 'autoClipperDiv', 'megaClipperDiv', 'factoryDiv', 'tothDiv',
     'harvesterDiv', 'wireDroneDiv', 'factoryDivSpace', 'droneDivSpace', 'factoryUpgradeDisplay', 'mdpsDiv',
     'trustDiv', 'swarmGiftDiv', 'processorDisplay', 'swarmEngine', 'swarmSliderDiv', 'qComputing',
-    'entertainButtonDiv', 'synchButtonDiv', 'autoTourneyControl', 'drifterDiv', 'combatButtonDiv',
+    'entertainButtonDiv', 'synchButtonDiv', 'feedButtonDiv', 'teachButtonDiv', 'cladButtonDiv', 'autoTourneyControl', 'drifterDiv', 'combatButtonDiv',
     'hazardBodyCount', 'driftBodyCount', 'combatBodyCount', 'prestigeDiv', 'clipsPerSecDiv', 'wireTransDiv'
   ];
   var wasShown = {};
