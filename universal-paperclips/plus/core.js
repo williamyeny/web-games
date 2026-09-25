@@ -8,7 +8,7 @@
   var KEY = 'up-plus';
 
   function freshRun() {
-    return { playSeconds: 0, handClips: 0, lucky: 0, projects: 0, priceChanges: 0, startedAt: Date.now() };
+    return { playSeconds: 0, handClips: 0, lucky: 0, projects: 0, priceChanges: 0, startedAt: Date.now(), fromStart: true };
   }
   var DEFAULTS = {
     v: 1,
@@ -45,6 +45,8 @@
   try { stored = JSON.parse(localStorage.getItem(KEY)); } catch (e) { stored = null; }
   UP.data = merge(DEFAULTS, stored);
   UP.isNewPlayer = !stored && localStorage.getItem('saveGame') === null;
+  // A game that was already going before these additions: its timers didn't start at zero.
+  if (!stored && !UP.isNewPlayer) UP.data.run.fromStart = false;
   UP.freshRun = freshRun;
 
   UP.save = function () {

@@ -2,6 +2,17 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-lucky',
+    date: 'September 25',
+    title: 'Lucky paperclips and trophies',
+    items: [
+      'Every few minutes a golden lucky paperclip floats by. Tap it quick for a surprise bonus!',
+      'Bonuses include money, free wire, a shopping frenzy, clip storms, brainwaves, swarm gifts and more.',
+      '53 trophies to collect, from your very first paperclip to the edge of the universe. Some are secret.',
+      'Each trophy gives Stardust. What is Stardust for? You\u2019ll find out much later\u2026'
+    ]
+  },
+  {
     id: '2026-09-25-sounds',
     date: 'September 25',
     title: 'Sounds, buzzes and a menu',
