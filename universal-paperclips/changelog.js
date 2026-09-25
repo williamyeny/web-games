@@ -4,8 +4,9 @@ window.CHANGELOG = [
   {
     id: '2026-09-25-gifts',
     date: 'September 25',
-    title: 'Swarm gifts',
+    title: 'Helpful glows',
     items: [
+      'If your price is so high that clips stop selling, the − price button lights up.',
       'If your drone swarm is all work and no play, the Think side of the slider lights up. Slide it over and the swarm sends you gifts.',
       'The gift timer says “never” instead of a weird word when no gifts are coming.'
     ]

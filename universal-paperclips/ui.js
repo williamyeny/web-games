@@ -319,14 +319,32 @@
 
   // Highlight the button that fixes whatever is holding the player back.
   var NUDGE_IDS = ['btnBuyWire', 'btnMakeFactory', 'btnMakeFarm', 'btnMakeHarvester', 'btnMakeWireDrone', 'btnMakeBattery',
-                   'btnBatteryReboot', 'btnFarmReboot', 'btnHarvesterReboot', 'btnWireDroneReboot', 'btnFactoryReboot'];
+                   'btnBatteryReboot', 'btnFarmReboot', 'btnHarvesterReboot', 'btnWireDroneReboot', 'btnFactoryReboot',
+                   'btnLowerPrice'];
   var probeRaise = ['Speed', 'Nav', 'Rep', 'Haz', 'Fac', 'Harv', 'Wire', 'Combat'].map(function (s) { return $('btnRaiseProbe' + s); });
   function isActive(p) { return p.flag != 1 && activeProjects.indexOf(p) >= 0 && p.element; }
+
+  // Unsold clips, sampled about once a second, to tell if they're piling up.
+  var stock = [];
+  function priceTooHigh() {
+    var now = Date.now();
+    if (!stock.length || now - stock[stock.length - 1][0] >= 1000) {
+      stock.push([now, unsoldClips]);
+      if (stock.length > 16) stock.shift();
+    }
+    if (margin <= 0.01 || unsoldClips < 1) return false;
+    // At this price a sale is zero clips: nothing will ever sell.
+    if (Math.floor(0.7 * Math.pow(demand, 1.15)) < 1) return true;
+    if (stock.length < 16 || unsoldClips < 300) return false;
+    function grew(ago) { var then = stock[stock.length - 1 - ago][1]; return unsoldClips > then * 1.05 + 20; }
+    return grew(15) && grew(5);   // piling up for a while, and still piling up now
+  }
 
   function updateNudges() {
     var want = {};
     if (humanFlag == 1) {
       if (wire < 1) want.btnBuyWire = true;                                    // can't make clips
+      if (priceTooHigh()) want.btnLowerPrice = true;                           // clips aren't selling
     } else if (spaceFlag == 0) {
       if (shown($('factoryDiv')) && factoryLevel < 1) want.btnMakeFactory = true; // the only way to make clips now
       if (factoryLevel + harvesterLevel + wireDroneLevel > 0 && powMod < 1) want.btnMakeFarm = true; // machines underpowered
