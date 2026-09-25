@@ -735,7 +735,9 @@
     memory: function () { return $('btnAddMem'); },
     'stored power': function () { return $('storedPower').closest('.row'); },
     batteries: function () { return $('btnMakeBattery'); },
-    honor: function () { return $('honorDisplay').closest('.row'); }
+    honor: function () { return $('honorDisplay').closest('.row'); },
+    'probe trust': function () { return $('btnIncreaseProbeTrust'); },
+    gifts: function () { return $('swarmGiftDiv'); }
   };
   function shortBy(label, short) {
     if (label === 'money' || label === '$') return 'Need ' + UP.money(short) + ' more';
@@ -756,6 +758,10 @@
           out.push({ text: shortBy(c.kind.label, c.need - have), res: c.kind.label });
         }
       });
+    } else if (/^btnRaiseProbe/.test(b.id)) {
+      if (probeTrust - probeUsedTrust < 1) out.push({ text: 'Needs more probe trust', res: 'probe trust' });
+    } else if (b.id === 'btnAddProc' || b.id === 'btnAddMem') {
+      out.push(humanFlag == 1 ? { text: 'Needs more trust', res: 'trust' } : { text: 'Needs a swarm gift', res: 'gifts' });
     } else if (BUY_COST[b.id]) {
       var hn = BUY_COST[b.id]();
       if (hn[0] < hn[1]) {
@@ -814,7 +820,7 @@
     tapAt = null;
     if (!t || !current || Math.abs(e.clientX - t.x) > 10 || Math.abs(e.clientY - t.y) > 10 || Date.now() - t.t > 700) return;
     if (e.target.closest && e.target.closest('button:enabled, a, input, select, .moment, .sheet')) return;
-    var locked = panels[current].querySelectorAll('.projectButton:disabled, .buy:disabled');
+    var locked = panels[current].querySelectorAll('.projectButton:disabled, .buy:disabled, .chip-btn:disabled, [id^="btnRaiseProbe"]:disabled');
     for (var i = 0; i < locked.length; i++) {
       var b = locked[i];
       if (b.closest('.leaving') || !onScreen(b)) continue;

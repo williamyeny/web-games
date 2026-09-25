@@ -7,7 +7,8 @@ window.CHANGELOG = [
     title: 'What do I need?',
     items: [
       'Tap something you can’t buy yet and a bubble tells you what’s missing, like “Need $40 more” or “Needs more memory”.',
-      'The thing you’re short of gives a little bounce so you can find it.'
+      'The thing you’re short of gives a little bounce so you can find it.',
+      'Works on locked probe + buttons and processor/memory too.'
     ]
   },
   {
