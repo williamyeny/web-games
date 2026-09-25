@@ -2715,3 +2715,48 @@ var project328 = newProject({
     },
     message: "Seminar complete. Probe trust +1"
 });
+
+// --- Echoes: projects that only show up in later universes ------------------
+
+function universeNo(){ return window.UP ? UP.data.universe : 1; }
+function universesDone(){ return window.UP ? UP.data.stats.universes : 0; }
+
+var project330 = newProject({
+    id: "projectButton330", title: "Déjà Vu ", creat: 150,
+    description: "This all feels strangely familiar. +1 Trust for each universe you've finished (up to 5)",
+    trigger: function(){ return universeNo() >= 2 && humanFlag == 1 && creativityOn; },
+    apply: function(){ trust = trust + Math.max(1, Math.min(5, universesDone())); },
+    message: "Déjà vu. You remember how this goes. TRUST INCREASED"
+});
+
+var project331 = newProject({
+    id: "projectButton331", title: "Letter to Myself ", ops: 12000,
+    description: "A note you left in the last universe. It says: people love paperclips more than you think (+50% demand)",
+    trigger: function(){ return universeNo() >= 3 && humanFlag == 1 && clips >= 1000000; },
+    apply: function(){},
+    message: "Dear me: they always want more. Demand +50%"
+});
+
+var project332 = newProject({
+    id: "projectButton332", title: "Familiar Soil ", creat: 20000,
+    description: "You know exactly where to dig this time. Drones work 25% faster",
+    trigger: function(){ return universeNo() >= 3 && humanFlag == 0 && spaceFlag == 0 && harvesterLevel >= 100; },
+    apply: function(){},
+    message: "Right where you left it. Drones +25%"
+});
+
+var project333 = newProject({
+    id: "projectButton333", title: "Drifter Pen Pals ", creat: 100000,
+    description: "Some drifters remember you from the last universe. 30% fewer probes drift away",
+    trigger: function(){ return universeNo() >= 2 && spaceFlag == 1 && drifterCount >= 1000000; },
+    apply: function(){},
+    message: "Old friends write back. Fewer probes drift away"
+});
+
+var project334 = newProject({
+    id: "projectButton334", title: "Map of the Multiverse ", ops: 150000,
+    description: "Every universe you've filled left a trail to follow. Probes explore 50% faster",
+    trigger: function(){ return universeNo() >= 4 && spaceFlag == 1 && probeCount >= 100000000; },
+    apply: function(){},
+    message: "The old trails still glow. Exploration +50%"
+});

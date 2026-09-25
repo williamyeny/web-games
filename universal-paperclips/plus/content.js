@@ -13,6 +13,10 @@
     if (project323.flag == 1) perk.drift *= 0.5;
     if (project324.flag == 1) perk.honor *= 1.5;
     if (project327.flag == 1) perk.yomi *= 2;
+    if (project331.flag == 1) perk.demand *= 1.5;
+    if (project332.flag == 1) perk.drone *= 1.25;
+    if (project333.flag == 1) perk.drift *= 0.7;
+    if (project334.flag == 1) perk.explore *= 1.5;
   });
 
   // ---------------------------------------------------------------------------

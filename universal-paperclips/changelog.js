@@ -2,6 +2,15 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-echoes',
+    date: 'September 25',
+    title: 'Echoes of old universes',
+    items: [
+      'Five new projects that only show up after you’ve finished a universe, like Déjà Vu and Letter to Myself.',
+      'The more universes you finish, the more of them you’ll find.'
+    ]
+  },
+  {
     id: '2026-09-25-facts',
     date: 'September 25',
     title: 'Did you know?',
