@@ -71,6 +71,22 @@
   }
   UP.on('project', function (p) { if (p === project35) setTimeout(clearMoneyProjects, 0); });
   setTimeout(clearMoneyProjects, 0);
+
+  // Same once the whole universe is paperclips: probe, battle and space
+  // projects can't do anything anymore, and some (like Probe Seminar) would
+  // quietly eat the creativity that one of the endings needs.
+  function number(p) { var m = /^projectButton(\d+)/.exec(p.id); return m ? +m[1] : -1; }
+  function clearSpaceProjects() {
+    if (milestoneFlag < 15) return;
+    activeProjects.slice().forEach(function (p) {
+      var n = number(p);
+      if (!((n >= 100 && n < 140) || (n >= 300 && n < 400))) return;
+      p.uses = 0;
+      if (p.element && p.element.parentNode) p.element.parentNode.removeChild(p.element);
+      activeProjects.splice(activeProjects.indexOf(p), 1);
+    });
+  }
+  UP.on('second', clearSpaceProjects);
 })();
 
 // Probe Seminar's price depends on how many were bought this universe.
