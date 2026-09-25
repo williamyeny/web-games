@@ -655,7 +655,8 @@
     'harvesterDiv', 'wireDroneDiv', 'factoryDivSpace', 'droneDivSpace', 'factoryUpgradeDisplay', 'mdpsDiv',
     'trustDiv', 'swarmGiftDiv', 'processorDisplay', 'swarmEngine', 'swarmSliderDiv', 'qComputing',
     'entertainButtonDiv', 'synchButtonDiv', 'feedButtonDiv', 'teachButtonDiv', 'cladButtonDiv', 'autoTourneyControl', 'drifterDiv', 'combatButtonDiv',
-    'hazardBodyCount', 'driftBodyCount', 'combatBodyCount', 'prestigeDiv', 'clipsPerSecDiv', 'wireTransDiv'
+    'hazardBodyCount', 'driftBodyCount', 'combatBodyCount', 'prestigeDiv', 'clipsPerSecDiv', 'wireTransDiv',
+    'ui-earthDiv'
   ];
   var wasShown = {};
   var revealsReady = false;

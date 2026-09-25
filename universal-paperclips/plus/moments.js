@@ -179,4 +179,24 @@
       fill.style.width = (p * 100).toFixed(2) + '%';
     });
   }
+
+  // Earth, while the drones take it apart: also a log scale, from a million
+  // clips to every gram of the planet, so it moves the whole time.
+  var earthDiv = document.getElementById('ui-earthDiv');
+  var earthMeter = document.getElementById('ui-earth-meter');
+  if (earthDiv && earthMeter) {
+    var EARTH = Math.log10(6e27);
+    var paintEarth = function () {
+      var on = humanFlag == 0 && spaceFlag == 0;
+      var display = on ? '' : 'none';
+      if (earthDiv.style.display !== display) earthDiv.style.display = display;
+      if (!on) return;
+      var used = availableMatter <= 0 && acquiredMatter <= 0;
+      var p = used ? 1 : Math.min(0.99, Math.max(0, (Math.log10(Math.max(clips, 1)) - 6) / (EARTH - 6)));
+      earthMeter.firstChild.style.width = (p * 100).toFixed(2) + '%';
+      earthMeter.classList.toggle('full', used);
+    };
+    paintEarth();
+    UP.on('second', paintEarth);
+  }
 })();

@@ -1290,6 +1290,7 @@ table.payoff {
 
 .explore-bar { margin: 4px 0 14px; }
 .explore-bar .meter { margin-bottom: 4px; }
+#ui-earthDiv .explore-bar { margin-bottom: 0; }
 .explore-labels { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; color: var(--ink-2); }
 
 /* Make paperclip, once machines have taken over: a small button on the Clips tab. */
