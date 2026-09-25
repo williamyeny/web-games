@@ -2,6 +2,16 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-tidy',
+    date: 'September 25',
+    title: 'Tidier pop-ups',
+    items: [
+      'Pop-ups now show one at a time instead of piling up.',
+      'Special cards like Welcome back wait their turn too.',
+      'The menu tabs fit on small screens.'
+    ]
+  },
+  {
     id: '2026-09-25-offline',
     date: 'September 25',
     title: 'Play without internet',

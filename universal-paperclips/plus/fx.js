@@ -169,7 +169,17 @@
   toastBox.setAttribute('aria-live', 'polite');
   document.body.appendChild(toastBox);
 
+  // One toast at a time: each gets its moment, and they never pile up over the game.
+  var queue = [];
+  var showing = null;
   UP.toast = function (opts) {
+    queue.push(opts);
+    if (queue.length > 6) queue.splice(0, queue.length - 6);
+    if (!showing) next();
+  };
+  function next() {
+    var opts = queue.shift();
+    if (!opts) { showing = null; return; }
     var el = document.createElement('div');
     el.className = 'toast ' + (opts.kind || '');
     if (opts.icon) {
@@ -190,16 +200,18 @@
     }
     el.appendChild(body);
     toastBox.appendChild(el);
-    while (toastBox.children.length > 3) toastBox.firstChild.remove();
+    showing = el;
+    var timer = null;
     function close() {
       if (el.classList.contains('out')) return;
+      clearTimeout(timer);
       el.classList.add('out');
-      setTimeout(function () { el.remove(); }, calm() ? 0 : 320);
+      setTimeout(function () { el.remove(); next(); }, calm() ? 0 : 300);
     }
     el.addEventListener('click', function () { close(); if (opts.onTap) opts.onTap(); });
-    setTimeout(close, opts.time || 3800);
-    return el;
-  };
+    // Shorter when others are waiting, so a burst doesn't take forever.
+    timer = setTimeout(close, queue.length ? Math.min(2600, opts.time || 3800) : (opts.time || 3800));
+  }
 
   // ---------------------------------------------------------------------------
   // Paperclip confetti.

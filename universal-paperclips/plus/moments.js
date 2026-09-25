@@ -9,7 +9,14 @@
 
   // ---------------------------------------------------------------------------
   // A card in the middle of the screen. Returns a promise that resolves when closed.
+  // Cards wait their turn: two never stack on top of each other.
+  var momentChain = Promise.resolve();
   UP.moment = function (opts) {
+    var shown = momentChain.then(function () { return showMoment(opts); });
+    momentChain = shown.catch(function () {});
+    return shown;
+  };
+  function showMoment(opts) {
     return new Promise(function (resolve) {
       var back = el('div', 'moment-back' + (opts.dark ? ' dark' : ''));
       var card = el('div', 'moment');
@@ -43,7 +50,7 @@
         if (opts.onClose) opts.onClose();
       });
     });
-  };
+  }
 
   var CLIP_ART = '<svg viewBox="0 0 24 24" class="moment-clip"><path d="M14.5 7.5v8.25a2.5 2.5 0 0 1-5 0V5a3.75 3.75 0 0 1 7.5 0v11.5a5 5 0 0 1-10 0V9"/></svg>';
 
