@@ -618,5 +618,12 @@
 <script src="plus/dock.js"></script>
 <!-- Mobile layer: tabs, saving on app switch, tap helpers. -->
 <script src="ui.js"></script>
+<script>
+  // Works offline, and asks the browser to keep saved games around.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('../sw.js').catch(function () {}); });
+  }
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
+</script>
 </body>
 </html>

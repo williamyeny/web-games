@@ -2,6 +2,16 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-offline',
+    date: 'September 25',
+    title: 'Play without internet',
+    items: [
+      'After you\u2019ve opened the game once, it works even with no internet, like in the car.',
+      'The game now asks your phone to keep your saved game safe.',
+      'Tip: add the games page to your home screen for the safest saves and a full-screen game.'
+    ]
+  },
+  {
     id: '2026-09-25-seminar',
     date: 'September 25',
     title: 'Win the drifter war',
