@@ -2,6 +2,15 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-facts',
+    date: 'September 25',
+    title: 'Did you know?',
+    items: [
+      'Fun facts pop up as you make more paperclips: lined up, would they reach the Moon? Would they weigh as much as the Earth?',
+      'Your latest fun fact is at the top of the Stats page in the menu.'
+    ]
+  },
+  {
     id: '2026-09-25-needs',
     date: 'September 25',
     title: 'What do I need?',

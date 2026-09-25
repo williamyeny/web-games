@@ -152,6 +152,8 @@
     render: function (box) {
       var run = UP.data.run;
       var all = UP.data.stats;
+      var fact = UP.funFact && UP.funFact();
+      if (fact) box.appendChild(el('p', 'sheet-fact', fact.text));
       statRows(box, UP.data.universe > 1 ? 'This universe' : 'This game', [
         ['Time played', UP.duration(run.playSeconds)],
         ['Paperclips', UP.fmt(clips)],

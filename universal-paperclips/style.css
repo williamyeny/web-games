@@ -1075,6 +1075,11 @@ table.payoff {
 .sheet-h { --casl: 1; margin: 18px 0 8px; font-size: 1.125rem; font-weight: 900; }
 .sheet-h:first-child { margin-top: 4px; }
 .sheet-p { margin: 0 0 10px; color: var(--ink-2); font-size: 0.9375rem; }
+.sheet-fact {
+  margin: 0 0 16px; padding: 12px 14px; border-radius: 14px;
+  background: var(--hi); color: var(--on-hi);
+  font-weight: 700; line-height: 1.4;
+}
 
 .news {
   margin-bottom: 14px; padding: 12px 14px 4px;
