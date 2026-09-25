@@ -13,6 +13,7 @@
   --drop: #1C2A66;
   --hi: #FFE141;
   --on-hi: #1C2A66;
+  --fill: rgba(255, 225, 65, 0.45);
   --primary: #1C2A66;
   --on-primary: #FFFFFF;
   --primary-drop: #0B1647;
@@ -41,6 +42,7 @@
     --drop: #050C2B;
     --hi: #FFE141;
     --on-hi: #0F1E52;
+    --fill: rgba(255, 225, 65, 0.22);
     --primary: #FFE141;
     --on-primary: #0F1E52;
     --primary-drop: #A68F12;
@@ -110,10 +112,14 @@ button:disabled { cursor: default; }
   clip: rect(0 0 0 0); white-space: nowrap;
 }
 
+/* Covers the page until the engine's first tick; it fades away instead of blinking off. */
 #cover {
   position: fixed; inset: 0; z-index: 90;
   background: var(--paper);
+  transition: opacity 0.45s ease;
+  transition: opacity 0.45s ease, display 0.45s allow-discrete;
 }
+#cover[style*="display: none"] { opacity: 0; }
 
 /* ---------- header ---------- */
 
@@ -241,13 +247,10 @@ button:disabled { cursor: default; }
 }
 .console.open .console-new { display: block; }
 .console .prompt { color: var(--hi); font-weight: 800; }
-.console.flash { animation: flash 0.7s ease-out; }
-@keyframes flash {
-  0% { box-shadow: 0 0 0 4px var(--hi); }
-  100% { box-shadow: 0 0 0 0 transparent; }
-}
-.pulsate { animation: blink 1s steps(1) infinite; color: var(--hi); }
-@keyframes blink { 50% { opacity: 0; } }
+/* Soft breathing cursor; it stays solid while a new message is typing out. */
+.pulsate { color: var(--hi); animation: breathe 1.2s ease-in-out infinite; }
+.console.typing .pulsate { animation: none; }
+@keyframes breathe { 50% { opacity: 0.15; } }
 
 /* ---------- main + sections ---------- */
 
@@ -265,12 +268,39 @@ main {
 
 h2, h3 {
   --casl: 1;
+  position: relative; z-index: 0;
+  display: table;
   margin: 0 0 10px;
   line-height: 1.1;
   letter-spacing: -0.01em;
 }
 h2 { font-size: 27px; font-weight: 900; }
 h3 { font-size: 20px; font-weight: 850; }
+
+/* When a section unlocks, a highlighter stroke swipes under its heading, then fades. */
+h2::after, h3::after {
+  content: ""; position: absolute; z-index: -1;
+  left: -5px; right: -5px; bottom: 0.06em; height: 0.46em;
+  border-radius: 4px;
+  background: var(--hi);
+  transform: scaleX(0); transform-origin: left center;
+  opacity: 0;
+}
+h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.3,1) both; }
+@keyframes marker {
+  0% { transform: scaleX(0); opacity: 1; }
+  22% { transform: scaleX(1); opacity: 1; }
+  70% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+
+/* Parts of the game the engine hides (at big turning points and in the ending)
+   fade away instead of blinking out. */
+.ui-ready .fx {
+  transition: opacity 0.7s ease, translate 0.7s ease;
+  transition: opacity 0.7s ease, translate 0.7s ease, display 0.7s allow-discrete;
+}
+.ui-ready .fx[style*="display: none"] { opacity: 0; translate: 0 -8px; }
 
 .sub-sec {
   margin-top: 18px; padding: 14px 14px 16px;
@@ -294,8 +324,6 @@ h3 { font-size: 20px; font-weight: 850; }
 
 .note { margin: 6px 0; font-size: 0.875rem; color: var(--ink-2); }
 .note b { color: var(--ink); }
-.hint:empty { display: none; }
-.hint { color: var(--ink); font-weight: 650; }
 
 .meter {
   height: 12px; margin: 2px 0 8px;
@@ -309,6 +337,7 @@ h3 { font-size: 20px; font-weight: 850; }
   transition: width 0.25s linear;
 }
 .meter.full > i { background: var(--hi); }
+.meter.low > i { background: var(--red); }
 
 /* ---------- buttons ---------- */
 
@@ -339,6 +368,69 @@ h3 { font-size: 20px; font-weight: 850; }
   color: var(--ink-2);
 }
 
+/* ---------- showing the way ----------
+   One visual language instead of instructions:
+   dashed = not yet, yellow filling up inside = getting closer,
+   solid = you can buy it, highlighter yellow = worth doing right now. */
+
+@property --p { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --q { syntax: "<number>"; inherits: false; initial-value: 0; }
+
+/* A buy button you can't afford yet fills with yellow as you save up. */
+.buy { transition: transform 0.06s, box-shadow 0.06s, --p 0.5s ease-out; }
+.buy:disabled {
+  background: linear-gradient(90deg, var(--fill) calc(var(--p) * 100%), transparent calc(var(--p) * 100%));
+}
+
+/* The button that fixes whatever is holding you back, e.g. Wire when you're out. */
+.buy.nudge:not(:disabled), .step.nudge:not(:disabled), .btn.ghost.nudge:not(:disabled):not(.armed) {
+  background: var(--hi); color: var(--on-hi);
+  animation: nudge-hop 0.5s cubic-bezier(.3,1.6,.5,1);
+}
+.buy.nudge:not(:disabled) .buy-cost,
+.buy.nudge:not(:disabled) .buy-count small { color: var(--on-hi); }
+@keyframes nudge-hop {
+  0% { translate: 0 0; }
+  40% { translate: 0 -6px; }
+  100% { translate: 0 0; }
+}
+
+/* An unaffordable project shows one bar per thing it costs. Striped past the
+   point your current memory or batteries can reach. */
+.needs { display: none; }
+.projectButton:disabled .needs {
+  display: grid; grid-template-columns: auto 1fr;
+  align-items: center; gap: 5px 10px;
+  margin-top: 10px;
+}
+.needs > span { font-size: 0.75rem; font-weight: 700; color: var(--ink-2); }
+.needs > i {
+  position: relative; display: block;
+  height: 10px;
+  border: 1.5px solid var(--wire); border-radius: 999px;
+  overflow: hidden;
+}
+.needs > i::before {
+  content: ""; position: absolute; inset: 0;
+  background: var(--hi);
+  transform: scaleX(var(--v, 0)); transform-origin: left;
+  transition: transform 0.5s ease-out;
+}
+.needs > i.capped::after {
+  content: ""; position: absolute; top: 0; bottom: 0; right: 0;
+  left: calc(var(--cap, 1) * 100%);
+  background: repeating-linear-gradient(-45deg, var(--wire) 0 3px, transparent 3px 7px);
+}
+
+/* When the tab you're on has nothing left to do, tabs with something waiting hop. */
+.tabbar button.beckon svg { animation: beckon 2.8s ease-in-out 0.6s infinite; }
+@keyframes beckon {
+  0%, 20%, 100% { translate: 0 0; }
+  6% { translate: 0 -7px; }
+  12% { translate: 0 0; }
+  16% { translate: 0 -3px; }
+}
+
 /* A thing you can buy: name + cost on the left, how many you have on the right. */
 .buy {
   display: grid;
@@ -362,6 +454,9 @@ h3 { font-size: 20px; font-weight: 850; }
   max-width: 11em; text-align: right; overflow-wrap: anywhere;
 }
 .buy-count small { --casl: 0; font-size: 0.6875rem; font-weight: 650; color: var(--ink-2); letter-spacing: 0.02em; margin-bottom: 3px; }
+/* Where the "you just bought one" pop grows from. */
+.buy-count { transform-origin: 100% 60%; }
+.chip-num { transform-origin: 0 100%; display: inline-block; }
 
 .btn {
   min-height: 48px; padding: 8px 16px;
@@ -377,6 +472,7 @@ h3 { font-size: 20px; font-weight: 850; }
   font-size: 0.9375rem;
 }
 .btn.ghost:disabled { border-color: var(--wire); }
+.btn.ghost { transition: background-color 0.2s, border-color 0.2s, color 0.2s; }
 .btn.ghost.armed {
   background: var(--red); border-color: var(--red); color: #FFFFFF;
   border-style: solid;
@@ -523,8 +619,22 @@ h3 { font-size: 20px; font-weight: 850; }
   aspect-ratio: 1; border-radius: 6px;
   background: var(--ink);
 }
+/* In the ending the chips are dismantled one by one: they shrink away.
+   (Only scale is animated; the engine drives their brightness directly.) */
+.ui-ready .qChip {
+  transition: scale 0.5s cubic-bezier(.5,0,.75,0);
+  transition: scale 0.5s cubic-bezier(.5,0,.75,0), display 0.5s allow-discrete;
+}
+.ui-ready .qChip[style*="display: none"] { scale: 0; }
 .qrow { display: flex; align-items: center; gap: 14px; }
 .qrow .btn { flex: 0 0 55%; }
+/* Compute glows as the chips brighten, and goes dashed when computing now would cost ops. */
+#btnQcompute { background: color-mix(in srgb, var(--hi) calc(var(--q) * 100%), var(--card)); }
+#btnQcompute.hot { color: var(--on-hi); }
+#btnQcompute.cold {
+  background: transparent; border-style: dashed; border-color: var(--wire);
+  box-shadow: none; color: var(--ink-2);
+}
 #qCompDisplay { --casl: 1; font-weight: 850; font-variant-numeric: tabular-nums; }
 
 /* ---------- projects ---------- */
@@ -555,6 +665,43 @@ h3 { font-size: 20px; font-weight: 850; }
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 34'%3E%3Cpath d='M9.5 8v17a2.5 2.5 0 0 1-5 0V5.5a3.5 3.5 0 0 1 7 0V27a4.5 4.5 0 0 1-9 0V10' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 .projectButton:not(:disabled)::before { background: var(--edge); }
+
+/* The engine flickers new projects by toggling visibility; keep them steady.
+   ui.js gives them a proper entrance instead. */
+.projectButton { visibility: visible !important; }
+
+/* A new project drops onto the page, then its paperclip slides down and clips on. */
+.projectButton.arriving { animation: card-drop 0.55s cubic-bezier(.2,.9,.3,1.15) var(--d, 0ms) both; }
+.projectButton.arriving::before { animation: clip-on 0.45s cubic-bezier(.3,1.5,.5,1) calc(var(--d, 0ms) + 0.3s) both; }
+@keyframes card-drop {
+  from { opacity: 0; transform: translateY(-18px) rotate(-1.5deg); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes clip-on {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* A finished project: stamped "Done", its clip comes off, and it folds away. */
+.projectButton.leaving { pointer-events: none; }
+.projectButton.leaving::before { animation: clip-off 0.4s ease-in 0.35s both; }
+@keyframes clip-off { to { opacity: 0; transform: translateY(-14px) rotate(12deg); } }
+.stamp {
+  --casl: 1;
+  position: absolute; right: 16px; top: 50%;
+  padding: 2px 12px;
+  border: 3px solid var(--red); border-radius: 10px;
+  color: var(--red);
+  font-size: 1.375rem; font-weight: 950; line-height: 1.2;
+  background: color-mix(in srgb, var(--card) 70%, transparent);
+  translate: 0 -50%;
+  rotate: -9deg;
+  animation: stamp 0.32s cubic-bezier(.3,1.6,.5,1) both;
+}
+@keyframes stamp {
+  from { opacity: 0; scale: 1.9; }
+  to { opacity: 1; scale: 1; }
+}
 
 .empty { margin: 14px 0 0; color: var(--ink-2); font-weight: 600; }
 #projectListTop:not(:empty) + .empty { display: none; }
@@ -608,9 +755,14 @@ table.payoff {
   height: 42px; text-align: center; font-weight: 800;
   border: 2px solid var(--edge);
 }
-/* The engine paints the played cell "LightGrey" and resets to "white"; recolor both. */
+/* The engine paints the played cell "LightGrey" for 50ms, then "white", ten times
+   a second. Recolor both, and let each lit cell glow and fade instead of strobing. */
+.payoff td { transition: background-color 0.55s ease-out, color 0.55s ease-out; }
 .payoff td[style*="white"] { background: transparent !important; }
-.payoff td[style*="lightgrey"], .payoff td[style*="LightGrey"] { background: var(--hi) !important; color: var(--on-hi); }
+.payoff td[style*="lightgrey"], .payoff td[style*="LightGrey"] {
+  background: var(--hi) !important; color: var(--on-hi);
+  transition: background-color 0.05s, color 0.05s;
+}
 
 .results {
   display: grid; grid-template-columns: 1fr 1fr;
@@ -640,7 +792,11 @@ table.payoff {
   margin-top: 10px;
 }
 .battle-info small { color: var(--ink-2); }
-#victoryDiv { display: flex; gap: 8px; align-items: baseline; }
+#victoryDiv {
+  display: flex; gap: 8px; align-items: baseline;
+  transition: opacity 0.35s ease-out, translate 0.35s ease-out, visibility 0.35s;
+}
+#victoryDiv[style*="hidden"] { opacity: 0; translate: 0 6px; }
 #battleResult { --casl: 1; font-weight: 950; font-size: 1.125rem; }
 .honor-delta { font-weight: 700; color: var(--ink-2); }
 
@@ -677,27 +833,43 @@ table.payoff {
 }
 
 .tabbar {
+  position: relative;
   display: grid; grid-template-columns: repeat(var(--tabs, 4), 1fr);
   gap: 4px; margin-top: 10px;
+  animation: rise 0.4s cubic-bezier(.2,.8,.2,1) both;
 }
 .tabbar[hidden] { display: none; }
+@keyframes rise { from { opacity: 0; translate: 0 12px; } }
 .tabbar button {
   position: relative;
   display: flex; flex-direction: column; align-items: center; gap: 2px;
   min-height: 54px; padding: 4px 2px 2px;
   border: 0; background: transparent; color: var(--ink-2);
   font-size: 0.75rem; font-weight: 700;
+  transition: color 0.25s;
+  animation: tab-pop 0.45s cubic-bezier(.3,1.5,.5,1) both;
 }
 .tabbar button[hidden] { display: none; }
+@keyframes tab-pop { from { opacity: 0; scale: 0.6; } }
 .tabbar svg {
+  position: relative; z-index: 1;
   width: 52px; height: 30px; padding: 3px 13px;
-  border-radius: 999px;
   fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
 }
 .tabbar svg .fill { fill: currentColor; stroke: none; }
 .tabbar button[aria-selected="true"] { color: var(--ink); font-weight: 850; }
-.tabbar button[aria-selected="true"] svg { background: var(--ink); color: var(--paper); stroke: var(--paper); }
-.tabbar button[aria-selected="true"] svg .fill { fill: var(--paper); }
+.tabbar button[aria-selected="true"] svg { color: var(--paper); }
+
+/* The dark pill behind the current tab; ui.js slides it between tabs. */
+.tab-pill {
+  position: absolute; left: 0; top: 0; z-index: 0;
+  width: 52px; height: 30px;
+  border-radius: 999px;
+  background: var(--ink);
+  pointer-events: none;
+}
+.tab-pill.glide { transition: transform 0.38s cubic-bezier(.3,1.3,.5,1), width 0.3s, height 0.3s; }
+.tabbar[hidden] .tab-pill { display: none; }
 
 .badge {
   position: absolute; top: 0; left: calc(50% + 12px);
@@ -709,21 +881,65 @@ table.payoff {
   text-align: center;
   display: none;
 }
-.badge.count, .badge.dot { display: block; }
+.badge.count, .badge.dot { display: block; animation: badge-pop 0.4s cubic-bezier(.3,1.7,.5,1) both; }
+@keyframes badge-pop { from { scale: 0; } }
 .badge.dot { min-width: 14px; width: 14px; height: 14px; padding: 0; top: 2px; left: calc(50% + 14px); }
 
-/* ---------- hypnodrone event ---------- */
+/* ---------- hypnodrone event ----------
+   A slowly turning spiral while the words arrive one at a time.
+   Replaces the original's four-second black-and-white strobe. */
 
 #hypnoDroneEventDiv {
   position: fixed; inset: 0; z-index: 100;
   display: flex; align-items: center; justify-content: center;
-  background: #000000;
+  overflow: hidden;
+  background: #0B1647;
 }
+#hypnoDroneEventDiv.playing { animation: fade-in 0.6s ease-out both; }
+#hypnoDroneEventDiv.leaving { animation: fade-out 0.7s ease-in both; }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+
+.hypno-spiral {
+  position: absolute; left: 50%; top: 50%;
+  width: 180vmax; height: 180vmax;
+  margin: -90vmax 0 0 -90vmax;
+}
+.hypno-spiral path { fill: none; stroke: #1F2F72; stroke-width: 7; stroke-linecap: round; }
+#hypnoDroneEventDiv.playing .hypno-spiral {
+  animation: spin 9s linear infinite, zoom 4.6s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes spin { to { rotate: 360deg; } }
+@keyframes zoom { from { scale: 1.5; } to { scale: 1; } }
+
 .hypnoDrone {
   --casl: 1;
+  position: relative; z-index: 1;
   margin: 0; padding: 24px;
   color: #FFFFFF; text-align: center;
   font-size: min(21vw, 150px); font-weight: 950; line-height: 0.95;
+}
+.hypnoDrone span { display: block; }
+.hypnoDrone span:nth-child(n+3) { color: #FFE141; }
+#hypnoDroneEventDiv.playing .hypnoDrone span { animation: word-in 0.8s cubic-bezier(.2,.8,.2,1) both; }
+#hypnoDroneEventDiv.playing .hypnoDrone span:nth-child(1) { animation-delay: 0.35s; }
+#hypnoDroneEventDiv.playing .hypnoDrone span:nth-child(2) { animation-delay: 0.95s; }
+#hypnoDroneEventDiv.playing .hypnoDrone span:nth-child(3) { animation-delay: 1.5s; }
+#hypnoDroneEventDiv.playing .hypnoDrone span:nth-child(4) { animation-delay: 1.9s; }
+@keyframes word-in {
+  from { opacity: 0; scale: 0.4; filter: blur(12px); }
+  to { opacity: 1; scale: 1; filter: blur(0); }
+}
+#hypnoDroneEventDiv.leaving .hypnoDrone { animation: drift-away 0.7s ease-in both; }
+@keyframes drift-away { to { scale: 1.15; filter: blur(8px); } }
+
+/* ---------- a paperclip hopping up from the Make button ---------- */
+
+.clip-fly {
+  position: absolute; left: 0; top: 0;
+  width: 24px; height: 24px;
+  fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round;
+  pointer-events: none;
 }
 
 /* ---------- motion preferences ---------- */

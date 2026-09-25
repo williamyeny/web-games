@@ -29,6 +29,7 @@
 <div id="cover"></div>
 
 <div id="hypnoDroneEventDiv">
+  <svg class="hypno-spiral" viewBox="-100 -100 200 200" aria-hidden="true"><path id="ui-spiral"/></svg>
   <p class="hypnoDrone"><span id="hypnoDroneText"></span></p>
 </div>
 
@@ -53,7 +54,8 @@
       <div><span id="readout3"></span></div>
       <div><span id="readout2"></span></div>
     </div>
-    <div class="console-new"><span class="prompt">&gt;</span> <span id="readout1">Welcome to Universal Paperclips</span><span id="cursor" class="pulsate">_</span></div>
+    <!-- The engine writes to #readout1; the visible line is typed out from it. -->
+    <div class="console-new"><span class="prompt">&gt;</span> <span id="readout1" class="sr">Welcome to Universal Paperclips</span><span id="ui-typed" aria-hidden="true"></span><span id="cursor" class="pulsate">_</span></div>
   </div>
 </header>
 
@@ -208,6 +210,7 @@
   <div id="powerDiv" class="sec">
     <h2>Power</h2>
     <div class="row big"><span>Factory &amp; drone performance</span><b><span id="performance">0</span>%</b></div>
+    <div class="meter perf"><i id="ui-perf-bar"></i></div>
     <div class="row"><span>Consumption</span><b><span id="powerConsumptionRate">0</span> MW</b></div>
     <div class="row sub"><span>Factories <span id="facPowConRate">0</span> MW</span><span>Drones <span id="dronePowConRate">0</span> MW</span></div>
     <div class="row"><span>Production</span><b><span id="powerProductionRate">0</span> MW</b></div>
@@ -277,7 +280,6 @@
         </button>
       </div>
     </div>
-    <p class="note hint" id="ui-spare"></p>
 
     <div class="row"><span>Operations</span><b><span id="operations">0</span> / <span id="maxOps">1,000</span></b></div>
     <div class="meter"><i id="ui-ops-bar"></i></div>
@@ -311,7 +313,6 @@
         <button class="btn big" id="btnQcompute" onclick="qComp()">Compute</button>
         <span id="qCompDisplay">&nbsp;</span>
       </div>
-      <p class="note">Tap Compute when the chips are bright.</p>
     </div>
   </div>
 
@@ -570,6 +571,7 @@
     <span>Make paperclip</span>
   </button>
   <nav class="tabbar" id="ui-tabbar" role="tablist" aria-label="Sections">
+    <span class="tab-pill" id="ui-tab-pill" aria-hidden="true"></span>
     <button role="tab" data-tab="make">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 7.5v8.25a2.5 2.5 0 0 1-5 0V5a3.75 3.75 0 0 1 7.5 0v11.5a5 5 0 0 1-10 0V9"/></svg>
       <span>Clips</span><i class="badge"></i>
