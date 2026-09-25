@@ -717,6 +717,115 @@
     }).observe(el, { attributes: true, attributeFilter: ['style'] });
   });
 
+  // Tapping something you can't afford yet: it gives a little shake, a bubble
+  // says what's missing, and the thing you're short of pulses (or its tab, if
+  // it lives on another one). Disabled buttons let taps fall through to the
+  // page (see style.css), so the tap is matched to a button by position.
+  var BUY_UNIT = {
+    btnExpandMarketing: '$', btnBuyWire: '$', btnMakeClipper: '$', btnMakeMegaClipper: '$',
+    btnImproveInvestments: 'yomi', btnIncreaseProbeTrust: 'yomi', btnNewTournament: 'ops', btnIncreaseMaxTrust: 'honor'
+  };
+  var RESOURCE = {
+    money: function () { return $('ui-side'); },
+    ops: function () { return $('operations').closest('.row'); },
+    creativity: function () { return $('creativity').closest('.row'); },
+    yomi: function () { return $('yomiDisplay').closest('.row'); },
+    trust: function () { return $('trust').closest('.row'); },
+    clips: function () { return $('ui-side'); },
+    memory: function () { return $('btnAddMem'); },
+    'stored power': function () { return $('storedPower').closest('.row'); },
+    batteries: function () { return $('btnMakeBattery'); },
+    honor: function () { return $('honorDisplay').closest('.row'); }
+  };
+  function shortBy(label, short) {
+    if (label === 'money' || label === '$') return 'Need ' + UP.money(short) + ' more';
+    return 'Need ' + UP.fmt(Math.ceil(short)) + ' more ' + label;
+  }
+  // What's missing for a locked button: [{ text, resource }], most blocking first.
+  function missingFor(b) {
+    var out = [];
+    if (b._costs) {
+      b._costs.forEach(function (c) {
+        var have = Math.max(0, c.kind.have() || 0);
+        if (have >= c.need) return;
+        var cap = c.kind.cap ? c.kind.cap() : Infinity;
+        if (cap < c.need) {
+          out.unshift(c.kind.label === 'ops' ? { text: 'Needs more memory', res: 'memory' }
+                                             : { text: 'Needs more batteries', res: 'batteries' });
+        } else {
+          out.push({ text: shortBy(c.kind.label, c.need - have), res: c.kind.label });
+        }
+      });
+    } else if (BUY_COST[b.id]) {
+      var hn = BUY_COST[b.id]();
+      if (hn[0] < hn[1]) {
+        var unit = BUY_UNIT[b.id] || 'clips';
+        out.push({ text: shortBy(unit, hn[1] - hn[0]), res: unit === '$' ? 'money' : unit });
+      }
+    }
+    return out;
+  }
+  function pulse(el) {
+    if (!el || !onScreen(el) || calm()) return;
+    var panel = el.closest('.panel');
+    if (panel && panel.dataset.panel !== current) el = tabButtons[panel.dataset.panel];
+    else {
+      var r = el.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > window.innerHeight - dock.offsetHeight) return;
+    }
+    el.animate([{ transform: 'none' }, { transform: 'scale(1.08)', offset: 0.3 }, { transform: 'none' }],
+      { duration: 520, easing: 'ease-out', iterations: 2 });
+  }
+  var bubble = null;
+  function explain(b, x, y) {
+    var miss = missingFor(b);
+    if (!miss.length) return;
+    if (window.UP) UP.sound('nope');
+    if (!calm()) {
+      b.animate([{ transform: 'none' }, { transform: 'translateX(-5px)' }, { transform: 'translateX(4px)' },
+                 { transform: 'translateX(-2px)' }, { transform: 'none' }], { duration: 320, easing: 'ease-out' });
+    }
+    if (bubble) bubble.remove();
+    bubble = document.createElement('div');
+    bubble.className = 'need-bubble';
+    bubble.setAttribute('role', 'status');
+    miss.slice(0, 2).forEach(function (m) {
+      var line = document.createElement('span');
+      line.textContent = m.text;
+      bubble.appendChild(line);
+    });
+    document.body.appendChild(bubble);
+    var w = bubble.offsetWidth;
+    var h = bubble.offsetHeight;
+    // Placed on the page (not the screen) so it scrolls along with the button.
+    bubble.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x - w / 2)) + 'px';
+    bubble.style.top = window.scrollY + Math.max(8, y - h - 10) + 'px';
+    var mine = bubble;
+    setTimeout(function () { mine.classList.add('out'); }, 1700);
+    setTimeout(function () { mine.remove(); if (bubble === mine) bubble = null; }, 2100);
+    miss.forEach(function (m) { pulse(RESOURCE[m.res] && RESOURCE[m.res]()); });
+  }
+  var tapAt = null;
+  document.addEventListener('pointerdown', function (e) {
+    tapAt = e.isPrimary ? { x: e.clientX, y: e.clientY, t: Date.now() } : null;
+  }, true);
+  document.addEventListener('pointerup', function (e) {
+    var t = tapAt;
+    tapAt = null;
+    if (!t || !current || Math.abs(e.clientX - t.x) > 10 || Math.abs(e.clientY - t.y) > 10 || Date.now() - t.t > 700) return;
+    if (e.target.closest && e.target.closest('button:enabled, a, input, select, .moment, .sheet')) return;
+    var locked = panels[current].querySelectorAll('.projectButton:disabled, .buy:disabled');
+    for (var i = 0; i < locked.length; i++) {
+      var b = locked[i];
+      if (b.closest('.leaving') || !onScreen(b)) continue;
+      var r = b.getBoundingClientRect();
+      if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) {
+        explain(b, e.clientX, r.top);
+        return;
+      }
+    }
+  });
+
   // Buying something: the number you just changed gives a little pop.
   function countFor(btn) {
     if (btn.classList.contains('buy')) return btn.querySelector('.buy-count');

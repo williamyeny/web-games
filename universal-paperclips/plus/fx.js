@@ -114,6 +114,7 @@
       [523, 659, 784].forEach(function (f, i) { tone(f, t + i * 0.08, 0.5, { type: 'triangle', gain: 0.09 }); });
       tone(1047, t + 0.24, 0.7, { type: 'sine', gain: 0.08 });
     },
+    nope: function () { notes([330, 247], 0.07, { type: 'sine', gain: 0.07 }); },
     coin: function () { notes([1319, 1976], 0.06, { type: 'square', gain: 0.04 }); },
     hypno: function () {
       var t = ctx.currentTime;

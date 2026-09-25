@@ -2,6 +2,15 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-needs',
+    date: 'September 25',
+    title: 'What do I need?',
+    items: [
+      'Tap something you can’t buy yet and a bubble tells you what’s missing, like “Need $40 more” or “Needs more memory”.',
+      'The thing you’re short of gives a little bounce so you can find it.'
+    ]
+  },
+  {
     id: '2026-09-25-earth',
     date: 'September 25',
     title: 'The Earth bar',
