@@ -143,9 +143,12 @@
       D.laws.forEach(function (id) { D.lawsFinished[id] = true; });
     }
     D.stats.stardust = (D.stats.stardust || 0) + reward;
-    if (D.run.fromStart && (!D.stats.fastestUniverse || time < D.stats.fastestUniverse)) D.stats.fastestUniverse = time;
+    var best = D.stats.fastestUniverse;
+    var record = D.run.fromStart && !!best && time < best;
+    if (D.run.fromStart && (!best || time < best)) D.stats.fastestUniverse = time;
     D.stardust += reward;
-    D.pending = { kind: kind, reward: reward, universe: D.universe, time: time, finale: D.stats.universes === FINALE_AT };
+    D.pending = { kind: kind, reward: reward, universe: D.universe, time: time, best: D.stats.fastestUniverse || 0, record: record,
+                  finale: D.stats.universes === FINALE_AT };
     UP.save();
     showMultiverse();
   }
@@ -206,9 +209,13 @@
       ? 'Every last atom became a paperclip, and you made the final ones by hand. A new universe is waiting.'
       : 'The Drifters gave you a new universe to begin again. This time, you remember.'));
     var dl = el('dl', 'stats mv-stats');
-    [['Time', UP.duration(p.time)], ['Universes finished', UP.fmt(D.stats.universes)]].forEach(function (r) {
+    var rows = [['Time', UP.duration(p.time)]];
+    if (p.best && !p.record && p.best < p.time) rows.push(['Best time', UP.duration(p.best)]);
+    rows.push(['Universes finished', UP.fmt(D.stats.universes)]);
+    rows.forEach(function (r) {
       dl.appendChild(el('dt', null, r[0]));
-      dl.appendChild(el('dd', null, r[1]));
+      var dd = dl.appendChild(el('dd', null, r[1]));
+      if (r[0] === 'Time' && p.record) dd.appendChild(el('span', 'mv-record', 'New record!'));
     });
     inner.appendChild(dl);
     var reward = el('div', 'mv-reward');

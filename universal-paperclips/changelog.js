@@ -2,6 +2,16 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-record',
+    date: 'September 25',
+    title: 'Beat your best time',
+    items: [
+      'When you finish a universe faster than ever before, you get a New record! badge.',
+      'Slower runs show your best time, so you know what to beat.',
+      'Clips not selling? The − price button lights up a little sooner.'
+    ]
+  },
+  {
     id: '2026-09-25-gifts',
     date: 'September 25',
     title: 'Helpful glows',
