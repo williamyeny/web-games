@@ -2,6 +2,15 @@
 // Keep entries short and written for a kid: what changed and why it's fun.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-battles',
+    date: 'September 25',
+    title: 'Brighter space battles',
+    items: [
+      'Space battles are easier to follow: your probes are yellow, drifters are pink, and explosions ripple out.',
+      'Battles look sharp on phone screens now instead of blurry.'
+    ]
+  },
+  {
     id: '2026-09-25-echoes',
     date: 'September 25',
     title: 'Echoes of old universes',

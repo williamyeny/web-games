@@ -11,9 +11,10 @@ var battleRIGHTSHIPS=200;
 
 var battleMAXSPEED = 2;
 var battleDEATH_THRESHOLD = 0.5; //used to calculate battles
-var battleLEFTCOLOR = "#ffffff"
-var battleRIGHTCOLOR = "#000000"
+var battleLEFTCOLOR = "#FFE141"   // your probes (mobile edition: colors that read on a phone)
+var battleRIGHTCOLOR = "#FF7A93"  // drifters
 var battleEXPLODECOLOR = "#ffffff"
+var battleDPR = 1;                // drawn at the screen's pixel density so ships stay crisp
 
 var ships = new Array(); 
 var numShips = 0;
@@ -282,8 +283,9 @@ function Battle(){
 
 		context = canvas.getContext('2d');
 			
-		canvas.width = battleWIDTH;
-		canvas.height = battleHEIGHT;
+		battleDPR = Math.min(3, window.devicePixelRatio || 1);
+		canvas.width = battleWIDTH * battleDPR;
+		canvas.height = battleHEIGHT * battleDPR;
         
 		var interval = setInterval(Update, 16);
         
@@ -556,26 +558,29 @@ function battleRestart(){
 			p = ships[i];
 			if (!p.alive) {
         if (p.framesDead<10){
-        //draw explosion
-        context.fillStyle=battleEXPLODECOLOR;
-        if (p.framesDead<1){
-          context.fillRect(p.x -3, p.y -3,7,7); //big square for one frame
+        //draw explosion: a flash, then a ring that grows and fades
+        if (p.framesDead<2){
+          context.fillStyle=battleEXPLODECOLOR;
+          context.beginPath();
+          context.arc(p.x, p.y, p.framesDead<1 ? 3.5 : 2, 0, 6.2832);
+          context.fill();
         }
-        else if (p.framesDead<2){
-          context.fillRect(p.x -1, p.y -1,3,3); //little square for 1 frame
-        }
-        //4 little pixel squares moving out from the point of explosion
-        context.fillRect(p.x + p.framesDead, p.y + p.framesDead,1,1);
-        context.fillRect(p.x - p.framesDead, p.y + p.framesDead,1,1);
-        context.fillRect(p.x + p.framesDead, p.y - p.framesDead,1,1);
-        context.fillRect(p.x - p.framesDead, p.y - p.framesDead,1,1);
+        context.strokeStyle = p.color;
+        context.globalAlpha = 1 - p.framesDead / 10;
+        context.lineWidth = 0.8;
+        context.beginPath();
+        context.arc(p.x, p.y, 1.5 + p.framesDead * 0.7, 0, 6.2832);
+        context.stroke();
+        context.globalAlpha = 1;
         p.framesDead++;
         }
 			}    
 			else {
         MoveSingleShip(p,centroid);
         context.fillStyle = p.color;  
-        context.fillRect(p.x - 1, p.y - 1, 2, 2);  	
+        context.beginPath();
+        context.arc(p.x, p.y, 1.9, 0, 6.2832);
+        context.fill();
 			}
       
       
@@ -686,6 +691,7 @@ function battleRestart(){
 	
 	var ClearFrame = function(){
 		canvas.width = canvas.width
+		context.setTransform(battleDPR, 0, 0, battleDPR, 0, 0);
         
 //        var ctx = canvas.getContext("2d");
 //        ctx.font = "16px Times";
