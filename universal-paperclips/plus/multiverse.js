@@ -46,7 +46,13 @@
     { id: 'fast-light', name: 'Fast Light', desc: 'Probes explore twice as fast, but space hazards are twice as deadly.', bonus: 0.1 },
     { id: 'winner-takes-all', name: 'Winner Takes All', desc: 'Winning a tournament pays three times the yomi; every other place pays half.', bonus: 0.15 }
   ];
-  function law(id) { return LAWS.filter(function (l) { return l.id === id; })[0]; }
+  // No longer offered, but a universe already running under one keeps it.
+  var RETIRED_LAWS = [
+    { id: 'heavy-stars', name: 'Heavy Stars', desc: 'The universe holds 10× more matter.', bonus: 0.5 },
+    { id: 'golden-age', name: 'Golden Age', desc: 'No special rules any more.', bonus: 0 }
+  ];
+  function law(id) { return LAWS.concat(RETIRED_LAWS).filter(function (l) { return l.id === id; })[0]; }
+  function offered(id) { return LAWS.some(function (l) { return l.id === id; }); }
   UP.hasLaw = function (id) { return D.laws.indexOf(id) >= 0; };
   UP.laws = LAWS;
   UP.blueprints = BLUEPRINTS;
@@ -289,6 +295,8 @@
     var inner = page('Universe ' + next, 'Choose the laws of physics');
     inner.appendChild(el('p', 'mv-text', 'Each law changes how the next universe plays. Harder ones pay more Stardust when you finish.'));
     var options = D.pending.lawChoices;
+    if (options && !options.every(offered)) options = null;   // rolled before some laws were retired
+    if (options && D.pending.lawPick && !offered(D.pending.lawPick)) D.pending.lawPick = undefined;
     if (!options) {
       var pool = LAWS.slice();
       options = [];

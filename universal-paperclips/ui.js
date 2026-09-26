@@ -302,6 +302,8 @@
       for (var i = 0; i < rows.length; i++) {
         var value = rows[i].querySelector('b') || rows[i].lastElementChild;
         var zero = !!value && /^0(\s|$)/.test(value.textContent.trim());
+        if (!zero) rows[i].dataset.moved = '1';   // once it has moved, a zero is news: keep showing it
+        zero = zero && !rows[i].dataset.moved;
         rows[i].classList.toggle('ui-zero', zero);
         if (!zero && engineShows(rows[i])) live++;
       }
@@ -919,6 +921,12 @@
   };
   var queued = null;
   var stratRows = [];
+  // Loading a save clears the engine's "results showing" state, which is what
+  // AutoTourney waits for before starting the next one. Put it back.
+  if (autoTourneyFlag == 1 && autoTourneyStatus == 1 && tourneyInProg == 0 && strategyEngineFlag == 1) {
+    resultsFlag = 1;
+    $('tournamentResultsTable').style.display = '';
+  }
   if (window.UP) {
     if (!gridKind && UP.data.gridKind) gridKind = UP.data.gridKind;
   }
@@ -991,7 +999,8 @@
 
     var top = 1;
     strats.forEach(function (st) { top = Math.max(top, st.currentScore); });
-    var scored = run || done;
+    // Scores aren't saved, so after a reload there's no scoreboard to show.
+    var scored = run || (done && strats.some(function (st) { return st.currentScore > 0; }));
     stratRows.forEach(function (b, i) {
       var st = strats[i];
       setText(b.querySelector('.strat-text small'), (ABOUT[st.name] || function () { return ''; })(m));
@@ -1000,7 +1009,7 @@
       b.classList.toggle('scored', scored);
       b.style.setProperty('--s', scored ? (st.currentScore / top).toFixed(3) : 0);
       setText(b.querySelector('.strat-score b'), scored ? formatWithCommas(st.currentScore) : '');
-      var tag = i === queued ? 'next' : done ? placeName(place(i)) : '';
+      var tag = i === queued ? 'next' : scored && done ? placeName(place(i)) : '';
       setText(b.querySelector('.strat-score small'), tag);
     });
 

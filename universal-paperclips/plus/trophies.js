@@ -18,7 +18,7 @@
     ['limerick', 'business', 'There was an AI', 'Write a limerick.', function () { return project6.flag == 1; }],
     ['speedy', 'business', 'Efficient', 'Make a million paperclips in under 20 minutes.', function () { return clips >= 1e6 && D.run.playSeconds < 1200 && D.run.fromStart; }],
     ['tourney', 'business', 'Yomi', 'Win a tournament with the strategy you picked.', function () {
-      return resultsFlag == 1 && pick < 10 && results.length && strats[pick] && strats[pick].currentScore >= results[0].currentScore;
+      return !!(window.lastTourney && lastTourney.won);
     }],
     ['quantum', 'business', 'Superposition', 'Get more than 500 operations from one Compute.', function () { return qOps() > 500; }],
     ['cure', 'business', 'Hippocratic', 'Cure cancer.', function () { return project28.flag == 1; }],

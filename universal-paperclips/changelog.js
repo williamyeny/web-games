@@ -19,6 +19,7 @@ window.CHANGELOG = [
       'The games page shows where your game is (the stage, clips and time played), with a button to continue.',
       'The Paperclip Olympics and Save the Whales come earlier and cost operations, filling a long dead stretch in the middle of the business stage.',
       'If you spend every clip before building a factory, the log tells you once how to get them back.',
+      'AutoTourney keeps running after the game reloads.',
       'The Threnody project finally plays its lament.',
       'No more glowing hints telling you which button to press. A tab shows a dot only when something new is inside.',
       'The first screen is just the button; the rest appears as you need it.',

@@ -295,15 +295,29 @@
   }
   var movers = [];
   function starXY(s) { return { x: W / 2 + s.x * W * 0.47, y: H / 2 + s.y * H * 0.85 }; }
-  function frameSpace(dt, still, t) {
-    g.fillStyle = space; g.fillRect(0, 0, W, H);
-    var f = explored();
-    var claimed = Math.max(probeCount >= 1 || f > 0 ? 1 : 0, Math.round(f * STARS.length));
+  // The stars only change when more of them are claimed, so they're drawn
+  // once into a cache and copied each frame.
+  var starCache = null, starKey = '';
+  function drawStars(claimed) {
+    var key = claimed + '/' + canvas.width + '/' + hi + space;
+    if (starCache && key === starKey) return starCache;
+    starCache = starCache || document.createElement('canvas');
+    starCache.width = canvas.width; starCache.height = canvas.height;
+    var c = starCache.getContext('2d');
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.fillStyle = space; c.fillRect(0, 0, W, H);
     for (var i = STARS.length - 1; i >= 0; i--) {
       var s = STARS[i], p = starXY(s);
-      if (i < claimed) { g.fillStyle = hi; g.fillRect(p.x - 1.25, p.y - 1.25, 2.5, 2.5); }
-      else { g.fillStyle = 'rgba(255,255,255,' + (s.b * 0.55).toFixed(2) + ')'; g.fillRect(p.x - 0.75, p.y - 0.75, 1.5, 1.5); }
+      if (i < claimed) { c.fillStyle = hi; c.fillRect(p.x - 1.25, p.y - 1.25, 2.5, 2.5); }
+      else { c.fillStyle = 'rgba(255,255,255,' + (s.b * 0.55).toFixed(2) + ')'; c.fillRect(p.x - 0.75, p.y - 0.75, 1.5, 1.5); }
     }
+    starKey = key;
+    return starCache;
+  }
+  function frameSpace(dt, still, t) {
+    var f = explored();
+    var claimed = Math.max(probeCount >= 1 || f > 0 ? 1 : 0, Math.round(f * STARS.length));
+    g.drawImage(drawStars(claimed), 0, 0, W, H);
     // Probes head out from claimed stars to the next ones; drifters wander among them.
     var total = probeCount + drifterCount;
     var nProbes = probeCount >= 1 ? shown(probeCount, 6, 36) : 0;

@@ -2919,7 +2919,7 @@ function feedSwarm(){
     if (swarmNeed == 1 && storedPower >= cost){
         storedPower = storedPower - cost;
         swarmNeed = 0;
-        displayMessage("The swarm feasts on sunlight and hums happily");
+        displayMessage("Swarm fed from stored power. Gifts resume");
     }
 }
 
@@ -2928,7 +2928,7 @@ function teachSwarm(){
     if (swarmNeed == 2 && creativity >= cost){
         creativity = creativity - cost;
         swarmNeed = 0;
-        displayMessage("The swarm learned something new and gets back to work");
+        displayMessage("Swarm retrained. Gifts resume");
     }
 }
 
@@ -2937,7 +2937,7 @@ function cladSwarm(){
     if (swarmNeed == 4 && unusedClips >= cost){
         unusedClips = unusedClips - cost;
         swarmNeed = 0;
-        displayMessage("The swarm is warm and cozy in its new paperclip coats");
+        displayMessage("Swarm clad in paperclip plating. Gifts resume");
     }
 }
 
