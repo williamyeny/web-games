@@ -127,6 +127,23 @@
   UP.on('second', clearSpaceProjects);
 })();
 
+// Quantum Computing now comes with its first photonic chip. Games that bought
+// it before then, and have no chip yet, get that chip now.
+(function () {
+  'use strict';
+  if (project50.flag != 1 || nextQchip != 0) return;
+  qChips[0].active = 1;
+  nextQchip = 1;
+  qChipCost = 15000;
+  project51.priceTag = '(15,000 ops)';
+  var card = project51.element;
+  if (card) {
+    var cost = card.querySelector('.cost');
+    if (cost) cost.textContent = '15,000 ops';
+    else if (card.childNodes[1] && card.childNodes[1].nodeType === 3) card.childNodes[1].nodeValue = project51.priceTag;
+  }
+})();
+
 // Probe Seminar's price depends on how many were bought this universe.
 (function () {
   'use strict';

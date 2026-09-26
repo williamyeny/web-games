@@ -1150,7 +1150,7 @@ var project50 = {
     id: "projectButton50",
     title: "Quantum Computing ",
     priceTag: "(10,000 ops)",
-    description: "Use probability amplitudes to generate bonus ops",
+    description: "Use probability amplitudes to generate bonus ops. Comes with the first photonic chip",
     trigger: function(){return processors >= 5},
     uses: 1,
     cost: function(){return operations>=10000},
@@ -1160,7 +1160,14 @@ var project50 = {
         project50.flag = 1;
         qFlag = 1;
         standardOps = standardOps-10000;
-        displayMessage("Quantum computing online");
+        // Added: the first photonic chip comes with it, so Compute works right away.
+        if (nextQchip == 0) {
+            qChips[0].active = 1;
+            nextQchip = 1;
+            qChipCost = 15000;
+            project51.priceTag = "(" + qChipCost.toLocaleString("en-US") + " ops)";
+        }
+        displayMessage("Quantum computing online. First photonic chip installed");
         project50.element.parentNode.removeChild(project50.element);
         var index = activeProjects.indexOf(project50);
         activeProjects.splice(index, 1);
@@ -1183,7 +1190,7 @@ var project51 = {
         project51.flag = 1;
         standardOps = standardOps-qChipCost;
         qChipCost = qChipCost + 5000;
-        project51.priceTag = "(" + qChipCost + " ops)";
+        project51.priceTag = "(" + qChipCost.toLocaleString("en-US") + " ops)";  // Added: with a comma
         qChips[nextQchip].active = 1;
         nextQchip = nextQchip + 1;
         displayMessage("Photonic chip added");

@@ -6,6 +6,7 @@ window.CHANGELOG = [
     date: 'September 25',
     title: 'Selling, made visible',
     items: [
+      'Quantum Computing comes with its first photonic chip, so Compute works the moment you buy it. Games that already bought it without a chip get one now.',
       'Each new clip falls onto the spot where it stays in the heap.',
       'A sold clip hops off the heap into the sales bin, and the money it made rises out of the bin.'
     ]
