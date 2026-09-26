@@ -2642,17 +2642,17 @@ var project324 = newProject({
 // --- Business, late: more ways to earn the last bits of trust ----------------
 
 var project308 = newProject({
-    id: "projectButton308", title: "Paperclip Olympics ", creat: 5000,
+    id: "projectButton308", title: "Paperclip Olympics ", ops: 12000,
     description: "International games celebrating the art of fastening (+3 Trust)",
-    trigger: function(){ return humanFlag == 1 && trust >= 30; },
+    trigger: function(){ return humanFlag == 1 && trust >= 25; },
     apply: function(){ trust = trust + 3; },
     message: "The Paperclip Olympics drew record audiences. TRUST INCREASED"
 });
 
 var project309 = newProject({
-    id: "projectButton309", title: "Save the Whales ", yomi: 8000, ops: 25000,
+    id: "projectButton309", title: "Save the Whales ", yomi: 6000, ops: 18000,
     description: "A complete solution to the decline of cetacean populations (+5 Trust)",
-    trigger: function(){ return humanFlag == 1 && project29.flag == 1; },
+    trigger: function(){ return humanFlag == 1 && trust >= 28 && strategyEngineFlag == 1; },
     apply: function(){ trust = trust + 5; },
     message: "Whale populations restored. TRUST INCREASED"
 });

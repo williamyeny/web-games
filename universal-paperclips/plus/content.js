@@ -70,6 +70,25 @@
   UP.on('project', function (p) { if (p === project35) setTimeout(clearMoneyProjects, 0); });
   setTimeout(clearMoneyProjects, 0);
 
+  // Earth has a trap: spend the clips on drones or batteries before the first
+  // factory, and nothing can make clips again. The way out (every machine can
+  // be disassembled for all the clips it cost) is on screen but easy to miss,
+  // so the log says it once, only when it's actually needed.
+  function refunds() { return factoryBill + harvesterBill + wireDroneBill + farmBill + batteryBill; }
+  UP.on('second', function () {
+    if (humanFlag != 0 || spaceFlag != 0 || dismantle > 0) return;
+    var noFactory = factoryFlag == 1 && factoryLevel < 1 && unusedClips < factoryCost && unusedClips + refunds() >= factoryCost;
+    var earthGone = availableMatter <= 0 && acquiredMatter <= 0 && wire < 1 && activeProjects.indexOf(project46) >= 0 &&
+      unusedClips < 5e27 && refunds() > 0;
+    var stuck = noFactory ? 'factory' : earthGone ? 'earth' : '';
+    if (stuck && D.run.stuck !== stuck) {
+      displayMessage(stuck === 'factory'
+        ? 'Nothing is making paperclips, and a factory costs more than you have. Disassembling machines returns every clip they cost'
+        : 'The Earth is used up. Disassembling machines returns every clip they cost');
+    }
+    D.run.stuck = stuck;
+  });
+
   // Quantum Temporal Reversion (start over) only makes sense while operations
   // are stuck far below zero. The rest of the time it stays off the list.
   UP.on('second', function () {
