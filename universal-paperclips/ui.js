@@ -993,6 +993,38 @@
     setText(tresult, text);
   }
   // ---------------------------------------------------------------------------
+  // Probe design: each skill shows what it's doing right now, measured once a
+  // second, so the effect of moving a point is plain to see.
+  var liveEls = document.querySelectorAll('.stat-live');
+  var lastCount = null;
+  function perSecond(n) { return n <= 0 ? '0' : n < 1 ? 'under 1' : UP.fmt(n); }
+  function sampleProbes() {
+    if (spaceFlag != 1) return;
+    var now = { explore: foundMatter, rep: probeDescendents, haz: probesLostHaz, fac: factoryLevel,
+                harv: harvesterLevel, wire: wireDroneLevel, combat: driftersKilled };
+    var was = lastCount;
+    lastCount = now;
+    if (!was) return;
+    var d = {};
+    Object.keys(now).forEach(function (k) { d[k] = Math.max(0, now[k] - was[k]); });
+    var any = probeCount >= 1;
+    var text = {
+      explore: !any ? '' : probeSpeed < 1 || probeNav < 1 ? 'Needs both Speed and Exploration' : 'Finding ' + perSecond(d.explore) + ' g of matter a second',
+      rep: !any ? '' : '+' + perSecond(d.rep) + ' probes a second',
+      haz: !any ? '' : 'Losing ' + perSecond(d.haz) + ' probes a second',
+      fac: !any ? '' : '+' + perSecond(d.fac) + ' factories a second',
+      harv: !any ? '' : '+' + perSecond(d.harv) + ' harvesters a second',
+      wire: !any ? '' : '+' + perSecond(d.wire) + ' wire drones a second',
+      combat: !any ? '' : perSecond(d.combat) + ' drifters defeated a second'
+    };
+    Array.prototype.forEach.call(liveEls, function (el) {
+      setText(el, text[el.dataset.live] || '');
+      el.classList.toggle('loss', el.dataset.live === 'haz' && d.haz >= 1);
+    });
+  }
+  if (window.UP) UP.on('second', sampleProbes);
+
+  // ---------------------------------------------------------------------------
   // Investment risk as three big buttons instead of a dropdown.
   var riskSeg = $('ui-risk');
   function paintRisk() {

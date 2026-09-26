@@ -483,7 +483,7 @@
     <div class="row big"><span>Trust used</span><b><span id="probeTrustUsedDisplay">0</span> / <span id="probeTrustDisplay">0</span> <small>(<span id="maxTrustDisplay">20</span> max)</small></b></div>
 
     <div class="stat">
-      <div class="stat-text"><b>Speed</b><small>Modifies rate of exploration</small></div>
+      <div class="stat-text"><b>Speed</b><small>Travel faster between stars</small><small class="stat-live" data-live="explore"></small></div>
       <div class="stepper-ctrl">
         <button class="step" id="btnLowerProbeSpeed" onclick="lowerProbeSpeed()" data-repeat aria-label="Lower speed">&minus;</button>
         <b class="step-val" id="probeSpeedDisplay">0</b>
@@ -491,7 +491,7 @@
       </div>
     </div>
     <div class="stat">
-      <div class="stat-text"><b>Exploration</b><small>Rate at which probes gain access to new matter</small></div>
+      <div class="stat-text"><b>Exploration</b><small>Find matter faster</small><small class="stat-live" data-live="explore"></small></div>
       <div class="stepper-ctrl">
         <button class="step" id="btnLowerProbeNav" onclick="lowerProbeNav()" data-repeat aria-label="Lower exploration">&minus;</button>
         <b class="step-val" id="probeNavDisplay">0</b>
@@ -499,7 +499,7 @@
       </div>
     </div>
     <div class="stat">
-      <div class="stat-text"><b>Self-replication</b><small>Rate at which probes make more probes (each new probe costs 100 quadrillion clips)</small></div>
+      <div class="stat-text"><b>Self-replication</b><small>Build more probes (100 quadrillion clips each)</small><small class="stat-live" data-live="rep"></small></div>
       <div class="stepper-ctrl">
         <button class="step" id="btnLowerProbeRep" onclick="lowerProbeRep()" data-repeat aria-label="Lower self-replication">&minus;</button>
         <b class="step-val" id="probeRepDisplay">0</b>
@@ -507,7 +507,7 @@
       </div>
     </div>
     <div class="stat">
-      <div class="stat-text"><b>Hazard remediation</b><small>Reduces damage from dust, junk, radiation, and general entropic decay</small></div>
+      <div class="stat-text"><b>Hazard remediation</b><small>Survive dust, debris and radiation</small><small class="stat-live" data-live="haz"></small></div>
       <div class="stepper-ctrl">
         <button class="step" id="btnLowerProbeHaz" onclick="lowerProbeHaz()" data-repeat aria-label="Lower hazard remediation">&minus;</button>
         <b class="step-val" id="probeHazDisplay">0</b>
@@ -515,7 +515,7 @@
       </div>
     </div>
     <div class="stat">
-      <div class="stat-text"><b>Factory production</b><small>Rate at which probes build factories (each new factory costs 100 million clips)</small></div>
+      <div class="stat-text"><b>Factory production</b><small>Build factories (100 million clips each)</small><small class="stat-live" data-live="fac"></small></div>
       <div class="stepper-ctrl">
         <button class="step" id="btnLowerProbeFac" onclick="lowerProbeFac()" data-repeat aria-label="Lower factory production">&minus;</button>
         <b class="step-val" id="probeFacDisplay">0</b>
@@ -523,7 +523,7 @@
       </div>
     </div>
     <div class="stat">
-      <div class="stat-text"><b>Harvester drone production</b><small>Rate at which probes spawn harvester drones (each new drone costs 2 million clips)</small></div>
+      <div class="stat-text"><b>Harvester drones</b><small>Build harvesters (2 million clips each)</small><small class="stat-live" data-live="harv"></small></div>
       <div class="stepper-ctrl">
         <button class="step" id="btnLowerProbeHarv" onclick="lowerProbeHarv()" data-repeat aria-label="Lower harvester drone production">&minus;</button>
         <b class="step-val" id="probeHarvDisplay">0</b>
@@ -531,7 +531,7 @@
       </div>
     </div>
     <div class="stat">
-      <div class="stat-text"><b>Wire drone production</b><small>Rate at which probes spawn wire drones (each new drone costs 2 million clips)</small></div>
+      <div class="stat-text"><b>Wire drones</b><small>Build wire drones (2 million clips each)</small><small class="stat-live" data-live="wire"></small></div>
       <div class="stepper-ctrl">
         <button class="step" id="btnLowerProbeWire" onclick="lowerProbeWire()" data-repeat aria-label="Lower wire drone production">&minus;</button>
         <b class="step-val" id="probeWireDisplay">0</b>
@@ -540,7 +540,7 @@
     </div>
     <div id="combatButtonDiv">
       <div class="stat">
-        <div class="stat-text"><b>Combat</b><small>Determines offensive and defensive effectiveness in battle</small></div>
+        <div class="stat-text"><b>Combat</b><small>Fight the drifters</small><small class="stat-live" data-live="combat"></small></div>
         <div class="stepper-ctrl">
           <button class="step" id="btnLowerProbeCombat" onclick="lowerProbeCombat()" data-repeat aria-label="Lower combat">&minus;</button>
           <b class="step-val" id="probeCombatDisplay">0</b>

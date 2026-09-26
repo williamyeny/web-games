@@ -518,6 +518,9 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
 .stat-text { display: flex; flex-direction: column; min-width: 0; }
 .stat-text b { font-size: 1rem; }
 .stat-text small { color: var(--ink-2); line-height: 1.3; margin-top: 2px; }
+.stat-text .stat-live { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat-text .stat-live:empty { display: none; }
+.stat-text .stat-live.loss { color: var(--red); }
 
 /* On/off switches (WireBuyer, AutoTourney) */
 .toggle {

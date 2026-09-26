@@ -8,6 +8,7 @@ window.CHANGELOG = [
     items: [
       'Tournaments, rebuilt. Each grid is a named kind of game (prisoner’s dilemma, chicken, stag hunt and more), and its payoffs follow that pattern. Winning doubles your yomi, so the right strategy for the game really matters.',
       'Strategies are a list with a line about what each one does, and the list is the scoreboard while the tournament plays. A new pick during a tournament applies to the next one.',
+      'Probe design is shorter, and each skill shows what it is doing right now: probes built, matter found, probes lost to hazards.',
       'The game no longer cheers you on: no confetti, no “Nice!”, and the big turning points sound like what they are.',
       'Lucky paperclips are gone. Any Stardust spent on Four-Leaf Clip has been refunded.',
       'Trophies are down to 19 that mark real moments. They no longer pay Stardust; only finishing a universe does.',
