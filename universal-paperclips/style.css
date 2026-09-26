@@ -350,7 +350,7 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
 
 /* ---------- buttons ---------- */
 
-.buy, .btn, .step, .chip-btn, .toggle, .projectButton, .make, .seg, .select select {
+.buy, .btn, .step, .chip-btn, .toggle, .projectButton, .make, .seg {
   border: 2.5px solid var(--edge);
   background: var(--card);
   color: var(--ink);
@@ -549,22 +549,6 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
 }
 .seg button[aria-checked="true"] { background: var(--ink); color: var(--paper); }
 
-/* Native select dressed up */
-.select { position: relative; display: block; flex: 1 1 auto; min-width: 0; }
-.select select {
-  -webkit-appearance: none; appearance: none;
-  width: 100%; min-height: 56px; padding: 8px 44px 8px 16px;
-  border-radius: 14px;
-  font-weight: 800; font-size: 1.0625rem;
-  box-shadow: 0 4px 0 var(--drop);
-}
-.select::after {
-  content: ""; position: absolute; right: 18px; top: 50%;
-  width: 9px; height: 9px; margin-top: -7px;
-  border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink);
-  transform: rotate(45deg); pointer-events: none;
-}
-
 /* Swarm work/think slider */
 .slider-wrap {
   display: flex; align-items: center; gap: 12px;
@@ -708,48 +692,55 @@ table.stocks {
 .tourney-actions { display: flex; flex-direction: column; }
 #tourneyButton .buy { margin-top: 4px; }
 
-.pick { display: flex; align-items: stretch; gap: 10px; margin: 16px 0 10px; }
-.pick .run { flex: 0 0 96px; }
-
-#tournamentLabel .note { margin: 8px 0; }
-
-.tourney {
-  min-height: 150px;
-  padding: 12px;
+/* Tournaments: the kind of game and its payoffs, then one list that is both
+   the strategy picker and the scoreboard. */
+.tgame {
+  margin: 16px 0 12px; padding: 12px 14px 10px;
   border: 2px solid var(--edge); border-radius: var(--radius);
   background: var(--card);
-  cursor: pointer;
 }
-.grid-top { display: grid; grid-template-columns: 30% 1fr; }
-#vertStrat, #horizStrat { font-size: 0.8125rem; font-weight: 850; color: var(--ink-2); }
-#vertStrat { text-align: center; padding-bottom: 4px; }
-.grid-body { display: grid; grid-template-columns: 30% 1fr; align-items: center; }
-#horizStrat { text-align: center; padding-right: 6px; overflow-wrap: anywhere; }
-table.payoff {
-  width: 100%; border-collapse: collapse; table-layout: fixed;
-  font-variant-numeric: tabular-nums;
-}
-.payoff th { font-size: 0.75rem; font-weight: 700; color: var(--ink-2); padding: 2px; overflow-wrap: anywhere; }
-.payoff tr > th:first-child { width: 30%; text-align: right; padding-right: 6px; }
-.payoff td {
-  height: 42px; text-align: center; font-weight: 800;
-  border: 2px solid var(--edge);
-}
-/* The engine paints the played cell "LightGrey" for 50ms, then "white", ten times
-   a second. Recolor both, and let each lit cell glow and fade instead of strobing. */
-.payoff td { transition: background-color 0.55s ease-out, color 0.55s ease-out; }
-.payoff td[style*="white"] { background: transparent !important; }
-.payoff td[style*="lightgrey"], .payoff td[style*="LightGrey"] {
-  background: var(--hi) !important; color: var(--on-hi);
-  transition: background-color 0.05s, color 0.05s;
-}
+.tgame[hidden] { display: none; }
+.tgame-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.tgame-head h3 { margin: 0 0 8px; }
+.tgame-round { font-size: 0.8125rem; font-weight: 750; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tgrid { width: 100%; border-collapse: collapse; table-layout: fixed; font-variant-numeric: tabular-nums; }
+.tgrid th { padding: 4px; font-size: 0.8125rem; font-weight: 650; color: var(--ink-2); line-height: 1.2; }
+.tgrid thead th { text-align: center; }
+.tgrid tbody th { text-align: left; width: 34%; }
+.tgrid th span { display: block; color: var(--ink); font-weight: 800; }
+.tgrid thead td { border: 0; }
+.tgrid td { height: 46px; text-align: center; border: 2px solid var(--edge); color: var(--ink-2); font-size: 0.9375rem; }
+.tgrid td b { --casl: 1; font-size: 1.375rem; font-weight: 950; color: var(--ink); }
+.tgrid-key { margin: 8px 0 0; font-size: 0.8125rem; color: var(--ink-2); }
+.tgrid-key b { color: var(--ink); }
 
-.results {
-  display: grid; grid-template-columns: 1fr 1fr;
-  grid-template-rows: repeat(4, auto); grid-auto-flow: column;
-  gap: 8px 12px; font-size: 0.9375rem; font-variant-numeric: tabular-nums;
+.strat-list { display: grid; gap: 8px; margin: 12px 0 4px; }
+.strat {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px;
+  width: 100%; min-height: 56px; padding: 8px 12px 8px 14px;
+  border: 2px solid var(--wire); border-radius: 14px;
+  background: var(--card); color: var(--ink);
+  text-align: left;
 }
-.results span { padding: 4px 0; border-bottom: 1.5px dashed var(--wire); }
+.strat[aria-checked="true"] { border-color: var(--edge); border-width: 3px; padding: 7px 11px 7px 13px; box-shadow: 0 3px 0 var(--drop); }
+.strat.queued { border-style: dashed; border-color: var(--edge); }
+.strat-bar {
+  position: absolute; inset: 0 auto 0 0; z-index: -1;
+  width: calc(var(--s, 0) * 100%);
+  background: color-mix(in srgb, var(--wire) 30%, transparent);
+  transition: width 0.3s linear;
+}
+.strat[aria-checked="true"] .strat-bar { background: var(--fill); }
+.strat-text { display: flex; flex-direction: column; min-width: 0; }
+.strat-text b { font-size: 0.9375rem; font-weight: 850; letter-spacing: 0.01em; }
+.strat-text small { color: var(--ink-2); line-height: 1.3; }
+.strat-score { display: flex; flex-direction: column; align-items: flex-end; font-variant-numeric: tabular-nums; }
+.strat-score b { --casl: 1; font-size: 1.0625rem; font-weight: 900; }
+.strat-score small { font-weight: 750; color: var(--ink-2); }
+.tresult { min-height: 1.4em; margin: 10px 0 8px; font-weight: 750; }
+.tresult:empty { margin: 4px 0; }
+#btnRunTournament { width: 100%; margin-bottom: 14px; }
 
 /* ---------- space ---------- */
 

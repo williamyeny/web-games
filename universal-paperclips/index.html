@@ -404,35 +404,44 @@
       </div>
     </div>
 
-    <div class="pick">
-      <label class="select">
-        <span class="sr">Strategy</span>
-        <select id="stratPicker">
-          <option value="10">Pick a strat</option>
-          <option value="0">RANDOM</option>
-        </select>
-      </label>
-      <button class="btn big run" id="btnRunTournament" onclick="runTourney()" disabled>Run</button>
+    <!-- The kind of game, its payoffs, the strategies to pick from (with their
+         scores as the tournament plays), and the result. Built in ui.js from
+         the engine's numbers. -->
+    <div class="tgame" id="ui-tgame" hidden>
+      <div class="tgame-head">
+        <h3 id="ui-tkind"></h3>
+        <span class="tgame-round" id="ui-tround"></span>
+      </div>
+      <table class="tgrid" id="ui-tgrid" aria-label="Payoffs">
+        <thead><tr><td></td><th scope="col">They <span data-move="a"></span></th><th scope="col">They <span data-move="b"></span></th></tr></thead>
+        <tbody>
+          <tr><th scope="row">You <span data-move="a"></span></th><td data-cell="aa"></td><td data-cell="ab"></td></tr>
+          <tr><th scope="row">You <span data-move="b"></span></th><td data-cell="ba"></td><td data-cell="bb"></td></tr>
+        </tbody>
+      </table>
+      <p class="tgrid-key">Points for <b>you</b> / them, each move. Every strategy plays every other.</p>
     </div>
 
-    <div id="tournamentLabel"><p class="note"><span id="tourneyDisplay">Pick strategy, run tournament, gain yomi</span></p></div>
+    <div class="strat-list" id="ui-strats" role="radiogroup" aria-label="Strategy"></div>
+    <p class="tresult" id="ui-tresult" aria-live="polite"></p>
+    <button class="btn big run" id="btnRunTournament" onclick="runTourney()" disabled>Run tournament</button>
 
-    <div id="tournamentStuff" class="tourney">
-      <div id="tournamentTable">
-        <div class="grid-top"><span></span><div id="vertStrat">&nbsp;</div></div>
-        <div class="grid-body">
-          <div id="horizStrat">&nbsp;</div>
-          <table class="payoff">
+    <!-- Engine-only parts, kept for the numbers it writes into them. -->
+    <div class="engine-only" hidden>
+      <select id="stratPicker"><option value="10">Pick a strat</option><option value="0">RANDOM</option></select>
+      <div id="tournamentLabel"><span id="tourneyDisplay"></span></div>
+      <div id="tournamentStuff">
+        <div id="tournamentTable">
+          <div id="vertStrat"></div><div id="horizStrat"></div>
+          <table>
             <tr><th></th><th><span id="vLabela">Move A</span></th><th><span id="vLabelb">Move B</span></th></tr>
             <tr><th><span id="hLabela">Move A</span></th><td id="payoffCellAA"><span id="aaPayoffH">0</span>,<span id="aaPayoffV">0</span></td><td id="payoffCellAB"><span id="abPayoffH">0</span>,<span id="abPayoffV">0</span></td></tr>
             <tr><th><span id="hLabelb">Move B</span></th><td id="payoffCellBA"><span id="baPayoffH">0</span>,<span id="baPayoffV">0</span></td><td id="payoffCellBB"><span id="bbPayoffH">0</span>,<span id="bbPayoffV">0</span></td></tr>
           </table>
         </div>
-      </div>
-      <div id="tournamentResultsTable" style="display:none">
-        <div class="results">
-          <span id="results0">&nbsp;</span><span id="results1">&nbsp;</span><span id="results2">&nbsp;</span><span id="results3">&nbsp;</span>
-          <span id="results4">&nbsp;</span><span id="results5">&nbsp;</span><span id="results6">&nbsp;</span><span id="results7">&nbsp;</span>
+        <div id="tournamentResultsTable" style="display:none">
+          <span id="results0"></span><span id="results1"></span><span id="results2"></span><span id="results3"></span>
+          <span id="results4"></span><span id="results5"></span><span id="results6"></span><span id="results7"></span>
         </div>
       </div>
     </div>

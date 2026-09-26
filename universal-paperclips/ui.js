@@ -874,22 +874,124 @@
   });
 
   // ---------------------------------------------------------------------------
-  // Tournament: phones have no hover, so tap flips between results and grid.
-  var tourney = $('tournamentStuff');
-  ['mouseover', 'mouseout'].forEach(function (type) {
-    document.addEventListener(type, function (e) {
-      if (tourney.contains(e.target)) e.stopPropagation();
-    }, true);
-  });
-  tourney.addEventListener('click', function () {
-    if (resultsFlag != 1) return;
-    if ($('tournamentTable').style.display === 'none') revealGrid(); else revealResults();
-  });
-  var engineTourneyReport = window.tourneyReport;
-  window.tourneyReport = function (text) {
-    return engineTourneyReport(String(text).replace('roll over', 'tap'));
+  // Tournaments. One list is both the strategy picker and the scoreboard:
+  // pick a row, run, and watch every strategy's score grow as they play each
+  // other on this grid. The grid is labelled with the kind of game it is.
+  var tgame = $('ui-tgame');
+  var tkind = $('ui-tkind');
+  var tround = $('ui-tround');
+  var tgrid = $('ui-tgrid');
+  var stratList = $('ui-strats');
+  var tresult = $('ui-tresult');
+  var runBtn = $('btnRunTournament');
+  var ABOUT = {
+    'RANDOM': function () { return 'Flips a coin every move.'; },
+    'A100': function (m) { return 'Always plays ' + m.a + '.'; },
+    'B100': function (m) { return 'Always plays ' + m.b + '.'; },
+    'GREEDY': function () { return 'Aims for the cell where it gets the most.'; },
+    'GENEROUS': function () { return 'Plays the move that lets the other side get the most.'; },
+    'MINIMAX': function () { return 'Plays the move that keeps the other side from getting the most.'; },
+    'TIT FOR TAT': function () { return 'Copies the other side’s last move.'; },
+    'BEAT LAST': function () { return 'Plays the best answer to the other side’s last move.'; }
   };
+  var queued = null;
+  var stratRows = [];
+  if (window.UP) {
+    if (!gridKind && UP.data.gridKind) gridKind = UP.data.gridKind;
+  }
+  function moves() {
+    return { a: $('vLabela').textContent.replace(/_/g, ' '), b: $('vLabelb').textContent.replace(/_/g, ' ') };
+  }
+  function place(i) {
+    var n = 1;
+    strats.forEach(function (st) { if (st.currentScore > strats[i].currentScore) n++; });
+    return n;
+  }
+  function placeName(n) { return n + (n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th'); }
+  function buildStrats() {
+    stratList.textContent = '';
+    stratRows = strats.map(function (st, i) {
+      var b = document.createElement('button');
+      b.className = 'strat';
+      b.setAttribute('role', 'radio');
+      b.dataset.i = i;
+      b.innerHTML = '<span class="strat-bar"></span><span class="strat-text"><b></b><small></small></span><span class="strat-score"><b></b><small></small></span>';
+      b.querySelector('.strat-text b').textContent = st.name;
+      stratList.appendChild(b);
+      return b;
+    });
+  }
+  stratList.addEventListener('click', function (e) {
+    var b = e.target.closest('.strat');
+    if (!b) return;
+    var i = +b.dataset.i;
+    if (running()) queued = i === +stratPicker.value ? null : i;   // takes effect next tournament
+    else { stratPicker.value = String(i); pick = String(i); queued = null; }
+    paintTourney();
+  });
+  // Whether the current tournament has started playing (not just been set up).
+  var started = false;
+  var engineNewTourney = window.newTourney;
+  window.newTourney = function () { started = false; return engineNewTourney.apply(this, arguments); };
+  var engineRunTourney = window.runTourney;
+  window.runTourney = function () {
+    if (tourneyInProg == 1 && +stratPicker.value === 10 && !started) return;   // nothing picked: don't waste the grid
+    started = true;
+    return engineRunTourney.apply(this, arguments);
+  };
+  function running() { return tourneyInProg == 1 && started; }
+  function paintTourney() {
+    if (!onScreen(stratList.parentNode)) return;
+    if (stratRows.length !== strats.length) buildStrats();
+    var m = moves();
+    var setUp = aa + ab + ba + bb > 0;
+    var run = running();
+    var done = resultsFlag == 1 && tourneyInProg == 0;
+    if (queued !== null && !run) { stratPicker.value = String(queued); pick = String(queued); queued = null; }
+    var chosen = +stratPicker.value;
 
+    tgame.hidden = !setUp;
+    if (setUp) {
+      if (window.UP && gridKind) UP.data.gridKind = gridKind;
+      setText(tkind, gridKind || 'This tournament');
+      setText(tround, run ? 'Round ' + Math.min(rounds, currentRound + 1) + ' of ' + rounds : '');
+      tgrid.querySelectorAll('[data-move]').forEach(function (el) { setText(el, m[el.dataset.move]); });
+      var cells = { aa: [aa, aa], ab: [ab, ba], ba: [ba, ab], bb: [bb, bb] };
+      tgrid.querySelectorAll('[data-cell]').forEach(function (td) {
+        var c = cells[td.dataset.cell];
+        var html = '<b>' + c[0] + '</b> / ' + c[1];
+        if (td.innerHTML !== html) td.innerHTML = html;
+      });
+    }
+
+    var top = 1;
+    strats.forEach(function (st) { top = Math.max(top, st.currentScore); });
+    var scored = run || done;
+    stratRows.forEach(function (b, i) {
+      var st = strats[i];
+      setText(b.querySelector('.strat-text small'), (ABOUT[st.name] || function () { return ''; })(m));
+      b.setAttribute('aria-checked', i === chosen ? 'true' : 'false');
+      b.classList.toggle('queued', i === queued);
+      b.classList.toggle('scored', scored);
+      b.style.setProperty('--s', scored ? (st.currentScore / top).toFixed(3) : 0);
+      setText(b.querySelector('.strat-score b'), scored ? formatWithCommas(st.currentScore) : '');
+      var tag = i === queued ? 'next' : done ? placeName(place(i)) : '';
+      setText(b.querySelector('.strat-score small'), tag);
+    });
+
+    if (!run && tourneyInProg == 1) runBtn.disabled = chosen === 10;
+
+    var text = '';
+    if (done && lastTourney) {
+      var name = strats[lastTourney.pick] ? strats[lastTourney.pick].name : '';
+      text = lastTourney.won
+        ? name + ' won. +' + formatWithCommas(lastTourney.gained) + ' yomi, doubled for winning.'
+        : name + ' finished ' + placeName(lastTourney.place) + ' of ' + lastTourney.of + '. +' + formatWithCommas(lastTourney.gained) + ' yomi.';
+    } else if (tourneyInProg == 1 && !run && chosen === 10) {
+      text = 'Pick a strategy to run.';
+    }
+    setText(tresult, text);
+  }
   // ---------------------------------------------------------------------------
   // Investment risk as three big buttons instead of a dropdown.
   var riskSeg = $('ui-risk');
@@ -1032,7 +1134,6 @@
   var storageBar = $('ui-storage-bar');
   var perfBar = $('ui-perf-bar');
   var chipPlus = document.querySelectorAll('.chip-plus');
-  var pickWrap = stratPicker.closest('.select');
   var wireBuyerPill = $('wireBuyerStatus');
   var autoTourneyPill = $('autoTourneyStatus');
   var profitCells = [1, 2, 3, 4, 5].map(function (n) { return $('stock' + n + 'Profit'); });
@@ -1084,8 +1185,6 @@
     setText(autoTourneyPill, autoTourneyStatus == 1 ? 'ON' : 'OFF');
     autoTourneyPill.classList.toggle('on', autoTourneyStatus == 1);
 
-    pickWrap.classList.toggle('needs-pick', stratPicker.value === '10');
-
     profitCells.forEach(function (td) {
       var v = parseFloat(td.textContent);
       td.classList.toggle('up', v > 0);
@@ -1098,6 +1197,7 @@
   function tick() {
     stageLayout();
     updateTabs();
+    paintTourney();
     fillProgress();
     updateBadges();
     mirror();

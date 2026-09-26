@@ -1940,18 +1940,59 @@ function pickStrats(roundNum) {
     
 }
 
+// Added: each pair of move names is a known kind of game (cooperate/defect is
+// a prisoner's dilemma, swerve/straight is chicken...), and its payoffs now
+// follow that kind's pattern instead of being four random numbers. Knowing
+// the kind of game tells you which strategies tend to win it.
+// Payoffs are for the player choosing the row: R = both A, S = me A / them B,
+// T = me B / them A, P = both B. "mirror" swaps which move is A.
+var gridKinds = {
+    dilemma:  { name: "Prisoner's dilemma", order: ["ba", "aa", "bb", "ab"] },      // T > R > P > S
+    chicken:  { name: "Chicken", order: ["ba", "aa", "ab", "bb"] },                 // T > R > S > P
+    stag:     { name: "Stag hunt", order: ["aa", "ba", "bb", "ab"] },               // R > T > P > S
+    harmony:  { name: "Harmony", order: ["aa", "ab", "ba", "bb"] },                 // R > S > T > P
+    deadlock: { name: "Deadlock", order: ["ba", "bb", "aa", "ab"] },                // T > P > R > S
+    coord:    { name: "Coordination", order: [["aa", "bb", "ab", "ba"], ["bb", "aa", "ba", "ab"]] },
+    anti:     { name: "Anti-coordination", order: [["ab", "ba", "aa", "bb"], ["ba", "ab", "bb", "aa"]] },
+    wild:     { name: "Wild card", order: null }
+};
+var gridKindOf = ["dilemma", "chicken", "coord", "chicken mirror", "wild", "dilemma", "coord", "anti", "wild",
+    "coord", "coord", "stag", "wild", "anti", "harmony", "wild", "deadlock mirror"];
+var gridKind = "";
+
+function kindPayoffs(kind){
+    var k = gridKinds[kind];
+    var g = {};
+    if (!k.order) {
+        ["aa", "ab", "ba", "bb"].forEach(function(c){ g[c] = Math.ceil(Math.random()*10); });
+        return g;
+    }
+    var order = Array.isArray(k.order[0]) ? k.order[Math.floor(Math.random()*k.order.length)] : k.order;
+    var values = [];
+    while (values.length < 4) {
+        var v = Math.ceil(Math.random()*10);
+        if (values.indexOf(v) < 0) values.push(v);
+    }
+    values.sort(function(a, b){ return b - a; });
+    order.forEach(function(c, i){ g[c] = values[i]; });
+    return g;
+}
+
 function generateGrid(){
-    payoffGrid.valueAA = Math.ceil(Math.random()*10);
-    payoffGrid.valueAB = Math.ceil(Math.random()*10);
-    payoffGrid.valueBA = Math.ceil(Math.random()*10);
-    payoffGrid.valueBB = Math.ceil(Math.random()*10);
+    var x = Math.floor(Math.random()*choiceANames.length);
+    var kind = gridKindOf[x].split(" ");
+    var g = kindPayoffs(kind[0]);
+    if (kind[1] == "mirror") g = { aa: g.bb, ab: g.ba, ba: g.ab, bb: g.aa };
+    gridKind = gridKinds[kind[0]].name;
+    payoffGrid.valueAA = g.aa;
+    payoffGrid.valueAB = g.ab;
+    payoffGrid.valueBA = g.ba;
+    payoffGrid.valueBB = g.bb;
     
     aa = payoffGrid.valueAA;
     ab = payoffGrid.valueAB;
     ba = payoffGrid.valueBA;
     bb = payoffGrid.valueBB;
-    
-    var x = Math.floor(Math.random()*choiceANames.length);
     
     vLabelaElement.innerHTML = choiceANames[x];
     vLabelbElement.innerHTML = choiceBNames[x];
@@ -2125,12 +2166,19 @@ function declareWinner(){
         
        tourneyReport("TOURNAMENT RESULTS (roll over for payoff grid)");
        var yomiGained = Math.round(strats[pick].currentScore * yomiBoost * beatBoost * perk.yomi);
+       // Added: winning (or tying for first) doubles the yomi, so picking the
+       // strategy that suits this kind of game really pays.
+       var place = 1;
+       for (var q = 0; q < strats.length; q++) { if (strats[q].currentScore > strats[pick].currentScore) place++; }
+       var won = place == 1;
+       if (won) yomiGained = yomiGained * 2;
+       lastTourney = { pick: +pick, place: place, of: strats.length, gained: yomiGained, won: won, kind: gridKind };
        yomi = yomi + yomiGained;
        yomiDisplayElement.innerHTML = formatWithCommas(yomi);
         
     if (milestoneFlag < 15){    
        
-       displayMessage(strats[pick].name+" scored "+strats[pick].currentScore+" and beat "+bB+" "+w+". Yomi increased by "+yomiGained);
+       displayMessage(strats[pick].name+(won ? " won the tournament" : " finished "+placeName(place)+" of "+strats.length)+". Yomi +"+formatWithCommas(yomiGained)+(won ? " (doubled for winning)" : ""));
            
         }
         
@@ -2168,6 +2216,9 @@ function declareWinner(){
     }
         
 }
+
+var lastTourney = null;   // Added: the latest result, for the screen
+function placeName(n){ return n + (n == 1 ? "st" : n == 2 ? "nd" : n == 3 ? "rd" : "th"); }
 
 function calculateStratsBeat(){
     var sb = 0;
