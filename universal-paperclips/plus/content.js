@@ -58,6 +58,7 @@
 (function () {
   'use strict';
   var UP = window.UP;
+  var D = UP.data;
   function clearMoneyProjects() {
     if (humanFlag != 0) return;
     activeProjects.slice().forEach(function (p) {
