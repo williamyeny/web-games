@@ -15,7 +15,6 @@
   // Turning points in the story, a few feats of skill, and one secret.
   var LIST = [
     // Business
-    ['first-clip', 'business', 'Hello, world', 'Make the first paperclip.', function () { return clips >= 1; }],
     ['limerick', 'business', 'There was an AI', 'Write a limerick.', function () { return project6.flag == 1; }],
     ['speedy', 'business', 'Efficient', 'Make a million paperclips in under 20 minutes.', function () { return clips >= 1e6 && D.run.playSeconds < 1200 && D.run.fromStart; }],
     ['tourney', 'business', 'Yomi', 'Win a tournament with the strategy you picked.', function () {

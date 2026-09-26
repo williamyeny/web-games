@@ -13,7 +13,7 @@ window.CHANGELOG = [
       'Probe design is shorter, and each skill shows what it is doing right now: probes built, matter found, probes lost to hazards.',
       'The game no longer cheers you on: no confetti, no “Nice!”, and the big turning points sound like what they are.',
       'Lucky paperclips are gone. Any Stardust spent on Four-Leaf Clip has been refunded.',
-      'Trophies are down to 19 that mark real moments. They no longer pay Stardust; only finishing a universe does.',
+      'Trophies are down to 18 that mark real moments. They no longer pay Stardust; only finishing a universe does.',
       'Time away is noted in the message log instead of a pop-up.',
       'Laws of physics that only made a universe longer are gone, and there is a new one: Winner Takes All.',
       'The games page shows where your game is (the stage, clips and time played), with a button to continue.',

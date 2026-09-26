@@ -71,11 +71,19 @@
   // Rates, measured once a second.
   var last = null;
   var rate = { made: 0, sold: 0 };
+  var byHand = 0;
   UP.on('second', function () {
     var now = { clips: clips, sold: clipsSold };
-    if (last) { rate.made = Math.max(0, now.clips - last.clips); rate.sold = Math.max(0, now.sold - last.sold); }
+    // Clips made by hand drop in the moment you tap (see below), so they're left out here.
+    if (last) { rate.made = Math.max(0, now.clips - last.clips - byHand); rate.sold = Math.max(0, now.sold - last.sold); }
+    byHand = 0;
     last = now;
     paintCaption();
+  });
+  UP.on('handclip', function (made) {
+    if (!(made > 0)) return;
+    byHand += made;
+    if (stage() === 1 && falling.length < 40 && W) drop();
   });
   // How many of something to draw for a real amount: every one while it's
   // small, then slower and slower (a log scale), never more than `max`.
@@ -122,6 +130,10 @@
     return heapCache;
   }
   var falling = [], leaving = [], fallDebt = 0, leaveDebt = 0;
+  function drop() {
+    var n = shown(Math.max(0, unsoldClips), 60, HEAP_MAX);
+    falling.push({ x: W * 0.42 + (Math.random() - 0.5) * Math.min(heapScale() * 0.8, 60 + n), y: -12, vy: 40 + Math.random() * 30, rot: Math.random() * 6.3, spin: (Math.random() - 0.5) * 6 });
+  }
   function frameHeap(dt, still) {
     var n = shown(Math.max(0, unsoldClips), 60, HEAP_MAX);
     g.fillStyle = card; g.fillRect(0, 0, W, H);
@@ -134,7 +146,7 @@
       fallDebt += dt * Math.min(14, rate.made);
       while (fallDebt >= 1 && falling.length < 40) {
         fallDebt -= 1;
-        falling.push({ x: cx + (Math.random() - 0.5) * Math.min(s * 0.8, 60 + n), y: -12, vy: 40 + Math.random() * 30, rot: Math.random() * 6.3, spin: (Math.random() - 0.5) * 6 });
+        drop();
       }
       if (fallDebt > 3) fallDebt = 3;
       // Sold clips slide off to the right along the floor.
