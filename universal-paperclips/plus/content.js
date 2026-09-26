@@ -22,7 +22,7 @@
   // (confused) or paperclip coats (cold). Its gifts pause until it gets it.
   function schedule() {
     var restless = UP.hasLaw && UP.hasLaw('restless-swarm') ? 2 : 1;
-    D.run.needAt = D.run.playSeconds + Math.round(UP.rand(360, 720) / restless);
+    D.run.needAt = D.run.playSeconds + Math.round(UP.rand(720, 1440) / restless);
   }
   if (!D.run.needAt) schedule();
 
