@@ -31,16 +31,17 @@
   function color(name, fallback) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
   }
-  var ink, ink2, wire, hi, card, space;
+  var ink, ink2, wire, hi, card, space, green;
   function readColors() {
     ink = color('--ink', '#1C2A66'); ink2 = color('--ink-2', '#4E5A86'); wire = color('--wire', '#A3AED0');
     hi = color('--hi', '#FFE141'); card = color('--card', '#FFFFFF'); space = color('--battle', '#0E1A48');
+    green = color('--green', '#17865A');
   }
   function size() {
     dpr = Math.min(3, window.devicePixelRatio || 1);
     W = canvas.clientWidth; H = canvas.clientHeight;
     if (!W || !H) return false;
-    if (canvas.width !== Math.round(W * dpr)) { canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); heapCache = null; }
+    if (canvas.width !== Math.round(W * dpr)) { canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); }
     return true;
   }
 
@@ -93,7 +94,7 @@
   UP.on('handclip', function (made) {
     if (!(made > 0)) return;
     byHand += made;
-    if (stage() === 1 && falling.length < 40 && W) drop();
+    if (stage() === 1 && heapReady && falling.length < 40 && W) drop();
   });
   // How many of something to draw for a real amount: every one while it's
   // small, then slower and slower (a log scale), never more than `max`.
@@ -103,7 +104,11 @@
   }
 
   // ---------------------------------------------------------------------------
-  // 1: the heap.
+  // 1: the heap. Every clip drawn is one object from start to finish: a new
+  // clip falls onto a free spot and stays exactly there; a sold clip is lifted
+  // from its spot and hops into the sales bin on the right, where its price
+  // pops up. (Past 60 clips the heap grows on a log scale, so each clip drawn
+  // stands for more.)
   var HEAP_MAX = 420;
   var SPOTS = (function () {
     // Resting spots spread evenly over a half-disc, nearest the middle first,
@@ -116,69 +121,140 @@
     spots.sort(function (p, q) { return p.d - q.d; });
     return spots;
   })();
-  var heapCache = null, heapCount = -1;
+  var heap = [];          // resting clips: { i: spot, x, y, rot }
+  var taken = {};         // spots resting or reserved by a falling clip
+  var falling = [], leaving = [], pops = [];
+  var earned = 0, popWait = 0;   // money from clips that reached the bin, shown a few times a second
+  var fallDebt = 0, leaveDebt = 0, heapReady = false;
+  var heapCache = null, heapDirty = true, heapW = 0;
   function heapScale() { return Math.min(W * 0.34, H * 1.05); }
   function floorY() { return H - 22; }
-  function heapTop(n) {
-    if (!n) return floorY();
-    var s = heapScale();
-    return floorY() - SPOTS[Math.max(0, n - 1)].d * 0.62 * s - 4;
+  function spotXY(i) {
+    var p = SPOTS[i], s = heapScale();
+    return { x: W * 0.4 + p.x * s * 0.5, y: floorY() - p.y * s - 5 };
   }
-  function drawHeap(n) {
-    if (heapCache && heapCount === n) return heapCache;
-    heapCache = heapCache || document.createElement('canvas');
-    heapCache.width = canvas.width; heapCache.height = canvas.height;
-    var c = heapCache.getContext('2d');
-    c.setTransform(dpr, 0, 0, dpr, 0, 0);
-    c.clearRect(0, 0, W, H);
-    var s = heapScale(), cx = W * 0.42, fy = floorY();
-    for (var i = n - 1; i >= 0; i--) {
-      var p = SPOTS[i];
-      clip(c, cx + p.x * s * 0.5, fy - p.y * s - 5, 13, p.rot, i % 5 ? ink : ink2, 1.5);
+  function freeSpot() {
+    for (var i = 0; i < HEAP_MAX; i++) if (!taken[i]) return i;
+    return -1;
+  }
+  function heapTarget() { return shown(Math.max(0, unsoldClips), 60, HEAP_MAX); }
+  function drawResting(c, h) { clip(c, h.x, h.y, 13, h.rot, h.i % 5 ? ink : ink2, 1.5); }
+  function settle(i, rot) {
+    var p = spotXY(i);
+    var h = { i: i, x: p.x, y: p.y, rot: rot };
+    heap.push(h);
+    taken[i] = true;
+    // Landing on top: just draw it onto the cached heap.
+    if (heapCache && !heapDirty) { var c = heapCache.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); drawResting(c, h); }
+    else heapDirty = true;
+  }
+  function rebuildHeap(n) {
+    heap = []; taken = {}; falling = []; leaving = [];
+    heapDirty = true;
+    for (var i = 0; i < n; i++) settle(i, SPOTS[i].rot);
+  }
+  function heapImage() {
+    if (heapW !== canvas.width) {   // resized: the spots moved
+      heapW = canvas.width;
+      heap.forEach(function (h) { var p = spotXY(h.i); h.x = p.x; h.y = p.y; });
+      heapCache = null;
     }
-    heapCount = n;
+    if (!heapCache) { heapCache = document.createElement('canvas'); heapDirty = true; }
+    if (heapDirty) {
+      heapCache.width = canvas.width; heapCache.height = canvas.height;
+      var c = heapCache.getContext('2d');
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      heap.forEach(function (h) { drawResting(c, h); });
+      heapDirty = false;
+    }
     return heapCache;
   }
-  var falling = [], leaving = [], fallDebt = 0, leaveDebt = 0;
+  // A new clip: pick the next free spot and fall straight onto it.
   function drop() {
-    var n = shown(Math.max(0, unsoldClips), 60, HEAP_MAX);
-    falling.push({ x: W * 0.42 + (Math.random() - 0.5) * Math.min(heapScale() * 0.8, 60 + n), y: -12, vy: 40 + Math.random() * 30, rot: Math.random() * 6.3, spin: (Math.random() - 0.5) * 6 });
+    var i = freeSpot();
+    if (i < 0) return;
+    taken[i] = true;
+    var p = spotXY(i);
+    falling.push({ i: i, x: p.x + (Math.random() - 0.5) * 30, tx: p.x, ty: p.y, y: -14,
+                   vy: 30 + Math.random() * 30, rot: Math.random() * 6.3, spin: (Math.random() - 0.5) * 5 });
+  }
+  // A sale: the clip on top of the heap is picked up and carried to the bin.
+  function binX() { return W - 46; }
+  function sell(value) {
+    if (!heap.length) return;
+    var k = 0;
+    for (var j = 1; j < heap.length; j++) if (heap[j].i > heap[k].i) k = j;
+    var h = heap.splice(k, 1)[0];
+    delete taken[h.i];
+    heapDirty = true;
+    var dur = 0.6 + Math.random() * 0.2;
+    leaving.push({ x0: h.x, y0: h.y, x1: binX() + (Math.random() - 0.5) * 12, y1: floorY() - 12, rot: h.rot, t: 0, dur: dur, value: value });
+  }
+  function drawBin() {
+    var x = binX(), y = floorY() + 1;
+    g.strokeStyle = ink2; g.lineWidth = 2; g.lineJoin = 'round';
+    g.beginPath();
+    g.moveTo(x - 20, y - 26); g.lineTo(x - 16, y); g.lineTo(x + 16, y); g.lineTo(x + 20, y - 26);
+    g.stroke();
+    g.font = '800 13px Recursive, system-ui, sans-serif';
+    g.fillStyle = ink2; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText('$', x, y - 11);
+    g.textBaseline = 'alphabetic';
   }
   function frameHeap(dt, still) {
-    var n = shown(Math.max(0, unsoldClips), 60, HEAP_MAX);
+    var n = heapTarget();
+    var inHeap = heap.length + falling.length;
+    // First draw, motion turned down, or a jump too big to animate: just show it.
+    if (!heapReady || still || Math.abs(n - inHeap) > 40) { rebuildHeap(n); heapReady = true; }
     g.fillStyle = card; g.fillRect(0, 0, W, H);
     g.strokeStyle = wire; g.lineWidth = 2;
     g.beginPath(); g.moveTo(10, floorY() + 1); g.lineTo(W - 10, floorY() + 1); g.stroke();
-    g.drawImage(drawHeap(n), 0, 0, W, H);
+    if (humanFlag == 1) drawBin();
+    g.drawImage(heapImage(), 0, 0, W, H);
     if (!still) {
-      var cx = W * 0.42, s = heapScale();
-      // New clips drop in at up to ~14 a second (fewer, faster ones stand for more).
-      fallDebt += dt * Math.min(14, rate.made);
-      while (fallDebt >= 1 && falling.length < 40) {
-        fallDebt -= 1;
-        drop();
-      }
-      if (fallDebt > 3) fallDebt = 3;
-      // Sold clips slide off to the right along the floor.
-      leaveDebt += dt * Math.min(10, rate.sold);
-      while (leaveDebt >= 1 && leaving.length < 30 && n > 0) {
-        leaveDebt -= 1;
-        leaving.push({ x: cx + Math.min(W * 0.3, s * 0.5 * Math.sqrt(n / HEAP_MAX) * 1.6) + 6, y: floorY() - 5, vx: 80 + Math.random() * 60, rot: Math.random() * 6.3 });
-      }
-      if (leaveDebt > 3) leaveDebt = 3;
-      var top = heapTop(n);
+      // Up to ~14 falls and ~10 sales a second; past that, each one stands for more.
+      var F = Math.min(14, rate.made), L = Math.min(10, rate.sold);
+      var each = margin * (rate.sold > L ? rate.sold / L : 1);
+      fallDebt = Math.min(3, fallDebt + dt * F);
+      leaveDebt = Math.min(3, leaveDebt + dt * L);
+      // Keep the heap near its size: falls wait while it's full, unless sales are making room.
+      while (fallDebt >= 1) { fallDebt -= 1; if (heap.length + falling.length < n + (L > 0 ? 2 : 0)) drop(); }
+      while (leaveDebt >= 1) { leaveDebt -= 1; if (heap.length && heap.length + falling.length > n - (F > 0 ? 2 : 0)) sell(each); }
+
       falling = falling.filter(function (f) {
-        f.vy += 900 * dt; f.y += f.vy * dt; f.rot += f.spin * dt;
-        clip(g, f.x, f.y, 14, f.rot, ink, 1.6);
-        return f.y < top;
+        f.vy += 900 * dt;
+        f.y = Math.min(f.ty, f.y + f.vy * dt);
+        f.x += (f.tx - f.x) * Math.min(1, dt * 5);
+        f.rot += f.spin * dt;
+        if (f.y >= f.ty) { settle(f.i, f.rot); return false; }
+        clip(g, f.x, f.y, 13, f.rot, ink, 1.5);
+        return true;
       });
       leaving = leaving.filter(function (f) {
-        f.x += f.vx * dt; f.rot += 3 * dt;
-        g.globalAlpha = Math.max(0, Math.min(1, (W - f.x) / 60));
-        clip(g, f.x, f.y, 13, f.rot, ink2, 1.5);
-        g.globalAlpha = 1;
-        return f.x < W;
+        f.t = Math.min(1, f.t + dt / f.dur);
+        var e = f.t;
+        var x = f.x0 + (f.x1 - f.x0) * e;
+        var y = f.y0 + (f.y1 - f.y0) * e - 46 * 4 * e * (1 - e);   // a hop up and over
+        clip(g, x, y, 13, f.rot + e * 4, ink, 1.5);
+        if (f.t >= 1) { earned += f.value; return false; }
+        return true;
       });
+      popWait -= dt;
+      if (earned > 0 && popWait <= 0) {
+        pops.push({ x: binX() + (Math.random() - 0.5) * 10, y: floorY() - 32, t: 0, text: '+' + UP.money(earned).replace(/\.00$/, '') });
+        earned = 0;
+        popWait = 0.35;
+      }
+      pops = pops.filter(function (p) {
+        p.t += dt / 0.9;
+        g.globalAlpha = Math.max(0, 1 - p.t);
+        g.font = '800 12px Recursive, system-ui, sans-serif';
+        g.fillStyle = green; g.textAlign = 'center';
+        g.fillText(p.text, p.x, p.y - p.t * 22);
+        g.globalAlpha = 1;
+        return p.t < 1;
+      });
+      if (pops.length > 12) pops.splice(0, pops.length - 12);
     }
     g.font = '600 12px Recursive, system-ui, sans-serif';
     g.fillStyle = ink2;
@@ -393,7 +469,7 @@
   readColors();
   if (window.matchMedia) {
     var scheme = window.matchMedia('(prefers-color-scheme: dark)');
-    var recolor = function () { readColors(); heapCache = null; texture = null; };
+    var recolor = function () { readColors(); heapDirty = true; texture = null; };
     if (scheme.addEventListener) scheme.addEventListener('change', recolor); else if (scheme.addListener) scheme.addListener(recolor);
   }
   place();

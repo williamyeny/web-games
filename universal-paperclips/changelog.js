@@ -2,6 +2,15 @@
 // Keep entries short and plain: what changed for the player, not how.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-heap',
+    date: 'September 25',
+    title: 'Selling, made visible',
+    items: [
+      'Each new clip falls onto the spot where it stays in the heap.',
+      'A sold clip hops off the heap into the sales bin, and the money it made rises out of the bin.'
+    ]
+  },
+  {
     id: '2026-09-25-rework',
     date: 'September 25',
     title: 'A quieter, darker edition',
