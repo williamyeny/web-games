@@ -43,7 +43,8 @@
     { id: 'deep-thoughts', name: 'Deep Thoughts', desc: 'Operations refill at half speed, but creativity comes twice as fast.', bonus: 0.15 },
     { id: 'drift-storm', name: 'Drift Storm', desc: 'Probes drift away 3× as often, but victories bring double honor.', bonus: 0.3 },
     { id: 'restless-swarm', name: 'Restless Swarm', desc: 'Drones work 50% faster, but the swarm needs looking after twice as often.', bonus: 0.1 },
-    { id: 'fast-light', name: 'Fast Light', desc: 'Probes explore twice as fast, but space hazards are twice as deadly.', bonus: 0.1 }
+    { id: 'fast-light', name: 'Fast Light', desc: 'Probes explore twice as fast, but space hazards are twice as deadly.', bonus: 0.1 },
+    { id: 'winner-takes-all', name: 'Winner Takes All', desc: 'Winning a tournament pays three times the yomi; every other place pays half.', bonus: 0.15 }
   ];
   function law(id) { return LAWS.filter(function (l) { return l.id === id; })[0]; }
   UP.hasLaw = function (id) { return D.laws.indexOf(id) >= 0; };
@@ -66,6 +67,7 @@
     if (UP.hasLaw('drift-storm')) { perk.drift *= 3; perk.honor *= 2; }
     if (UP.hasLaw('restless-swarm')) perk.drone *= 1.5;
     if (UP.hasLaw('fast-light')) { perk.explore *= 2; perk.hazard *= 2; }
+    if (UP.hasLaw('winner-takes-all')) { perk.winYomi *= 1.5; perk.loseYomi *= 0.5; }
   });
 
   // ---------------------------------------------------------------------------

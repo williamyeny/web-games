@@ -2171,14 +2171,14 @@ function declareWinner(){
        var place = 1;
        for (var q = 0; q < strats.length; q++) { if (strats[q].currentScore > strats[pick].currentScore) place++; }
        var won = place == 1;
-       if (won) yomiGained = yomiGained * 2;
+       yomiGained = Math.round(won ? yomiGained * 2 * perk.winYomi : yomiGained * perk.loseYomi);
        lastTourney = { pick: +pick, place: place, of: strats.length, gained: yomiGained, won: won, kind: gridKind };
        yomi = yomi + yomiGained;
        yomiDisplayElement.innerHTML = formatWithCommas(yomi);
         
     if (milestoneFlag < 15){    
        
-       displayMessage(strats[pick].name+(won ? " won the tournament" : " finished "+placeName(place)+" of "+strats.length)+". Yomi +"+formatWithCommas(yomiGained)+(won ? " (doubled for winning)" : ""));
+       displayMessage(strats[pick].name+(won ? " won the tournament" : " finished "+placeName(place)+" of "+strats.length)+". Yomi +"+formatWithCommas(yomiGained)+(won ? (perk.winYomi > 1 ? " (tripled for winning)" : " (doubled for winning)") : ""));
            
         }
         

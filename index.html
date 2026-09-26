@@ -69,11 +69,10 @@
 
   h1 {
     --casl: 1;
-    margin: 0 0 28px;
-    font-size: clamp(56px, 19vw, 88px); font-weight: 1000;
-    line-height: 0.9; letter-spacing: -0.035em;
+    margin: 0 0 20px;
+    font-size: 34px; font-weight: 950;
+    line-height: 1; letter-spacing: -0.02em;
   }
-  h1 span { display: inline-block; transform: rotate(-4deg); }
 
   .games { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; }
 
@@ -98,12 +97,20 @@
   .game-name { --casl: 1; display: block; font-size: 22px; font-weight: 900; line-height: 1.1; }
   .game-blurb { display: block; margin-top: 3px; color: var(--ink-2); font-weight: 550; }
   .game-progress {
-    display: inline-block; margin-top: 8px; padding: 2px 10px;
-    border-radius: 999px;
-    background: var(--hi); color: var(--on-hi);
-    font-size: 0.8125rem; font-weight: 800;
+    display: block; margin-top: 10px;
+    font-size: 0.875rem; font-weight: 700; color: var(--ink);
+    font-variant-numeric: tabular-nums;
   }
+  .game-progress b { --casl: 1; font-size: 1.125rem; font-weight: 950; }
   .game-progress:empty { display: none; }
+  .game-go {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 52px; margin-top: 4px;
+    border-radius: 14px;
+    background: var(--ink); color: var(--paper);
+    font-size: 1.0625rem; font-weight: 850;
+  }
   .game-tags { display: flex; flex-wrap: wrap; gap: 6px; }
   .game-new {
     display: inline-block; margin-top: 8px; padding: 2px 10px;
@@ -125,7 +132,7 @@
 </head>
 <body>
 <main>
-  <h1><span>Games</span></h1>
+  <h1>Games</h1>
 
   <ul class="games">
     <li>
@@ -134,11 +141,12 @@
         <span>
           <span class="game-name">Universal Paperclips</span>
           <span class="game-blurb">Make paperclips. Then make more.</span>
+          <span class="game-progress" id="paperclips-progress"></span>
           <span class="game-tags">
-            <span class="game-new" id="paperclips-new" hidden>Updated!</span>
-            <span class="game-progress" id="paperclips-progress"></span>
+            <span class="game-new" id="paperclips-new" hidden>Updated</span>
           </span>
         </span>
+        <span class="game-go" id="paperclips-go">Play</span>
       </a>
     </li>
   </ul>
@@ -160,17 +168,31 @@
     function words(n) {
       if (n < 1e6) return Math.floor(n).toLocaleString('en-US');
       var i = Math.min(names.length - 1, Math.floor(Math.log10(n) / 3));
-      return (n / Math.pow(1000, i)).toFixed(1) + ' ' + names[i];
+      var v = n / Math.pow(1000, i);
+      return (v >= 100 ? Math.floor(v) : Math.floor(v * (v >= 10 ? 10 : 100)) / (v >= 10 ? 10 : 100)) + ' ' + names[i];
     }
+    function hours(s) {
+      var h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
+      return h ? h + 'h ' + m + 'm' : m + 'm';
+    }
+    // Where the saved game is: which universe, which stage, how many clips.
     try {
       var save = JSON.parse(localStorage.getItem('saveGame'));
       var plusData = null;
       try { plusData = JSON.parse(localStorage.getItem('up-plus')); } catch (e) { plusData = null; }
-      var universe = plusData && plusData.universe > 1 ? 'Universe ' + plusData.universe + ': ' : '';
+      var parts = [];
+      if (plusData && plusData.universe > 1) parts.push('Universe ' + plusData.universe);
+      if (save) {
+        var stage = save.milestoneFlag >= 15 ? 'The end' : save.spaceFlag == 1 ? 'Space' : save.humanFlag == 0 ? 'Earth' : 'Business';
+        if (save.clips > 0) parts.push(stage);
+        if (plusData && plusData.run && plusData.run.playSeconds > 60) parts.push(hours(plusData.run.playSeconds) + ' played');
+      }
       if (save && save.clips > 0) {
-        document.getElementById('paperclips-progress').textContent = universe + words(save.clips) + ' clips so far';
-      } else if (universe) {
-        document.getElementById('paperclips-progress').textContent = universe + 'just getting started';
+        var el = document.getElementById('paperclips-progress');
+        el.innerHTML = '<b></b> clips<br>';
+        el.querySelector('b').textContent = words(save.clips);
+        el.appendChild(document.createTextNode(parts.join(', ')));
+        document.getElementById('paperclips-go').textContent = 'Continue';
       }
     } catch (e) { /* no save yet */ }
     try {

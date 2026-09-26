@@ -1008,7 +1008,7 @@
     if (done && lastTourney) {
       var name = strats[lastTourney.pick] ? strats[lastTourney.pick].name : '';
       text = lastTourney.won
-        ? name + ' won. +' + formatWithCommas(lastTourney.gained) + ' yomi, doubled for winning.'
+        ? name + ' won. +' + formatWithCommas(lastTourney.gained) + ' yomi, ' + (perk.winYomi > 1 ? 'tripled' : 'doubled') + ' for winning.'
         : name + ' finished ' + placeName(lastTourney.place) + ' of ' + lastTourney.of + '. +' + formatWithCommas(lastTourney.gained) + ' yomi.';
     } else if (tourneyInProg == 1 && !run && chosen === 10) {
       text = 'Pick a strategy to run.';
