@@ -695,6 +695,8 @@
       });
     } else if (/^btnRaiseProbe/.test(b.id)) {
       if (probeTrust - probeUsedTrust < 1) out.push({ text: 'Needs more probe trust', res: 'probe trust' });
+    } else if (b.id === 'btnIncreaseMaxTrust' && probeTrust < maxTrust) {
+      out.push({ text: 'Probe trust isn’t at its max yet', res: 'probe trust' });
     } else if (b.id === 'btnAddProc' || b.id === 'btnAddMem') {
       out.push(humanFlag == 1 ? { text: 'Needs more trust', res: 'trust' } : { text: 'Needs a swarm gift', res: 'gifts' });
     } else if (BUY_COST[b.id]) {
@@ -921,11 +923,14 @@
   };
   var queued = null;
   var stratRows = [];
-  // Loading a save clears the engine's "results showing" state, which is what
-  // AutoTourney waits for before starting the next one. Put it back.
-  if (autoTourneyFlag == 1 && autoTourneyStatus == 1 && tourneyInProg == 0 && strategyEngineFlag == 1) {
-    resultsFlag = 1;
-    $('tournamentResultsTable').style.display = '';
+  // AutoTourney only starts a tournament after the last one's results are
+  // showing. Right after buying it (or turning it on, or reloading) there may
+  // be no results yet, so it would sit there ON and idle. Get it going.
+  function autoTourneyKick() {
+    if (autoTourneyFlag == 1 && autoTourneyStatus == 1 && tourneyInProg == 0 && resultsFlag == 0 && strategyEngineFlag == 1) {
+      resultsFlag = 1;
+      $('tournamentResultsTable').style.display = '';
+    }
   }
   if (window.UP) {
     if (!gridKind && UP.data.gridKind) gridKind = UP.data.gridKind;
@@ -972,6 +977,7 @@
   };
   function running() { return tourneyInProg == 1 && started; }
   function paintTourney() {
+    autoTourneyKick();
     var run = running();
     // A pick made during a tournament applies as soon as it ends, on any tab.
     if (queued !== null && !run) { stratPicker.value = String(queued); pick = String(queued); queued = null; }

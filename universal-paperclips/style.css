@@ -1302,6 +1302,7 @@ table.stocks {
 .bp-pips { display: flex; gap: 4px; margin-top: 4px; }
 .bp-pips i { width: 16px; height: 8px; border-radius: 999px; border: 1.5px solid var(--wire); }
 .bp-pips i.on { background: #FFE141; border-color: #FFE141; }
+.bp-level { font-size: 0.875rem; font-weight: 800; color: var(--ink-2); white-space: nowrap; }
 .bp-buy { width: auto; min-width: 84px; min-height: 48px; margin: 0; padding: 6px 14px; display: flex; justify-content: center; }
 .bp-buy .buy-name { font-size: 1rem; }
 .bp-buy:not(:disabled) { background: #FFE141; color: #0F1E52; }

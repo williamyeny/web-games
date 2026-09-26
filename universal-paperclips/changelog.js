@@ -2,11 +2,23 @@
 // Keep entries short and plain: what changed for the player, not how.
 window.CHANGELOG = [
   {
+    id: '2026-09-25-unlocks',
+    date: 'September 25',
+    title: 'Every purchase does something',
+    items: [
+      'Quantum Computing comes with its first photonic chip, so Compute works the moment you buy it. Games that already bought it without a chip get one now.',
+      'Release the HypnoDrones is one purchase (70,000 ops and 100 trust). HypnoDrones on its own used to do nothing until you had the trust.',
+      'On Earth, Tóth Tubule Enfolding brings clip factories and solar farms, and Nanoscale Wire Production brings both kinds of drones. The four projects that used to sit in between are gone, and so are their costs.',
+      'Increase max trust waits until probe trust is actually at its max.',
+      'AutoTourney starts on its own once it is on.',
+      'Blueprints are bought between universes, where each one takes effect in the universe about to begin. The menu still lists them.'
+    ]
+  },
+  {
     id: '2026-09-25-heap',
     date: 'September 25',
     title: 'Selling, made visible',
     items: [
-      'Quantum Computing comes with its first photonic chip, so Compute works the moment you buy it. Games that already bought it without a chip get one now.',
       'Each new clip falls onto the spot where it stays in the heap.',
       'A sold clip hops off the heap into the sales bin, and the money it made rises out of the bin.'
     ]

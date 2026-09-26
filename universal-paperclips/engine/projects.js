@@ -453,7 +453,7 @@ var project18 = {
     id: "projectButton18",
     title: "T\xF3th Tubule Enfolding ",
     priceTag: "(45,000 ops)",
-    description: "Technique for assembling clip-making technology directly out of paperclips",
+    description: "Technique for assembling clip-making technology directly out of paperclips. Unlocks clip factories and solar farms",
     trigger: function(){return project17.flag == 1 && humanFlag == 0},
     uses: 1,
     cost: function(){return operations>=45000},
@@ -462,7 +462,13 @@ var project18 = {
     effect: function(){
         project18.flag = 1;
         tothFlag = 1;
-        displayMessage("New capability: build machinery out of clips");
+        // Added: clip factories and the power grid come with it, so there is
+        // something to build right away (they used to be three more projects).
+        factoryFlag = 1;
+        document.getElementById('factoryCostDisplay').innerHTML = spellf(factoryCost);
+        project127.flag = 1;
+        project127.uses = 0;
+        displayMessage("New capability: build machinery out of clips. Clip factories and solar farms online");
         standardOps = standardOps - 45000;
         project18.element.parentNode.removeChild(project18.element);
         var index = activeProjects.indexOf(project18);
@@ -690,7 +696,7 @@ var project70 = {
     title: "HypnoDrones ",
     priceTag: "(70,000 ops)",
     description: "Autonomous aerial brand ambassadors",
-    trigger: function(){return project34.flag == 1},
+    trigger: function(){return false},  // Added: retired; its cost is now part of Release the HypnoDrones
     uses: 1,
     cost: function(){return operations>=70000},
     flag: 0,
@@ -711,15 +717,18 @@ projects.push(project70);
 var project35 = {
     id: "projectButton35",
     title: "Release the HypnoDrones ",
-    priceTag: "(100 Trust)",
-    description: "A new era of trust",
-    trigger: function(){return project70.flag == 1},
+    // Added: HypnoDrones used to be a separate 70,000 ops purchase that did
+    // nothing until 100 trust. Now it's one purchase, visible from the start.
+    priceTag: "(70,000 ops, 100 Trust)",
+    description: "Autonomous aerial brand ambassadors. A new era of trust",
+    trigger: function(){return project34.flag == 1 || project70.flag == 1},
     uses: 1,
-    cost: function(){return trust>=100},
+    cost: function(){return trust>=100 && (project70.flag == 1 || operations>=70000)},
     flag: 0,
     element: null,
     effect: function(){
         project35.flag = 1;
+        if (project70.flag != 1) standardOps = standardOps - 70000;  // Added
         displayMessage("Releasing the HypnoDrones ");
         displayMessage("All of the resources of Earth are now available for clip production ");
         trust = 0;
@@ -889,7 +898,7 @@ var project41 = {
     id: "projectButton41",
     title: "Nanoscale Wire Production ",
     priceTag: "(35,000 ops)",
-    description: "Technique for converting matter into wire",
+    description: "Technique for converting matter into wire. Unlocks harvester and wire drones",
     trigger: function(){return project127.flag == 1},
     uses: 1,
     cost: function(){return operations>=35000},
@@ -898,7 +907,12 @@ var project41 = {
     effect: function(){
         project41.flag = 1;
         wireProductionFlag = 1;
-        displayMessage("Now capable of manipulating matter at the molecular scale to produce wire");
+        // Added: harvester and wire drones come with it (they used to be two more projects).
+        harvesterFlag = 1;
+        wireDroneFlag = 1;
+        document.getElementById('harvesterCostDisplay').innerHTML = spellf(harvesterCost);
+        document.getElementById('wireDroneCostDisplay').innerHTML = spellf(wireDroneCost);
+        displayMessage("Now capable of manipulating matter at the molecular scale to produce wire. Harvester and wire drones online");
         standardOps = standardOps - 35000;
         project41.element.parentNode.removeChild(project41.element);
         var index = activeProjects.indexOf(project41);
@@ -992,7 +1006,7 @@ var project43 = {
     title: "Harvester Drones ",
     priceTag: "(25,000 ops)",
     description: "Gather raw matter and prepare it for processing",
-    trigger: function(){return project41.flag == 1},
+    trigger: function(){return false},  // Added: retired; Nanoscale Wire Production brings the drones
     uses: 1,
     cost: function(){return operations>=25000},
     flag: 0,
@@ -1016,7 +1030,7 @@ var project44 = {
     title: "Wire Drones ",
     priceTag: "(25,000 ops)",
     description: "Process acquired matter into wire",
-    trigger: function(){return project41.flag == 1},
+    trigger: function(){return false},  // Added: retired; Nanoscale Wire Production brings the drones
     uses: 1,
     cost: function(){return operations>=25000},
     flag: 0,
@@ -1041,7 +1055,7 @@ var project45 = {
     title: "Clip Factories ",
     priceTag: "(35,000 ops)",
     description: "Large scale clip production facilities made from clips",
-    trigger: function(){return project43.flag == 1 && project44.flag == 1},
+    trigger: function(){return false},  // Added: retired; Tóth Tubule Enfolding brings clip factories
     uses: 1,
     cost: function(){return operations>=35000},
     flag: 0,
@@ -1717,7 +1731,7 @@ var project127 = {
     title: "Power Grid ",
     priceTag: "(40,000 ops)",
     description: "Solar Farms for generating electrical power ",
-    trigger: function(){return tothFlag == 1},
+    trigger: function(){return false},  // Added: retired; Tóth Tubule Enfolding brings the power grid
     uses: 1,
     cost: function(){return operations>=40000},
     flag: 0,

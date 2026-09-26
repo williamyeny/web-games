@@ -100,9 +100,21 @@
     project217.uses = 1;
   });
 
-  // Projects for features that were removed (lucky paperclips), left over in old saves.
+  // Projects that were retired, left over in old saves: lucky paperclips
+  // (300, 301), and steps that bought nothing usable on their own (HypnoDrones,
+  // now part of Release the HypnoDrones; Power Grid and Clip Factories, now part
+  // of Tóth Tubule Enfolding; Harvester and Wire Drones, now part of Nanoscale
+  // Wire Production).
+  if (tothFlag == 1) { factoryFlag = 1; project127.flag = 1; project127.uses = 0; }
+  if (project41.flag == 1) { harvesterFlag = 1; wireDroneFlag = 1; }
+  if (project70.flag == 1) project35.priceTag = '(100 Trust)';   // HypnoDrones already paid for
   setTimeout(function () {
-    [project300, project301].forEach(function (p) {
+    if (project35.element) {
+      var cost = project35.element.querySelector('.cost');
+      var label = UP.priceLabel ? UP.priceLabel(project35.priceTag) : project35.priceTag;
+      if (cost && cost.textContent !== label) cost.textContent = label;
+    }
+    [project300, project301, project70, project127, project43, project44, project45].forEach(function (p) {
       var at = activeProjects.indexOf(p);
       if (at < 0) return;
       if (p.element && p.element.parentNode) p.element.parentNode.removeChild(p.element);

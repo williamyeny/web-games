@@ -241,17 +241,24 @@
     })(start);
   }
 
-  function blueprintCard(bp, onChange) {
+  // Blueprints are bought between universes, where every one of them takes
+  // effect in the universe about to begin. Mid-universe (in the menu) they're
+  // only listed: some would do nothing until the next universe.
+  function blueprintCard(bp, onChange, readOnly) {
     var lvl = level(bp.id);
     var max = bp.costs.length;
     var card = el('div', 'bp' + (lvl >= max ? ' maxed' : ''));
     var text = el('div', 'bp-text');
     text.appendChild(el('b', null, bp.name));
-    text.appendChild(el('span', null, bp.desc + (bp.start ? ' (from your next universe)' : '')));
+    text.appendChild(el('span', null, bp.desc));
     var pips = el('span', 'bp-pips');
     for (var i = 0; i < max; i++) pips.appendChild(el('i', i < lvl ? 'on' : ''));
     text.appendChild(pips);
     card.appendChild(text);
+    if (readOnly) {
+      card.appendChild(el('span', 'bp-level', lvl >= max ? 'Done' : lvl ? 'Level ' + lvl : ''));
+      return card;
+    }
     var btn = el('button', 'buy bp-buy');
     if (lvl >= max) {
       btn.disabled = true;
@@ -276,10 +283,11 @@
     return card;
   }
 
-  function renderShop(box, onChange) {
+  function renderShop(box, onChange, readOnly) {
     box.appendChild(dustBadge());
+    if (readOnly) box.appendChild(el('p', 'sheet-p', 'Blueprints are bought between universes.'));
     var list = el('div', 'bp-list');
-    BLUEPRINTS.forEach(function (bp) { list.appendChild(blueprintCard(bp, onChange)); });
+    BLUEPRINTS.forEach(function (bp) { list.appendChild(blueprintCard(bp, onChange, readOnly)); });
     box.appendChild(list);
   }
 
@@ -384,7 +392,7 @@
       var done = LAWS.filter(function (l) { return (D.lawsFinished || {})[l.id]; }).length;
       box.appendChild(el('p', 'sheet-p', 'Laws of physics finished: ' + done + ' of ' + LAWS.length + '.'));
       box.appendChild(el('h3', 'sheet-h', 'Blueprints'));
-      renderShop(box, function () { UP.refreshMenu(); });
+      renderShop(box, function () { UP.refreshMenu(); }, true);
     }
   });
 

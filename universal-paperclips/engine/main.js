@@ -1104,7 +1104,7 @@ if (project131.flag == 0){
     combatButtonDivElement.style.display = "";    
     }     
     
-if (maxFactoryLevel>=50 || project45.flag == 0){
+if (maxFactoryLevel>=50 || factoryFlag == 0){  // Added: was project45 (Clip Factories), now retired
     factoryUpgradeDisplayElement.style.display = "none";
     } else {
     factoryUpgradeDisplayElement.style.display = "";    
@@ -1114,7 +1114,7 @@ if (maxFactoryLevel>=50 || project45.flag == 0){
     droneUpgradeDisplayElement.style.display = "none";
     }
     
-if (honor<maxTrustCost){btnIncreaseMaxTrustElement.disabled = true;
+if (honor<maxTrustCost || probeTrust<maxTrust){btnIncreaseMaxTrustElement.disabled = true;  // Added: only once probe trust is at its max
             } else {
             btnIncreaseMaxTrustElement.disabled = false;    
             }
@@ -3930,7 +3930,7 @@ function increaseProbeTrust(){
 }
 
 function increaseMaxTrust(){
-    if (honor >= maxTrustCost){
+    if (honor >= maxTrustCost && probeTrust >= maxTrust){  // Added: raising the max only helps once it's reached
     honor = honor - maxTrustCost; 
     honorDisplayElement.innerHTML = formatWithCommas(Math.round(honor));
     maxTrust = maxTrust+10;
