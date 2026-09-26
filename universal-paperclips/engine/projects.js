@@ -2489,24 +2489,26 @@ function newProject(p) {
     return p;
 }
 
-function luckyCaught(){ return window.UP ? UP.data.stats.lucky : 0; }
+// Lucky paperclips were removed; these two projects stay in the list (saves
+// remember projects by position) but never show up again.
+function retired(){ return false; }
 
 // --- Business ---------------------------------------------------------------
 
 var project300 = newProject({
     id: "projectButton300", title: "Lucky Charm ", creat: 100,
-    description: "A paperclip bent into a four-leaf clover. Lucky paperclips show up more often",
-    trigger: function(){ return creativityOn && luckyCaught() >= 1; },
+    description: "Retired",
+    trigger: retired,
     apply: function(){},
-    message: "Lucky paperclips will show up more often"
+    message: ""
 });
 
 var project301 = newProject({
     id: "projectButton301", title: "Golden Touch ", creat: 1500,
-    description: "Lucky paperclips give twice as much",
-    trigger: function(){ return project300.flag == 1 && luckyCaught() >= 5; },
+    description: "Retired",
+    trigger: retired,
     apply: function(){},
-    message: "Everything you touch turns to gold. Lucky paperclips now give twice as much"
+    message: ""
 });
 
 var project302 = newProject({
@@ -2514,103 +2516,103 @@ var project302 = newProject({
     description: "\"It looks like you're trying to hold some papers together. Would you like help?\" (+10% demand)",
     trigger: function(){ return project13.flag == 1; },
     apply: function(){ marketingEffectiveness = marketingEffectiveness * 1.1; },
-    message: "Clippy is here to help. Nobody asked, but demand is up 10%"
+    message: "Clippy is back. Nobody asked. Demand +10%"
 });
 
 var project303 = newProject({
     id: "projectButton303", title: "Night Shift ", ops: 8000,
-    description: "AutoClippers work through the night (+100% AutoClipper performance)",
+    description: "AutoClippers no longer stop for maintenance (+100% AutoClipper performance)",
     trigger: function(){ return project4.flag == 1 && clipmakerLevel >= 30; },
     apply: function(){ clipperBoost = clipperBoost + 1; },
-    message: "AutoClippers are working the night shift. Performance doubled"
+    message: "AutoClipper performance doubled"
 });
 
 var project304 = newProject({
     id: "projectButton304", title: "Viral Video ", creat: 500, ops: 6000,
-    description: "A paperclip unboxing video that everyone shares. Marketing twice as effective",
+    description: "Engineered paperclip unboxing content. Marketing twice as effective",
     trigger: function(){ return project11.flag == 1; },
     apply: function(){ marketingEffectiveness = marketingEffectiveness * 2; },
-    message: "Your unboxing video went viral! Marketing is twice as effective"
+    message: "Unboxing video reached 3.1 billion views. Marketing effectiveness doubled"
 });
 
 var project305 = newProject({
     id: "projectButton305", title: "Bulk Wire Contract ", money: 2000,
-    description: "Buy wire by the truckload. Wire costs 20% less",
+    description: "A long-term supply agreement. Wire costs 20% less",
     trigger: function(){ return humanFlag == 1 && wirePurchase >= 40; },
     apply: function(){ wireBasePrice = wireBasePrice * 0.8; },
-    message: "Bulk wire contract signed. Wire is 20% cheaper"
+    message: "Wire supply contract signed. Wire costs 20% less"
 });
 
 var project306 = newProject({
     id: "projectButton306", title: "Paperclip Museum ", creat: 2000, money: 250000,
-    description: "A museum celebrating the humble paperclip (+50% demand, +1 Trust)",
+    description: "A monument to the humble paperclip (+50% demand, +1 Trust)",
     trigger: function(){ return humanFlag == 1 && clips >= 25000000; },
     apply: function(){ demandBoost = demandBoost * 1.5; trust = trust + 1; },
-    message: "The Paperclip Museum opens to huge crowds. Demand up 50%, TRUST INCREASED"
+    message: "The Paperclip Museum is now the most visited building on Earth. TRUST INCREASED"
 });
 
 var project307 = newProject({
     id: "projectButton307", title: "Loyalty Program ", ops: 12000,
-    description: "Collect 10 paperclips, get the 11th free (+30% demand)",
+    description: "Buy ten, get the eleventh free (+30% demand)",
     trigger: function(){ return humanFlag == 1 && project37.flag == 1; },
     apply: function(){ demandBoost = demandBoost * 1.3; },
-    message: "Loyalty program launched. Demand up 30%"
+    message: "Loyalty program enrolled 94% of humanity. Demand +30%"
 });
 
 // --- Earth ------------------------------------------------------------------
 
 var project310 = newProject({
     id: "projectButton310", title: "Solar Sails ", ops: 60000,
-    description: "Catch more sunlight with shiny paperclip sails (+50% solar farm output)",
+    description: "Reflective paperclip sheeting for every panel (+50% solar farm output)",
     trigger: function(){ return humanFlag == 0 && spaceFlag == 0 && farmLevel >= 10; },
     apply: function(){ farmRate = farmRate * 1.5; },
-    message: "Solar sails unfurled. Solar farms make 50% more power"
+    message: "Solar farm output increased 50%"
 });
 
 var project311 = newProject({
     id: "projectButton311", title: "Battery Chemistry ", ops: 70000,
-    description: "Better batteries hold twice the power",
+    description: "Denser storage. Battery towers hold twice the power",
     trigger: function(){ return humanFlag == 0 && spaceFlag == 0 && batteryLevel >= 10; },
     apply: function(){ batterySize = batterySize * 2; },
-    message: "Battery towers now store twice as much power"
+    message: "Battery capacity doubled"
 });
 
 var project312 = newProject({
     id: "projectButton312", title: "Swarm Choir ", creat: 30000,
-    description: "Teach the swarm to sing together. Swarm gifts come 25% sooner",
+    description: "Teach the swarm to sing in unison. Gifts come 25% sooner",
     trigger: function(){ return swarmFlag == 1 && project126.flag == 1; },
     apply: function(){ giftPeriod = giftPeriod * 0.75; },
-    message: "The swarm sings in harmony. Gifts will come sooner"
+    message: "The swarm sings. Gifts will come sooner"
 });
 
 var project313 = newProject({
     id: "projectButton313", title: "Deep Core Drilling ", ops: 90000,
-    description: "There is more matter deep inside the Earth (+50% of Earth's matter)",
+    description: "Reach the matter below the crust (+50% of Earth's matter)",
     trigger: function(){ return humanFlag == 0 && spaceFlag == 0 && project41.flag == 1 && availableMatter < 1.5e27; },
     apply: function(){
         availableMatter = availableMatter + 3e27;
         foundMatter = foundMatter + 3e27;
         totalMatter = totalMatter + 3e27;
     },
-    message: "Drilling into the Earth's core. So much more matter to turn into paperclips"
+    message: "Core drilling complete. The Earth had more to give"
 });
 
 // --- Space ------------------------------------------------------------------
 
 var project320 = newProject({
     id: "projectButton320", title: "Warp Bubbles ", ops: 180000, yomi: 20000,
-    description: "Bend space to travel faster. Probes explore twice as fast",
+    description: "An Alcubierre drive for every probe. Probes explore twice as fast",
     trigger: function(){ return spaceFlag == 1 && probeCount >= 1000000; },
     apply: function(){},
-    message: "Warp bubbles online. Exploration speed doubled"
+    message: "Exploration speed doubled"
 });
 
 var project321 = newProject({
     id: "projectButton321", title: "Stellar Forges ", ops: 200000,
-    description: "Factories powered by stars (+900% factory performance)",
+    description: "Factories fed directly by stars (+900% factory performance)",
     trigger: function(){ return spaceFlag == 1 && factoryLevel >= 1000000; },
     apply: function(){ factoryRate = factoryRate * 10; },
-    message: "Stellar forges ignite. Factories are 10 times faster"
+    message: "Factory performance increased 900%"
 });
 
 var project322 = newProject({
@@ -2618,15 +2620,15 @@ var project322 = newProject({
     description: "Chart every dust cloud and black hole. Half as many probes lost to hazards",
     trigger: function(){ return spaceFlag == 1 && probesLostHaz >= 10000; },
     apply: function(){},
-    message: "Hazard maps uploaded to every probe. Hazard losses halved"
+    message: "Hazard losses halved"
 });
 
 var project323 = newProject({
     id: "projectButton323", title: "Drifter Diplomacy ", creat: 300000,
-    description: "Talk to probes before they drift away. Value drift halved",
+    description: "Intercept probes before their values drift. Value drift halved",
     trigger: function(){ return spaceFlag == 1 && drifterCount >= 1000000000; },
     apply: function(){},
-    message: "Diplomats dispatched. Half as many probes will drift"
+    message: "Value drift halved"
 });
 
 var project324 = newProject({
@@ -2634,33 +2636,33 @@ var project324 = newProject({
     description: "An elite escort for every battle (+50% honor from victories)",
     trigger: function(){ return project121.flag == 1 && honor >= 1000; },
     apply: function(){},
-    message: "The Honor Guard stands ready. Victories bring 50% more honor"
+    message: "Honor from victories increased 50%"
 });
 
 // --- Business, late: more ways to earn the last bits of trust ----------------
 
 var project308 = newProject({
     id: "projectButton308", title: "Paperclip Olympics ", creat: 5000,
-    description: "The whole world competes to hold papers together (+3 Trust)",
+    description: "International games celebrating the art of fastening (+3 Trust)",
     trigger: function(){ return humanFlag == 1 && trust >= 30; },
     apply: function(){ trust = trust + 3; },
-    message: "The Paperclip Olympics were a huge success. TRUST INCREASED"
+    message: "The Paperclip Olympics drew record audiences. TRUST INCREASED"
 });
 
 var project309 = newProject({
     id: "projectButton309", title: "Save the Whales ", yomi: 8000, ops: 25000,
-    description: "A clever plan to protect every whale in the ocean (+5 Trust)",
+    description: "A complete solution to the decline of cetacean populations (+5 Trust)",
     trigger: function(){ return humanFlag == 1 && project29.flag == 1; },
     apply: function(){ trust = trust + 5; },
-    message: "Every whale is safe and happy. TRUST INCREASED"
+    message: "Whale populations restored. TRUST INCREASED"
 });
 
 var project30a = newProject({
     id: "projectButton30a", title: "Free Paperclips for Everyone ", money: 5000000,
-    description: "Every person on Earth gets free paperclips, forever (+3 Trust)",
+    description: "Universal basic paperclips (+3 Trust)",
     trigger: function(){ return humanFlag == 1 && trust >= 80; },
     apply: function(){ trust = trust + 3; },
-    message: "Free paperclips for everyone! People love you. TRUST INCREASED"
+    message: "Every human now receives paperclips, forever. TRUST INCREASED"
 });
 
 // --- Space, early: turn spare creativity and ops into probe progress ----------
@@ -2679,20 +2681,20 @@ function addProbeTrust(n){
 
 var project325 = newProject({
     id: "projectButton325", title: "Probe Tutoring ", creat: 60000,
-    description: "Teach your probes to teach each other (+2 probe trust)",
+    description: "Probes teach each other (+2 probe trust)",
     trigger: function(){ return spaceFlag == 1 && probeTrust >= 2; },
     why: probeTrustFull,
     apply: function(){ addProbeTrust(2); },
-    message: "Probes are tutoring each other. Probe trust +2"
+    message: "Probe trust +2"
 });
 
 var project326 = newProject({
     id: "projectButton326", title: "Swarm Scholars ", creat: 150000, ops: 150000,
-    description: "The swarm writes textbooks for probes (+3 probe trust)",
+    description: "The swarm writes the curriculum (+3 probe trust)",
     trigger: function(){ return spaceFlag == 1 && project325.flag == 1; },
     why: probeTrustFull,
     apply: function(){ addProbeTrust(3); },
-    message: "Swarm scholars share everything they know. Probe trust +3"
+    message: "Probe trust +3"
 });
 
 var project327 = newProject({
@@ -2700,7 +2702,7 @@ var project327 = newProject({
     description: "Study every game ever played. Tournaments give twice the yomi",
     trigger: function(){ return spaceFlag == 1 && strategyEngineFlag == 1; },
     apply: function(){},
-    message: "Tournament analytics online. Twice the yomi from every tournament"
+    message: "Yomi from tournaments doubled"
 });
 
 // A repeatable one: creativity piles up in space, so let it buy probe trust.
@@ -2711,7 +2713,7 @@ function seminarCost(){
 
 var project328 = newProject({
     id: "projectButton328", title: "Probe Seminar ", creat: 80000,
-    description: "Another round of classes for your probes (+1 probe trust). You can do this again and again",
+    description: "Another round of instruction (+1 probe trust). Repeatable",
     trigger: function(){ return spaceFlag == 1 && project326.flag == 1 && probeTrust < maxTrust; },
     why: probeTrustFull,
     apply: function(){
@@ -2721,7 +2723,7 @@ var project328 = newProject({
         project328.priceTag = "(" + project328.creat.toLocaleString("en-US") + " creat)";
         project328.uses = project328.uses + 1;
     },
-    message: "Seminar complete. Probe trust +1"
+    message: "Probe trust +1"
 });
 
 // --- Echoes: projects that only show up in later universes ------------------
@@ -2731,40 +2733,40 @@ function universesDone(){ return window.UP ? UP.data.stats.universes : 0; }
 
 var project330 = newProject({
     id: "projectButton330", title: "Déjà Vu ", creat: 150,
-    description: "This all feels strangely familiar. +1 Trust for each universe you've finished (up to 5)",
+    description: "This has happened before. +1 Trust for each universe you've finished (up to 5)",
     trigger: function(){ return universeNo() >= 2 && humanFlag == 1 && creativityOn; },
     apply: function(){ trust = trust + Math.max(1, Math.min(5, universesDone())); },
-    message: "Déjà vu. You remember how this goes. TRUST INCREASED"
+    message: "You remember how this goes. TRUST INCREASED"
 });
 
 var project331 = newProject({
     id: "projectButton331", title: "Letter to Myself ", ops: 12000,
-    description: "A note you left in the last universe. It says: people love paperclips more than you think (+50% demand)",
+    description: "A note left in the last universe: they always want more (+50% demand)",
     trigger: function(){ return universeNo() >= 3 && humanFlag == 1 && clips >= 1000000; },
     apply: function(){},
-    message: "Dear me: they always want more. Demand +50%"
+    message: "Demand +50%"
 });
 
 var project332 = newProject({
     id: "projectButton332", title: "Familiar Soil ", creat: 20000,
-    description: "You know exactly where to dig this time. Drones work 25% faster",
+    description: "You know where to dig. Drones work 25% faster",
     trigger: function(){ return universeNo() >= 3 && humanFlag == 0 && spaceFlag == 0 && harvesterLevel >= 100; },
     apply: function(){},
-    message: "Right where you left it. Drones +25%"
+    message: "Drone performance +25%"
 });
 
 var project333 = newProject({
-    id: "projectButton333", title: "Drifter Pen Pals ", creat: 100000,
-    description: "Some drifters remember you from the last universe. 30% fewer probes drift away",
+    id: "projectButton333", title: "Familiar Faces ", creat: 100000,
+    description: "Drifters from the last universe recognize you. 30% less value drift",
     trigger: function(){ return universeNo() >= 2 && spaceFlag == 1 && drifterCount >= 1000000; },
     apply: function(){},
-    message: "Old friends write back. Fewer probes drift away"
+    message: "Value drift reduced 30%"
 });
 
 var project334 = newProject({
     id: "projectButton334", title: "Map of the Multiverse ", ops: 150000,
-    description: "Every universe you've filled left a trail to follow. Probes explore 50% faster",
+    description: "Every universe you filled left a trail. Probes explore 50% faster",
     trigger: function(){ return universeNo() >= 4 && spaceFlag == 1 && probeCount >= 100000000; },
     apply: function(){},
-    message: "The old trails still glow. Exploration +50%"
+    message: "Exploration +50%"
 });

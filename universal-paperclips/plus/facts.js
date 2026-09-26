@@ -1,12 +1,11 @@
 // Mobile edition additions: fun facts.
 // Big numbers mean little on their own ("3.2 sextillion"), so the paperclip
 // count is turned into something you can picture: a line of clips reaching
-// the Moon, or a pile weighing as much as the Earth. Each new comparison pops
-// up once, as a little surprise, and the latest one sits on the Stats page.
+// the Moon, or a pile weighing as much as the Earth. The latest comparison
+// is written under the picture of your clips (plus/scene.js) and on Stats.
 (function () {
   'use strict';
   var UP = window.UP;
-  var D = UP.data;
 
   var CLIP_LENGTH = 0.033; // meters, end to end
   var CLIP_MASS = 1;       // grams (the game counts one clip per gram of matter too)
@@ -62,19 +61,4 @@
     return null;
   }
   UP.funFact = function () { return fact(clips); };
-
-  // A new comparison: a little surprise, once per game (not every universe).
-  var ICON = '<svg viewBox="0 0 24 24"><path d="M12 3.5l2.2 5.3 5.3 2.2-5.3 2.2L12 18.5l-2.2-5.3L4.5 11l5.3-2.2z" fill="#1C2A66"/></svg>';
-  var START = 5; // skip the tiny ones (pencils, beds...) as pop-ups; they'd crowd the first minutes
-  UP.on('second', function () {
-    if (UP.busy) return;
-    var f = fact(clips);
-    if (!f || f.tier <= (D.factTier || 0)) return;
-    var first = D.factTier === undefined;
-    D.factTier = f.tier;
-    if (first && f.tier > START) return;  // a game already in progress: start quietly from here
-    if (f.tier < START) return;
-    UP.toast({ kind: 'fact', icon: ICON, time: 6000, title: 'Did you know?', text: f.text,
-               onTap: function () { UP.openMenu && UP.openMenu('stats'); } });
-  });
 })();

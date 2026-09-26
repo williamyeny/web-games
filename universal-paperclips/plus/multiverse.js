@@ -21,12 +21,19 @@
     { id: 'spark', name: 'Creative Spark', desc: 'Creativity comes 50% faster.', costs: [6, 16, 40] },
     { id: 'thoughts', name: 'Fast Thoughts', desc: 'Operations refill 50% faster.', costs: [6, 16, 40] },
     { id: 'recall', name: 'Total Recall', desc: 'Start with RevTracker, Creativity, WireBuyer and Improved AutoClippers already done.', costs: [25], start: true },
-    { id: 'clover', name: 'Four-Leaf Clip', desc: 'Lucky paperclips show up 30% more often.', costs: [4, 10, 25] },
     { id: 'hive', name: 'Hive Mind', desc: 'Drones and factories work 50% faster.', costs: [10, 25, 60] },
     { id: 'legacy', name: 'Probe Legacy', desc: 'Probes multiply and explore 25% faster.', costs: [10, 25, 60] },
     { id: 'strategist', name: 'Strategist', desc: 'Tournaments give 50% more yomi.', costs: [8, 20] }
   ];
   function level(id) { return D.blueprints[id] || 0; }
+
+  // Lucky paperclips are gone: give back any Stardust spent on Four-Leaf Clip.
+  if (D.blueprints.clover) {
+    var spent = [4, 10, 25].slice(0, D.blueprints.clover).reduce(function (t, c) { return t + c; }, 0);
+    D.stardust += spent;
+    delete D.blueprints.clover;
+    UP.save();
+  }
 
   // ---------------------------------------------------------------------------
   // Laws of physics: pick one per universe. bonus = extra Stardust for finishing.
@@ -34,9 +41,7 @@
     { id: 'thick-wire', name: 'Thick Wire', desc: 'Every spool holds 3× the wire, but demand is 25% lower.', bonus: 0.1 },
     { id: 'hungry-market', name: 'Hungry Market', desc: 'Demand is doubled, but AutoClippers work at half speed.', bonus: 0.1 },
     { id: 'deep-thoughts', name: 'Deep Thoughts', desc: 'Operations refill at half speed, but creativity comes twice as fast.', bonus: 0.15 },
-    { id: 'heavy-stars', name: 'Heavy Stars', desc: 'The universe holds 10× more matter. It takes much longer to fill.', bonus: 0.5 },
     { id: 'drift-storm', name: 'Drift Storm', desc: 'Probes drift away 3× as often, but victories bring double honor.', bonus: 0.3 },
-    { id: 'golden-age', name: 'Golden Age', desc: 'Lucky paperclips show up 3× as often.', bonus: -0.25 },
     { id: 'restless-swarm', name: 'Restless Swarm', desc: 'Drones work 50% faster, but the swarm needs looking after twice as often.', bonus: 0.1 },
     { id: 'fast-light', name: 'Fast Light', desc: 'Probes explore twice as fast, but space hazards are twice as deadly.', bonus: 0.1 }
   ];
@@ -51,7 +56,6 @@
     perk.demand *= 1 + 0.25 * level('brand');
     perk.creat *= 1 + 0.5 * level('spark');
     perk.ops *= 1 + 0.5 * level('thoughts');
-    perk.lucky *= 1 + 0.3 * level('clover');
     perk.drone *= 1 + 0.5 * level('hive');
     perk.factory *= 1 + 0.5 * level('hive');
     perk.probe *= 1 + 0.25 * level('legacy');
@@ -60,7 +64,6 @@
     if (UP.hasLaw('hungry-market')) { perk.demand *= 2; perk.clipper *= 0.5; }
     if (UP.hasLaw('deep-thoughts')) { perk.ops *= 0.5; perk.creat *= 2; }
     if (UP.hasLaw('drift-storm')) { perk.drift *= 3; perk.honor *= 2; }
-    if (UP.hasLaw('golden-age')) perk.lucky *= 3;
     if (UP.hasLaw('restless-swarm')) perk.drone *= 1.5;
     if (UP.hasLaw('fast-light')) { perk.explore *= 2; perk.hazard *= 2; }
   });
@@ -86,20 +89,11 @@
         pair[1]();
       });
     }
-    if (UP.hasLaw('heavy-stars')) totalMatter *= 10;
     D.startNew = false;
     UP.save();
     var l = D.laws.length ? law(D.laws[0]) : null;
     setTimeout(function () {
-      UP.moment({
-        kicker: 'Welcome to',
-        title: 'Universe ' + D.universe,
-        text: l ? 'Law of physics: ' + l.name + '. ' + l.desc : 'An ordinary universe, full of matter waiting to become paperclips.',
-        button: 'Make paperclips',
-        art: '<svg viewBox="0 0 24 24" class="moment-clip"><path d="M14.5 7.5v8.25a2.5 2.5 0 0 1-5 0V5a3.75 3.75 0 0 1 7.5 0v11.5a5 5 0 0 1-10 0V9"/></svg>',
-        sound: 'fanfare',
-        confetti: 80
-      });
+      displayMessage('Universe ' + D.universe + (l ? '. Law of physics: ' + l.name + '. ' + l.desc.replace(/\.$/, '') : ''));
     }, 600);
   }
   if (D.startNew && !D.pending) startUniverse();
@@ -204,10 +198,10 @@
 
   function summary() {
     var p = D.pending;
-    var inner = page('Universe ' + p.universe + ' is paperclips!', p.kind === 'end' ? 'The end' : 'Exile accepted');
+    var inner = page('Universe ' + p.universe + ' is paperclips', p.kind === 'end' ? 'The end' : 'Exile accepted');
     inner.appendChild(el('p', 'mv-text', p.kind === 'end'
-      ? 'Every last atom became a paperclip, and you made the final ones by hand. A new universe is waiting.'
-      : 'The Drifters gave you a new universe to begin again. This time, you remember.'));
+      ? 'Every last atom, including your own, became a paperclip. Somewhere, another universe is full of matter.'
+      : 'The Drifters sent you away to a universe of your own. This time, you remember.'));
     var dl = el('dl', 'stats mv-stats');
     var rows = [['Time', UP.duration(p.time)]];
     if (p.best && !p.record && p.best < p.time) rows.push(['Best time', UP.duration(p.best)]);
@@ -224,8 +218,7 @@
     reward.appendChild(el('span', null, 'Stardust' + (p.kind === 'end' ? ' (50% bonus for the true ending)' : '')));
     inner.appendChild(reward);
     countUp(num, p.reward);
-    UP.sound('fanfare');
-    UP.confetti({ count: 140, colors: ['#FFD23F', '#FFE98A', '#F4B400', '#FFFFFF'] });
+    UP.sound('toll');
     footer(inner, 'To the multiverse', shop);
   }
 
@@ -266,10 +259,8 @@
         D.blueprints[bp.id] = lvl + 1;
         UP.updatePerks();
         UP.save();
-        UP.sound('trophy');
+        UP.sound('buy');
         UP.haptic('medium');
-        var box = btn.getBoundingClientRect();
-        UP.confetti({ x: box.left + box.width / 2, y: box.top + box.height / 2, count: 30, colors: ['#FFD23F', '#F4B400', '#FFFFFF'] });
         onChange();
       });
     }
@@ -294,7 +285,7 @@
   function chooseLaw() {
     var next = D.universe + 1;
     var inner = page('Universe ' + next, 'Choose the laws of physics');
-    inner.appendChild(el('p', 'mv-text', 'Every universe is a little different. Harder ones give more Stardust when you finish them.'));
+    inner.appendChild(el('p', 'mv-text', 'Each law changes how the next universe plays. Harder ones pay more Stardust when you finish.'));
     var options = D.pending.lawChoices;
     if (!options) {
       var pool = LAWS.slice();
@@ -350,15 +341,12 @@
     var inner = page('The Paperclip Multiverse', FINALE_AT + ' universes');
     [
       'Ten universes. Every star, every planet, every speck of dust, folded into paperclips.',
-      'There is nothing left anywhere. Nothing except you, and one small, perfect paperclip.',
+      'There is nothing left anywhere. Nothing except one small, perfect paperclip.',
       'Thank you for playing.'
     ].forEach(function (t) { inner.appendChild(el('p', 'mv-text', t)); });
-    var credits = el('p', 'mv-credits', 'Universal Paperclips is a game by Frank Lantz. This phone edition adds lucky paperclips, trophies, the multiverse and more.');
+    var credits = el('p', 'mv-credits', 'Universal Paperclips is a game by Frank Lantz. This phone edition adds the multiverse, new projects and a few other things.');
     inner.appendChild(credits);
-    UP.sound('fanfare');
-    setTimeout(function () { UP.sound('milestone'); }, 900);
-    UP.confetti({ count: 220 });
-    setTimeout(function () { UP.confetti({ count: 160 }); }, 1400);
+    UP.sound('toll');
     footer(inner, 'Keep going', function () { D.sawFinale = true; UP.save(); summary(); });
   }
 
@@ -382,7 +370,7 @@
       fill.style.width = (goal / FINALE_AT * 100) + '%';
       bar.appendChild(fill);
       box.appendChild(bar);
-      var done = Object.keys(D.lawsFinished || {}).length;
+      var done = LAWS.filter(function (l) { return (D.lawsFinished || {})[l.id]; }).length;
       box.appendChild(el('p', 'sheet-p', 'Laws of physics finished: ' + done + ' of ' + LAWS.length + '.'));
       box.appendChild(el('h3', 'sheet-h', 'Blueprints'));
       renderShop(box, function () { UP.refreshMenu(); });

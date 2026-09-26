@@ -6,8 +6,6 @@
 
   // New projects whose effects aren't stored in the engine's own save.
   UP.perkSource(function (perk) {
-    if (project300.flag == 1) perk.lucky *= 1.5;
-    if (project301.flag == 1) perk.luckyReward *= 2;
     if (project320.flag == 1) perk.explore *= 2;
     if (project322.flag == 1) perk.hazard *= 0.5;
     if (project323.flag == 1) perk.drift *= 0.5;
@@ -71,6 +69,16 @@
   }
   UP.on('project', function (p) { if (p === project35) setTimeout(clearMoneyProjects, 0); });
   setTimeout(clearMoneyProjects, 0);
+
+  // Projects for features that were removed (lucky paperclips), left over in old saves.
+  setTimeout(function () {
+    [project300, project301].forEach(function (p) {
+      var at = activeProjects.indexOf(p);
+      if (at < 0) return;
+      if (p.element && p.element.parentNode) p.element.parentNode.removeChild(p.element);
+      activeProjects.splice(at, 1);
+    });
+  }, 0);
 
   // Same once the whole universe is paperclips: probe, battle and space
   // projects can't do anything anymore, and some (like Probe Seminar) would

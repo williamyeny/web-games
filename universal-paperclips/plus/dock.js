@@ -45,14 +45,6 @@
     if (!h && wasHero && !D.run.makeRetired) {
       D.run.makeRetired = true;
       UP.save();
-      if (humanFlag == 1) {
-        UP.toast({
-          title: 'Your machines out-clip your fingers!',
-          text: 'Make paperclip moved to the top of the Clips tab.',
-          icon: '<svg viewBox="0 0 24 24"><path d="M14.5 7.5v8.25a2.5 2.5 0 0 1-5 0V5a3.75 3.75 0 0 1 7.5 0v11.5a5 5 0 0 1-10 0V9" fill="none" stroke="#1C2A66" stroke-width="2.4" stroke-linecap="round"/></svg>',
-          time: 6000
-        });
-      }
     }
     if (h && dismantle >= 4) UP.sound('unlock');
   }

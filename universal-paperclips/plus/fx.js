@@ -1,4 +1,4 @@
-// Mobile edition additions: sound, vibration, toasts and confetti.
+// Mobile edition additions: sound, vibration and toasts.
 (function () {
   'use strict';
   var UP = window.UP;
@@ -96,14 +96,6 @@
       noise(t, 0.08, { from: 1200, gain: 0.08 });
       [523, 659, 784, 1047].forEach(function (f, i) { tone(f, t + 0.12 + i * 0.06, 0.25, { type: 'triangle', gain: 0.08 }); });
     },
-    luckyAppear: function () {
-      var t = ctx.currentTime;
-      [2093, 2637, 3136, 2637].forEach(function (f, i) { tone(f, t + i * 0.05, 0.12, { type: 'sine', gain: 0.04 }); });
-    },
-    lucky: function () {
-      var t = ctx.currentTime;
-      [1047, 1319, 1568, 2093, 2637].forEach(function (f, i) { tone(f, t + i * 0.045, 0.3, { type: 'sine', gain: 0.09 }); });
-    },
     trophy: function () {
       var t = ctx.currentTime;
       [784, 1047, 1319, 1568].forEach(function (f, i) { tone(f, t + i * 0.09, i === 3 ? 0.6 : 0.2, { type: 'triangle', gain: 0.1 }); });
@@ -127,12 +119,24 @@
       tone(90, t, 2.2, { type: 'sawtooth', gain: 0.04, to: 600 });
     },
     whoosh: function () { noise(ctx.currentTime, 0.35, { from: 2000, to: 400, gain: 0.07 }); },
-    fanfare: function () {
+    // A low, slow chord for the turning points that aren't really good news.
+    toll: function () {
       var t = ctx.currentTime;
-      [392, 523, 659, 784, 1047].forEach(function (f, i) { tone(f, t + i * 0.12, 0.5, { type: 'triangle', gain: 0.1 }); });
-      [523, 659, 784].forEach(function (f) { tone(f, t + 0.7, 1.4, { type: 'sine', gain: 0.07 }); });
+      [65.4, 98, 155.6].forEach(function (f, i) { tone(f, t + i * 0.18, 3.2, { type: 'sine', gain: 0.16 - i * 0.03 }); });
+      noise(t, 2.4, { from: 180, to: 60, gain: 0.05, filter: 'lowpass', q: 0.7 });
     }
   };
+  // A threnody for fallen probes (the original played a recording; this is a
+  // short synthesized lament in its place).
+  SOUNDS.threnody = function () {
+    var t = ctx.currentTime + 0.05;
+    tone(55, t, 9, { type: 'sine', gain: 0.12 });
+    [[220, 0, 1.4], [261.6, 1.2, 1.4], [329.6, 2.4, 1.8], [293.7, 4, 1.2], [261.6, 5, 1.2], [246.9, 6, 1.4], [220, 7.2, 2.6]]
+      .forEach(function (n) { tone(n[0], t + n[1], n[2], { type: 'triangle', gain: 0.09 }); });
+  };
+  window.loadThrenody = function () {};
+  window.playThrenody = function () { UP.sound('threnody'); };
+
   UP.sound = function (name) {
     if (!audio() || !SOUNDS[name]) return;
     try { SOUNDS[name](); } catch (e) { /* audio hiccup; ignore */ }
@@ -268,83 +272,6 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Paperclip confetti.
-  var canvas = null;
-  var g = null;
-  var bits = [];
-  var running = false;
-  function ink(name, fallback) {
-    return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
-  }
-  function frame() {
-    var w = canvas.width;
-    var h = canvas.height;
-    g.clearRect(0, 0, w, h);
-    var dpr = window.devicePixelRatio || 1;
-    bits = bits.filter(function (b) { return b.y < h + 40 * dpr && b.life > 0; });
-    bits.forEach(function (b) {
-      b.vy += 0.18 * dpr;
-      b.vx *= 0.99;
-      b.x += b.vx;
-      b.y += b.vy;
-      b.rot += b.spin;
-      b.life--;
-      g.save();
-      g.translate(b.x, b.y);
-      g.rotate(b.rot);
-      g.globalAlpha = Math.min(1, b.life / 30);
-      g.strokeStyle = b.color;
-      g.lineWidth = 2.2 * dpr;
-      g.lineCap = 'round';
-      var s = b.size * dpr;
-      // A tiny paperclip: two nested loops.
-      g.beginPath();
-      g.moveTo(s * 0.25, -s * 0.2);
-      g.lineTo(s * 0.25, s * 0.45);
-      g.arc(0, s * 0.45, s * 0.25, 0, Math.PI);
-      g.lineTo(-s * 0.25, -s * 0.55);
-      g.arc(s * 0.05, -s * 0.55, s * 0.3, Math.PI, 0);
-      g.lineTo(s * 0.35, s * 0.55);
-      g.stroke();
-      g.restore();
-    });
-    if (bits.length) requestAnimationFrame(frame);
-    else { running = false; g.clearRect(0, 0, w, h); }
-  }
-  UP.confetti = function (opts) {
-    if (calm()) return;
-    opts = opts || {};
-    if (!canvas) {
-      canvas = document.createElement('canvas');
-      canvas.className = 'confetti';
-      document.body.appendChild(canvas);
-      g = canvas.getContext('2d');
-    }
-    var dpr = window.devicePixelRatio || 1;
-    canvas.width = window.innerWidth * dpr;
-    canvas.height = window.innerHeight * dpr;
-    var colors = opts.colors || [ink('--hi', '#FFE141'), ink('--ink', '#1C2A66'), ink('--red', '#E0412B'), ink('--wire', '#A3AED0')];
-    var count = opts.count || 60;
-    for (var i = 0; i < count; i++) {
-      var fromPoint = opts.x !== undefined;
-      var angle = fromPoint ? Math.random() * Math.PI * 2 : Math.PI / 2;
-      var speed = fromPoint ? UP.rand(3, 9) : UP.rand(1, 4);
-      bits.push({
-        x: fromPoint ? opts.x * dpr : Math.random() * canvas.width,
-        y: fromPoint ? opts.y * dpr : -Math.random() * canvas.height * 0.4,
-        vx: Math.cos(angle) * speed * dpr + (fromPoint ? 0 : UP.rand(-1, 1) * dpr),
-        vy: Math.sin(angle) * speed * dpr - (fromPoint ? 4 * dpr : 0),
-        rot: Math.random() * 6.3,
-        spin: UP.rand(-0.2, 0.2),
-        size: UP.rand(9, 15),
-        color: colors[i % colors.length],
-        life: fromPoint ? 70 : 240
-      });
-    }
-    if (!running) { running = true; requestAnimationFrame(frame); }
-  };
-
-  // ---------------------------------------------------------------------------
   // Everyday feedback: taps, purchases, tabs.
   UP.on('handclip', function (made) {
     if (made > 0) { UP.sound('tap'); UP.haptic('light'); }
@@ -360,14 +287,15 @@
   UP.on('project', function () { UP.sound('project'); UP.haptic('medium'); });
   UP.on('unlock', function () { UP.sound('unlock'); });
 
-  // Celebrate the engine's milestone messages.
+  // Mark the engine's milestone messages with sound. The big turning points
+  // (humanity gone, Earth used up, the universe used up) toll instead of cheer.
   var BIG = /Full autonomy attained|Terrestrial resources fully utilized|Universal Paperclips achieved/;
   var MEDIUM = /^(1,000,000 clips|One (Trillion|Quadrillion|Quintillion|Sextillion|Septillion|Octillion) Clips)/;
   var SMALL = /^(500 clips|1,000 clips|10,000 clips|100,000 clips) created/;
   UP.on('message', function (msg) {
-    if (BIG.test(msg)) { UP.sound('fanfare'); UP.confetti({ count: 160 }); UP.haptic('strong'); }
-    else if (MEDIUM.test(msg)) { UP.sound('milestone'); UP.confetti({ count: 90 }); UP.haptic('medium'); }
-    else if (SMALL.test(msg)) { UP.sound('milestone'); UP.confetti({ count: 30 }); }
+    if (BIG.test(msg)) { UP.sound('toll'); UP.haptic('strong'); }
+    else if (MEDIUM.test(msg)) { UP.sound('milestone'); UP.haptic('medium'); }
+    else if (SMALL.test(msg)) { UP.sound('milestone'); }
     else if (/TRUST INCREASED/.test(msg)) { UP.sound('coin'); }
   });
 })();

@@ -8,7 +8,7 @@
   var KEY = 'up-plus';
 
   function freshRun() {
-    return { playSeconds: 0, handClips: 0, lucky: 0, projects: 0, priceChanges: 0, startedAt: Date.now(), fromStart: true };
+    return { playSeconds: 0, handClips: 0, projects: 0, startedAt: Date.now(), fromStart: true };
   }
   var DEFAULTS = {
     v: 1,
@@ -16,7 +16,7 @@
     seenLog: null,          // newest changelog entry the player has opened
     trophies: {},           // id -> time earned
     stats: {                // lifetime, across universes
-      playSeconds: 0, handClips: 0, lucky: 0, projects: 0,
+      playSeconds: 0, handClips: 0, projects: 0,
       universes: 0, clips: 0, fastestUniverse: 0
     },
     stardust: 0,
@@ -25,8 +25,8 @@
     laws: [],               // laws of physics in this universe
     pending: null,          // a finished universe waiting for the multiverse screen
     run: freshRun(),        // stats for this universe only
-    lastSeen: 0,            // for the welcome back gift
-    seenIntro: false
+    lastSeen: 0,            // for catching up on time away
+    log: []                 // the last messages, so the log survives a reload
   };
 
   function merge(base, extra) {
@@ -110,16 +110,6 @@
     return r;
   };
 
-  // Price changes (for a trophy).
-  ['raisePrice', 'lowerPrice'].forEach(function (name) {
-    var fn = window[name];
-    window[name] = function () {
-      var r = fn.apply(this, arguments);
-      UP.data.run.priceChanges++;
-      return r;
-    };
-  });
-
   // ---------------------------------------------------------------------------
   // Helpers.
   // 1 business, 2 Earth, 3 space, 4 the universe is paperclips.
@@ -164,20 +154,6 @@
   };
 
   // ---------------------------------------------------------------------------
-  // Short-lived bonuses (e.g. from lucky paperclips). They multiply the
-  // engine's `boost` numbers and are never saved, so they can't get stuck on.
-  UP.boosts = [];
-  UP.addBoost = function (kind, mult, seconds, label) {
-    UP.boosts.push({ kind: kind, mult: mult, left: seconds, total: seconds, label: label });
-    applyBoosts();
-    UP.emit('boosts');
-  };
-  function applyBoosts() {
-    boost.demand = 1; boost.clips = 1; boost.ops = 1;
-    UP.boosts.forEach(function (b) { boost[b.kind] *= b.mult; });
-  }
-
-  // ---------------------------------------------------------------------------
   // Clock: a tick every 100ms, and a second counter that only runs while the
   // game is on screen.
   var tenths = 0;
@@ -188,13 +164,6 @@
     tenths = 0;
     UP.data.run.playSeconds++;
     UP.data.stats.playSeconds++;
-    if (UP.boosts.length) {
-      UP.boosts.forEach(function (b) { b.left--; });
-      var before = UP.boosts.length;
-      UP.boosts = UP.boosts.filter(function (b) { return b.left > 0; });
-      applyBoosts();
-      if (UP.boosts.length !== before) UP.emit('boosts');
-    }
     UP.emit('second');
   }, 100);
 
@@ -206,8 +175,6 @@
   UP.updatePerks = function () {
     Object.keys(perk).forEach(function (k) { perk[k] = 1; });
     perk.tap = 1;
-    perk.lucky = 1;
-    perk.luckyReward = 1;
     perkSources.forEach(function (fn) { fn(perk); });
   };
   UP.updatePerks();

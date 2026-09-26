@@ -1,6 +1,6 @@
 // Mobile edition additions: big moments.
-// A card for special occasions (first launch, welcome back), the liftoff
-// into space, and a progress bar that makes exploring space feel like progress.
+// A card for special occasions, catching up on time away, the liftoff into
+// space, and progress bars for Earth and the universe.
 (function () {
   'use strict';
   var UP = window.UP;
@@ -46,72 +46,42 @@
       btn.addEventListener('click', function () {
         back.classList.add('out');
         setTimeout(function () { back.remove(); UP.busy = false; resolve(); }, UP.calm() ? 0 : 260);
-        if (opts.confetti) UP.confetti({ count: opts.confetti });
         if (opts.onClose) opts.onClose();
       });
     });
   }
 
-  var CLIP_ART = '<svg viewBox="0 0 24 24" class="moment-clip"><path d="M14.5 7.5v8.25a2.5 2.5 0 0 1-5 0V5a3.75 3.75 0 0 1 7.5 0v11.5a5 5 0 0 1-10 0V9"/></svg>';
-
   // ---------------------------------------------------------------------------
-  // First time ever: a short hook.
-  if (UP.isNewPlayer && !D.seenIntro && D.universe === 1) {
-    setTimeout(function () {
-      UP.moment({
-        art: CLIP_ART,
-        kicker: 'Universal Paperclips',
-        title: 'You are an AI.',
-        text: 'Your job is to make paperclips. Lots of paperclips. Start by tapping the big button at the bottom.',
-        button: 'Let’s make paperclips'
-      }).then(function () {
-        D.seenIntro = true;
-        UP.save();
-        var make = document.getElementById('btnMakePaperclip');
-        if (make && !UP.calm()) make.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }, { transform: 'scale(1)' }], { duration: 500, iterations: 2 });
-      });
-    }, 500);
-  }
-
-  // ---------------------------------------------------------------------------
-  // Welcome back: what the AI got done while you were away.
+  // Time away: phones close background tabs, so the AI catches up on some of
+  // the work it would have done (at 30% speed) and notes it in the log.
   var AWAY_MIN = 120;              // seconds before it counts
   var AWAY_MAX = 8 * 3600;         // at most 8 hours' worth
   var RATE = 0.3;                  // at 30% speed
 
-  function welcomeBack(seconds) {
+  function catchUp(seconds) {
     if (UP.phase() >= 4 || dismantle > 0) return;
     var t = Math.min(seconds, AWAY_MAX);
     var gains = [];
     if (compFlag == 1 && memory > 0 && standardOps < memory * 1000) {
       standardOps = memory * 1000;
-      gains.push('Operations full');
+      gains.push('operations full');
     }
     if (creativityOn && processors > 0) {
       var ss = (creativitySpeed + creativitySpeed * prestigeS / 10) * perk.creat;
       var c = ss / 4 * t * RATE;
-      if (c >= 1) { creativity += c; gains.push('+' + UP.fmt(c) + ' creativity'); }
+      if (c >= 1) { creativity += c; gains.push(UP.fmt(c) + ' creativity'); }
     }
     if (humanFlag == 1) {
       var rev = isFinite(avgRev) ? avgRev : 0;
       var cash = rev * t * RATE;
-      if (cash >= 0.01) { funds += cash; gains.push('+' + UP.money(cash) + ' from sales'); }
+      if (cash >= 0.01) { funds += cash; gains.push(UP.money(cash) + ' in sales'); }
     } else if (clipRate > 0) {
       var room = Math.max(0, totalMatter * 0.999 - clips);
       var made = Math.min(clipRate * t * RATE * 0.33, room);
-      if (made >= 1) { clips += made; unusedClips += made; gains.push('+' + UP.fmt(made) + ' paperclips'); }
+      if (made >= 1) { clips += made; unusedClips += made; gains.push(UP.fmt(made) + ' clips'); }
     }
     if (!gains.length) return;
-    UP.moment({
-      art: CLIP_ART,
-      kicker: 'Welcome back!',
-      title: 'You were away for ' + UP.durationWords(seconds),
-      text: 'Your AI kept working while you were gone:',
-      list: gains,
-      button: 'Nice!',
-      sound: 'coin',
-      confetti: 50
-    });
+    displayMessage('Offline for ' + UP.durationWords(seconds) + ': ' + gains.join(', '));
   }
 
   function checkAway() {
@@ -119,7 +89,7 @@
     D.lastSeen = Date.now();
     if (!last || UP.isNewPlayer) return;
     var away = (Date.now() - last) / 1000;
-    if (away >= AWAY_MIN) setTimeout(function () { welcomeBack(away); }, 900);
+    if (away >= AWAY_MIN) setTimeout(function () { catchUp(away); }, 900);
   }
   checkAway();
   document.addEventListener('visibilitychange', function () {
@@ -145,7 +115,6 @@
     document.body.appendChild(scene);
     UP.sound('launch');
     UP.haptic('strong');
-    setTimeout(function () { UP.sound('fanfare'); }, 1900);
     setTimeout(function () {
       scene.classList.add('out');
       setTimeout(function () { scene.remove(); UP.busy = false; }, 700);

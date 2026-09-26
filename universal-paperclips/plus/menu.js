@@ -158,13 +158,11 @@
         ['Time played', UP.duration(run.playSeconds)],
         ['Paperclips', UP.fmt(clips)],
         ['Made by hand', UP.fmt(run.handClips)],
-        ['Lucky paperclips caught', UP.fmt(run.lucky)],
         ['Projects finished', UP.fmt(run.projects)]
       ]);
       statRows(box, 'All time', [
         ['Time played', UP.duration(all.playSeconds)],
         ['Made by hand', UP.fmt(all.handClips)],
-        ['Lucky paperclips caught', UP.fmt(all.lucky)],
         ['Projects finished', UP.fmt(all.projects)],
         ['Universes finished', UP.fmt(all.universes)]
       ].concat(all.fastestUniverse ? [['Fastest universe', UP.duration(all.fastestUniverse)]] : []));
@@ -237,7 +235,7 @@
   UP.menuPage({
     id: 'settings', label: 'Settings', order: 40,
     render: function (box) {
-      toggleRow(box, 'Sound', 'Clicks, chimes and fanfares', 'sound');
+      toggleRow(box, 'Sound', 'Clicks and tones', 'sound');
       toggleRow(box, 'Vibration', 'A tiny buzz when you tap (on phones that can)', 'haptics');
 
       box.appendChild(el('h3', 'sheet-h', 'Move your game to another phone'));
@@ -273,16 +271,7 @@
     }
   });
 
-  // A note after an update, once per visit.
-  setTimeout(function () {
-    if (unseenNews() && !UP.isNewPlayer) {
-      UP.toast({
-        kind: 'news', title: 'New update: ' + log[0].title, text: 'Tap to see what’s new',
-        icon: '<svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg>',
-        time: 6000, onTap: function () { UP.openMenu('news'); }
-      });
-    }
-    updateMenuBadge();
-  }, 1500);
+  // After an update, the menu button wears a dot until What's new is opened.
+  setTimeout(updateMenuBadge, 1500);
   if (UP.isNewPlayer && log.length) { UP.data.seenLog = log[0].id; UP.save(); }
 })();
