@@ -964,14 +964,16 @@
   };
   function running() { return tourneyInProg == 1 && started; }
   function paintTourney() {
+    var run = running();
+    // A pick made during a tournament applies as soon as it ends, on any tab.
+    if (queued !== null && !run) { stratPicker.value = String(queued); pick = String(queued); queued = null; }
+    var chosen = +stratPicker.value;
+    if (!run && tourneyInProg == 1) runBtn.disabled = chosen === 10;
     if (!onScreen(stratList.parentNode)) return;
     if (stratRows.length !== strats.length) buildStrats();
     var m = moves();
     var setUp = aa + ab + ba + bb > 0;
-    var run = running();
     var done = resultsFlag == 1 && tourneyInProg == 0;
-    if (queued !== null && !run) { stratPicker.value = String(queued); pick = String(queued); queued = null; }
-    var chosen = +stratPicker.value;
 
     tgame.hidden = !setUp;
     if (setUp) {
@@ -1001,8 +1003,6 @@
       var tag = i === queued ? 'next' : done ? placeName(place(i)) : '';
       setText(b.querySelector('.strat-score small'), tag);
     });
-
-    if (!run && tourneyInProg == 1) runBtn.disabled = chosen === 10;
 
     var text = '';
     if (done && lastTourney) {
