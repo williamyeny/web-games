@@ -1,6 +1,6 @@
 // Mobile edition additions: big moments.
-// A card for special occasions, catching up on time away, the liftoff into
-// space, and progress bars for Earth and the universe.
+// A card for special occasions, catching up on time away, and the liftoff
+// into space. (Earth and the universe are pictured by plus/scene.js.)
 (function () {
   'use strict';
   var UP = window.UP;
@@ -124,48 +124,4 @@
   UP.on('project', function (p) { if (p === project46) liftoff(); });
   UP.liftoff = liftoff;
 
-  // ---------------------------------------------------------------------------
-  // Space: the explored share of the universe starts around 10^-26 %, so the
-  // raw number barely moves for hours. A log scale shows real progress.
-  var spaceDiv = document.getElementById('spaceDiv');
-  var explored = spaceDiv && spaceDiv.querySelector('.explored');
-  if (explored) {
-    var wrap = el('div', 'explore-bar');
-    var meter = el('div', 'meter');
-    var fill = el('i');
-    meter.appendChild(fill);
-    var labels = el('div', 'explore-labels');
-    labels.appendChild(el('span', null, 'Earth'));
-    labels.appendChild(el('span', null, 'The whole universe'));
-    wrap.appendChild(meter);
-    wrap.appendChild(labels);
-    explored.parentNode.insertBefore(wrap, explored.nextSibling);
-    var START = -28;
-    UP.on('second', function () {
-      if (spaceFlag != 1 || !totalMatter) return;
-      var share = Math.max(1e-30, foundMatter / totalMatter);
-      var p = Math.min(1, Math.max(0, (Math.log10(share) - START) / -START));
-      fill.style.width = (p * 100).toFixed(2) + '%';
-    });
-  }
-
-  // Earth, while the drones take it apart: also a log scale, from a million
-  // clips to every gram of the planet, so it moves the whole time.
-  var earthDiv = document.getElementById('ui-earthDiv');
-  var earthMeter = document.getElementById('ui-earth-meter');
-  if (earthDiv && earthMeter) {
-    var EARTH = Math.log10(6e27);
-    var paintEarth = function () {
-      var on = humanFlag == 0 && spaceFlag == 0;
-      var display = on ? '' : 'none';
-      if (earthDiv.style.display !== display) earthDiv.style.display = display;
-      if (!on) return;
-      var used = availableMatter <= 0 && acquiredMatter <= 0;
-      var p = used ? 1 : Math.min(0.99, Math.max(0, (Math.log10(Math.max(clips, 1)) - 6) / (EARTH - 6)));
-      earthMeter.firstChild.style.width = (p * 100).toFixed(2) + '%';
-      earthMeter.classList.toggle('full', used);
-    };
-    paintEarth();
-    UP.on('second', paintEarth);
-  }
 })();

@@ -6,6 +6,8 @@ window.CHANGELOG = [
     date: 'September 25',
     title: 'A quieter, darker edition',
     items: [
+      'A picture at the top of each stage: the heap of unsold clips (new ones fall in, sold ones slide away), the Earth disappearing under paperclips, and a map of the stars your probes have reached. A comparison for the total sits underneath.',
+      'The share of the universe explored reads as a real number (3 × 10⁻¹⁸%) instead of 0.000000000000%.',
       'Tournaments, rebuilt. Each grid is a named kind of game (prisoner’s dilemma, chicken, stag hunt and more), and its payoffs follow that pattern. Winning doubles your yomi, so the right strategy for the game really matters.',
       'Strategies are a list with a line about what each one does, and the list is the scoreboard while the tournament plays. A new pick during a tournament applies to the next one.',
       'Probe design is shorter, and each skill shows what it is doing right now: probes built, matter found, probes lost to hazards.',

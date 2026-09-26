@@ -1203,12 +1203,15 @@ table.stocks {
   animation: word-in 0.9s cubic-bezier(.2,.8,.2,1) 1.6s both;
 }
 
-/* ---------- exploring space ---------- */
+/* ---------- the picture at the top of each stage (plus/scene.js) ---------- */
 
-.explore-bar { margin: 4px 0 14px; }
-.explore-bar .meter { margin-bottom: 4px; }
-#ui-earthDiv .explore-bar { margin-bottom: 0; }
-.explore-labels { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; color: var(--ink-2); }
+.scene { padding-top: 16px; }
+.scene canvas {
+  display: block; width: 100%; height: 176px;
+  border: 2px solid var(--edge); border-radius: var(--radius);
+}
+.scene-caption { margin: 8px 2px 0; font-size: 0.875rem; color: var(--ink-2); line-height: 1.4; }
+.scene-caption:empty { display: none; }
 
 /* Make paperclip, once machines have taken over: a small button on the Clips tab. */
 .make-slot { padding-top: 14px; }

@@ -85,6 +85,30 @@
     tidy();
   });
 
+  // The share of the universe explored is written with 12 decimals, which
+  // reads "0.000000000000%" for most of the space stage. Show it readably:
+  // "0.25%", or "3 × 10⁻¹⁸%" while it's tiny.
+  (function () {
+    var el = $('colonizedDisplay');
+    var SUP = { '-': '\u207B', 0: '\u2070', 1: '\u00B9', 2: '\u00B2', 3: '\u00B3', 4: '\u2074', 5: '\u2075', 6: '\u2076', 7: '\u2077', 8: '\u2078', 9: '\u2079' };
+    function pretty() {
+      var pct = totalMatter > 0 ? foundMatter / totalMatter * 100 : 0;
+      var text;
+      if (!(pct > 0)) text = '0';
+      else if (pct >= 99.995) text = '100';
+      else if (pct >= 0.01) text = String(parseFloat(pct.toPrecision(3)));
+      else {
+        var exp = Math.floor(Math.log10(pct));
+        var lead = Math.round(pct / Math.pow(10, exp));
+        if (lead === 10) { lead = 1; exp++; }
+        text = lead + ' \u00D7 10' + String(exp).split('').map(function (c) { return SUP[c]; }).join('');
+      }
+      if (el.textContent !== text) el.textContent = text;
+    }
+    new MutationObserver(pretty).observe(el, { childList: true, characterData: true, subtree: true });
+    pretty();
+  })();
+
   // main.js has already run: if a save existed, load() + refresh() filled the screen.
   var hadSave = store('saveGame') !== null;
 
@@ -561,8 +585,7 @@
     'harvesterDiv', 'wireDroneDiv', 'factoryDivSpace', 'droneDivSpace', 'factoryUpgradeDisplay', 'mdpsDiv',
     'trustDiv', 'swarmGiftDiv', 'processorDisplay', 'swarmEngine', 'swarmSliderDiv', 'qComputing',
     'entertainButtonDiv', 'synchButtonDiv', 'feedButtonDiv', 'teachButtonDiv', 'cladButtonDiv', 'autoTourneyControl', 'drifterDiv', 'combatButtonDiv',
-    'hazardBodyCount', 'driftBodyCount', 'combatBodyCount', 'prestigeDiv', 'clipsPerSecDiv', 'wireTransDiv',
-    'ui-earthDiv'
+    'hazardBodyCount', 'driftBodyCount', 'combatBodyCount', 'prestigeDiv', 'clipsPerSecDiv', 'wireTransDiv'
   ];
   var wasShown = {};
   var revealsReady = false;

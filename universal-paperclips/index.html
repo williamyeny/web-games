@@ -84,7 +84,7 @@
       <div class="row"><span>Avg. revenue per sec</span><b>$<span id="avgRev">0.00</span></b></div>
       <div class="row"><span>Avg. clips sold per sec</span><b><span id="avgSales">0</span></b></div>
     </div>
-    <div class="row"><span>Unsold inventory</span><b><span id="unsoldClips">0</span></b></div>
+    <div class="row dup"><span>Unsold inventory</span><b><span id="unsoldClips">0</span></b></div>
 
     <div class="stepper">
       <div class="stepper-label">
@@ -103,15 +103,6 @@
       <span class="buy-cost">$<span id="adCost">100.00</span></span>
       <span class="buy-count"><small>level</small><span id="marketingLvl">1</span></span>
     </button>
-  </div>
-
-  <!-- How much of Earth is paperclips, once the drones take over (see plus/moments.js). -->
-  <div id="ui-earthDiv" class="sec" style="display:none">
-    <h2>Earth</h2>
-    <div class="explore-bar">
-      <div class="meter" id="ui-earth-meter"><i></i></div>
-      <div class="explore-labels"><span>A pile of paperclips</span><span>The whole planet</span></div>
-    </div>
   </div>
 
   <div id="manufacturingDiv" class="sec">
@@ -637,6 +628,7 @@
 <script src="plus/content.js"></script>
 <script src="plus/trophies.js"></script>
 <script src="plus/facts.js"></script>
+<script src="plus/scene.js"></script>
 <script src="plus/moments.js"></script>
 <script src="plus/multiverse.js"></script>
 <script src="plus/dock.js"></script>
