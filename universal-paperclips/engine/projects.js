@@ -2378,8 +2378,8 @@ projects.push(project216);
 var project217 = {
     id: "projectButton217",
     title: "Quantum Temporal Reversion ",
-    priceTag: "(-10,000 ops)",
-    description: "Return to the beginning",
+    priceTag: "",   // Added: was "(-10,000 ops)", which read like a price
+    description: "Operations are below -10,000. Return to the beginning and start this universe over",
     trigger: function(){return operations<=-10000},
     uses: 1,
     cost: function(){return operations<=-10000},

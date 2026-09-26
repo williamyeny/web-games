@@ -2,7 +2,7 @@
 // Game rules live entirely in the engine, which is unmodified. This file only
 // arranges the screen for phones and adds touch conveniences:
 //   - bottom tabs that appear as each part of the game unlocks
-//   - visual cues that make the next move obvious without spelling it out
+//   - one visual language for what you can and can't afford yet
 //     (see "Showing the way" below)
 //   - saving whenever the phone switches away from the game
 //   - tap-and-hold to repeat on +/- and buy buttons
@@ -58,12 +58,18 @@
     return engineFormat(num, decimal);
   };
 
-  // Word-style numbers ("3.3 nonillion") show small counts as "1.0" or "12.0".
+  // Word-style numbers ("3.3 nonillion") show small counts as "1.0" or "12.0",
+  // and round ones as "100.0 quadrillion".
   var engineSpell = window.spellf;
   window.spellf = function (n) {
     if (typeof n === 'number' && n >= 1 && n < 1000) return String(Math.floor(n));
-    return engineSpell.apply(this, arguments);
+    return String(engineSpell.apply(this, arguments)).replace(/(\d+)\.0(?=\s)/, '$1');
   };
+  // Prices the engine wrote before this file loaded (e.g. the probe's).
+  ['probeCostDisplay', 'factoryCostDisplay', 'harvesterCostDisplay', 'wireDroneCostDisplay', 'farmCost', 'batteryCost'].forEach(function (id) {
+    var el = $(id);
+    if (el) el.textContent = el.textContent.replace(/(\d+)\.0(?=\s)/, '$1');
+  });
 
   // A few counters are written as bare numbers (e.g. wire during the ending).
   ['transWire', 'factoryLevelDisplay', 'harvesterLevelDisplay', 'wireDroneLevelDisplay'].forEach(function (id) {
@@ -125,14 +131,11 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Tabs. A tab shows once any of its sections has been unlocked by the engine.
-  var TABS = {
-    make: ['businessDiv', 'manufacturingDiv', 'creationDiv', 'wireProductionDiv', 'powerDiv'],
-    projects: ['compDiv', 'projectsDiv'],
-    strategy: ['investmentEngine', 'investmentEngineUpgrade', 'strategyEngine'],
-    space: ['spaceDiv', 'probeDesignDiv', 'increaseProbeTrustDiv', 'increaseMaxTrustDiv', 'battleCanvasDiv', 'honorDiv']
-  };
+  // Tabs. A tab shows once any of the sections in its panel is on screen.
+  // In space, the production numbers move onto the Space tab and Space
+  // becomes the first tab (see stageLayout below).
   var ORDER = ['make', 'projects', 'strategy', 'space'];
+  function visibleSec(el) { return shown(el) && !el.classList.contains('ui-empty') && !el.classList.contains('ui-held'); }
   var tabbar = $('ui-tabbar');
   var pill = $('ui-tab-pill');
   var tabButtons = {};
@@ -214,7 +217,7 @@
 
   function visibleTabs() {
     return ORDER.filter(function (n) {
-      return TABS[n].some(function (id) { return shown($(id)); });
+      return Array.prototype.some.call(panels[n].querySelectorAll(':scope > .sec'), visibleSec);
     });
   }
 
@@ -231,7 +234,7 @@
       var first = true;
       var secs = panels[n].querySelectorAll(':scope > .sec');
       for (var i = 0; i < secs.length; i++) {
-        var on = shown(secs[i]);
+        var on = visibleSec(secs[i]);
         secs[i].classList.toggle('first', on && first);
         if (on) first = false;
       }
@@ -239,16 +242,58 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Each stage puts its own work first.
+  //   Before the first clip: only the Make paperclip button.
+  //   Earth and space: rows stuck at zero (nothing makes them move yet) stay
+  //   hidden, so a new stage doesn't open on a wall of zeros.
+  //   Space: the production numbers join the Space tab, which comes first.
+  var firstClip = clips < 1;
+  if (firstClip) ['businessDiv', 'manufacturingDiv'].forEach(function (id) { $(id).classList.add('ui-held'); });
+  function stageLayout() {
+    if (firstClip && clips >= 1) {
+      firstClip = false;
+      ['businessDiv', 'manufacturingDiv'].forEach(function (id, i) {
+        $(id).classList.remove('ui-held');
+        if (revealsReady) reveal($(id), i * 160);
+      });
+    }
+    if (spaceFlag == 1 && !panels.space.contains($('creationDiv'))) {
+      panels.space.appendChild($('creationDiv'));
+      panels.space.appendChild($('wireProductionDiv'));
+      tabbar.insertBefore(tabButtons.space, tabButtons.make);
+      ORDER = ['space', 'make', 'projects', 'strategy'];
+    }
+    if (humanFlag == 1) return;
+    ['creationDiv', 'wireProductionDiv'].forEach(function (id) {
+      var sec = $(id);
+      // Shown as far as the engine is concerned (ignoring our own hiding of the section).
+      function engineShows(el) {
+        for (var n = el; n && n !== sec; n = n.parentElement) {
+          if (n.style.display === 'none' || n.hidden || n.classList.contains('dup')) return false;
+        }
+        return true;
+      }
+      var rows = sec.querySelectorAll('.row');
+      var live = 0;
+      for (var i = 0; i < rows.length; i++) {
+        var value = rows[i].querySelector('b') || rows[i].lastElementChild;
+        var zero = !!value && /^0(\s|$)/.test(value.textContent.trim());
+        rows[i].classList.toggle('ui-zero', zero);
+        if (!zero && engineShows(rows[i])) live++;
+      }
+      var buttons = sec.querySelectorAll('button');
+      for (var j = 0; j < buttons.length; j++) if (engineShows(buttons[j])) live++;
+      sec.classList.toggle('ui-empty', live === 0);
+    });
+  }
+
+  // ---------------------------------------------------------------------------
   // Showing the way.
-  // Instead of telling the player what to do, the whole screen speaks one
-  // visual language:
+  // The screen shows what you can do, never which thing to do:
   //   dashed outline             not yet
   //   yellow filling up inside   getting closer (one bar per thing it costs)
   //   solid                      you can buy it
-  //   highlighter yellow         worth doing right now, including whichever
-  //                              button fixes what is holding you back
-  // A tab wears a badge when something inside it is yellow or new, and if the
-  // current tab has nothing left to do, those tabs hop to draw the eye.
+  // A tab wears a dot when something inside it is new since you last looked.
 
   // How close each buy button is to affordable.
   var BUY_COST = {
@@ -324,129 +369,7 @@
     });
   }
 
-  // Highlight the button that fixes whatever is holding the player back.
-  var NUDGE_IDS = ['btnBuyWire', 'btnMakeFactory', 'btnMakeFarm', 'btnMakeHarvester', 'btnMakeWireDrone', 'btnMakeBattery',
-                   'btnBatteryReboot', 'btnFarmReboot', 'btnHarvesterReboot', 'btnWireDroneReboot', 'btnFactoryReboot',
-                   'btnLowerPrice'];
-  var probeRaise = ['Speed', 'Nav', 'Rep', 'Haz', 'Fac', 'Harv', 'Wire', 'Combat'].map(function (s) { return $('btnRaiseProbe' + s); });
-  var probeLower = ['Speed', 'Nav', 'Rep', 'Haz', 'Fac'].map(function (s) { return $('btnLowerProbe' + s); });
-  function isActive(p) { return p.flag != 1 && activeProjects.indexOf(p) >= 0 && p.element; }
-
-  // Unsold clips, sampled about once a second, to tell if they're piling up.
-  var stock = [];
-  function priceTooHigh() {
-    var now = Date.now();
-    if (!stock.length || now - stock[stock.length - 1][0] >= 1000) {
-      stock.push([now, unsoldClips]);
-      if (stock.length > 16) stock.shift();
-    }
-    if (margin <= 0.01 || unsoldClips < 1) return false;
-    // At this price a sale is zero clips: nothing will ever sell.
-    if (Math.floor(0.7 * Math.pow(demand, 1.15)) < 1) return true;
-    if (stock.length < 16 || unsoldClips < 200) return false;
-    function grew(ago) { var then = stock[stock.length - 1 - ago][1]; return unsoldClips > then * 1.05 + 20; }
-    return grew(15) && grew(5);   // piling up for a while, and still piling up now
-  }
-
-  function updateNudges() {
-    var want = {};
-    if (humanFlag == 1) {
-      if (wire < 1) want.btnBuyWire = true;                                    // can't make clips
-      if (priceTooHigh()) want.btnLowerPrice = true;                           // clips aren't selling
-    } else if (spaceFlag == 0) {
-      if (shown($('factoryDiv')) && factoryLevel < 1) want.btnMakeFactory = true; // the only way to make clips now
-      if (factoryLevel + harvesterLevel + wireDroneLevel > 0 && powMod < 1) want.btnMakeFarm = true; // machines underpowered
-      if (factoryLevel > 0 && wire < 1) {                                      // factories starved of wire
-        if (harvesterLevel < 1) want.btnMakeHarvester = true;
-        else if (wireDroneLevel < 1) want.btnMakeWireDrone = true;
-      }
-      if (isActive(project46) && batteryLevel * batterySize < 10000000) want.btnMakeBattery = true; // space needs stored power
-      // Spent everything before building a factory: nothing makes clips anymore.
-      // Point at the "Disassemble all" whose refund would pay for a factory.
-      if (shown($('factoryDiv')) && factoryLevel < 1 && unusedClips < factoryCost) {
-        var short = factoryCost - unusedClips;
-        var refunds = [['btnBatteryReboot', batteryBill], ['btnFarmReboot', farmBill],
-                       ['btnHarvesterReboot', harvesterBill], ['btnWireDroneReboot', wireDroneBill]];
-        for (var r = 0; r < refunds.length; r++) {
-          if (refunds[r][1] >= short) { want[refunds[r][0]] = true; break; }
-        }
-      }
-      // Earth is used up and space needs more unused clips than you have:
-      // disassembling machines (not batteries, space needs their power) gives clips back.
-      var earthDone = availableMatter <= 0 && acquiredMatter <= 0 && wire < 1;
-      if (earthDone && isActive(project46) && unusedClips < 5e27) {
-        var bills = [['btnFactoryReboot', factoryBill], ['btnHarvesterReboot', harvesterBill],
-                     ['btnWireDroneReboot', wireDroneBill], ['btnFarmReboot', farmBill]];
-        bills.sort(function (a, b) { return b[1] - a[1]; });
-        if (bills[0][1] > 0) want[bills[0][0]] = true;
-      }
-    }
-    NUDGE_IDS.forEach(function (id) { $(id).classList.toggle('nudge', !!want[id]); });
-    // The swarm slider starts at "Work", where the swarm never gives gifts (and
-    // gifts are the only way to grow memory now). Glow until it's been moved.
-    var slider = $('swarmSliderDiv');
-    slider.classList.toggle('nudge', swarmFlag == 1 && humanFlag == 0 && sliderPos < 1 &&
-      shown(slider) && harvesterLevel + wireDroneLevel > 1 && dismantle == 0);
-
-    // Spare probe trust: light up the one skill that helps most right now.
-    var next = spaceFlag == 1 && probeUsedTrust < probeTrust ? nextProbeSkill() : null;
-    probeRaise.forEach(function (b) { b.classList.toggle('nudge', !!next && b.id === 'btnRaiseProbe' + next); });
-    // Losing the drifter war with every point already spent (and max trust
-    // only grows with honor from winning battles): take a point back from the
-    // biggest skill so it can go into Combat.
-    var donor = spaceFlag == 1 && probeUsedTrust >= probeTrust ? combatDonor() : null;
-    probeLower.forEach(function (b) { b.classList.toggle('nudge', !!donor && b.id === 'btnLowerProbe' + donor); });
-  }
-
-  // Tapping a glowing button (or a probe skill) moves the glow right away,
-  // so a quick double tap doesn't press a button that's no longer the right one.
-  document.addEventListener('click', function (e) {
-    var b = e.target.closest && e.target.closest('button');
-    if (b && (b.classList.contains('nudge') || b.closest('#probeDesignDiv'))) updateNudges();
-  });
-
-  // Losing the war with too little Combat. The + and the "take a point back"
-  // hints both use this, so a freed point always lands in Combat (no ping-pong).
-  function combatShort() {
-    return project131.flag == 1 && drifterCount > probeCount * 0.5 && probeCombat < Math.max(2, Math.ceil(probeTrust * 0.25));
-  }
-  function combatDonor() {
-    if (!combatShort()) return null;
-    // How far above a safe minimum each skill is. Harvester and wire drones
-    // stay out of it: taking from just one would unbalance the swarm.
-    var spare = { Rep: probeRep - 2, Haz: probeHaz - 2, Speed: probeSpeed - 1, Nav: probeNav - 1, Fac: probeFac };
-    var best = null;
-    Object.keys(spare).forEach(function (k) { if (spare[k] > 0 && (!best || spare[k] > spare[best])) best = k; });
-    return best;
-  }
-
-  // Probes die fast to hazards and need to copy themselves, so those come first;
-  // after that, spread points so every part of the probe keeps growing.
-  function nextProbeSkill() {
-    var have = { Haz: probeHaz, Rep: probeRep, Speed: probeSpeed, Nav: probeNav, Fac: probeFac, Harv: probeHarv, Wire: probeWire, Combat: probeCombat };
-    if (have.Haz < 2) return 'Haz';
-    if (have.Rep < 2) return 'Rep';
-    if (have.Speed < 1) return 'Speed';
-    if (have.Nav < 1) return 'Nav';
-    if (combatShort()) return 'Combat';
-    // Harvester and wire drones must stay even, or the swarm gets disorganized
-    // and stops sending gifts (the only way to get more memory out here).
-    if (have.Harv !== have.Wire) return have.Harv < have.Wire ? 'Harv' : 'Wire';
-    // When drifters outnumber the probes, battles are what's killing them: fight back.
-    var war = project131.flag == 1 && drifterCount > probeCount * 0.5;
-    var share = { Rep: 0.26, Haz: 0.24, Speed: 0.08, Nav: 0.08, Fac: 0.05, Harv: 0.05, Wire: 0.05, Combat: project131.flag == 1 ? (war ? 0.3 : 0.08) : 0 };
-    var total = probeTrust;
-    var best = null;
-    var gap = -Infinity;
-    Object.keys(share).forEach(function (k) {
-      if (!share[k]) return;
-      var g = share[k] * total - have[k];
-      if (g > gap) { gap = g; best = k; }
-    });
-    return best;
-  }
-
-  // Tab badges, and the hop when the current tab is a dead end.
+  // Tab badges.
   var projectList = $('projectListTop');
   function projectCards() {
     return Array.prototype.filter.call(projectList.children, function (b) {
@@ -458,15 +381,6 @@
     projectCards().forEach(function (b) { seenProjects[b.id] = true; });
   }
 
-  var ACTIONS = '.projectButton:enabled, .chip-btn:enabled, .buy:enabled, .nudge:enabled, .multi .btn:enabled, #btnRunTournament:enabled, .swarm-act .btn:enabled';
-  function hasAction(panel) {
-    var els = panel.querySelectorAll(ACTIONS);
-    for (var i = 0; i < els.length; i++) {
-      if (onScreen(els[i]) && !els[i].closest('.leaving')) return true;
-    }
-    return false;
-  }
-
   function setBadge(name, kind, text) {
     var badge = tabButtons[name].querySelector('.badge');
     var cls = 'badge' + (kind ? ' ' + kind : '');
@@ -475,77 +389,38 @@
   }
 
   function updateBadges() {
-    var sig = {};
-    ORDER.forEach(function (n) { sig[n] = { count: 0, dot: !seenTabs[n] }; });
-
-    var cards = projectCards();
-    cards.forEach(function (b) {
-      if (!b.disabled) sig.projects.count++;
-      if (!seenProjects[b.id]) sig.projects.dot = true;
-    });
-    if (shown($('processorDisplay')) && !$('btnAddProc').disabled) sig.projects.count++;
-    // The swarm asking for something counts as something to do.
+    var dot = {};
+    ORDER.forEach(function (n) { dot[n] = !seenTabs[n]; });
+    projectCards().forEach(function (b) { if (!seenProjects[b.id]) dot.projects = true; });
+    // The swarm needing something is news: its gifts have stopped.
     var swarmAsks = panels.projects.querySelector('.swarm-act:not([style*="none"]) .btn:enabled');
-    if (swarmAsks && shown($('swarmEngine'))) sig.projects.dot = true;
+    if (swarmAsks && shown($('swarmEngine'))) dot.projects = true;
+    pendingReveals.forEach(function (el) { dot[el.closest('.panel').dataset.panel] = true; });
     ORDER.forEach(function (n) {
-      if (panels[n].querySelector('.nudge:enabled, .slider-wrap.nudge')) sig[n].dot = true;
+      setBadge(n, n === current || tabButtons[n].hidden || !dot[n] ? '' : 'dot');
     });
-    if (shown($('strategyEngine')) && stratPicker.value === '10') sig.strategy.dot = true;
-    pendingReveals.forEach(function (el) { sig[el.closest('.panel').dataset.panel].dot = true; });
-
-    var deadEnd = current && !hasAction(panels[current]);
-    var beckoning = false;
-    ORDER.forEach(function (n) {
-      var b = tabButtons[n];
-      var s = sig[n];
-      if (n === current || b.hidden) {
-        setBadge(n, '');
-        b.classList.remove('beckon');
-        return;
-      }
-      if (s.count > 0) setBadge(n, 'count', s.count > 9 ? '9+' : String(s.count));
-      else setBadge(n, s.dot ? 'dot' : '');
-      var beckon = deadEnd && (s.count > 0 || s.dot);
-      b.classList.toggle('beckon', beckon);
-      beckoning = beckoning || beckon;
-    });
-    // Nothing to do anywhere yet: point at Projects, where progress comes from.
-    if (deadEnd && !beckoning && current !== 'projects' && !tabButtons.projects.hidden && cards.length) {
-      tabButtons.projects.classList.add('beckon');
-    }
   }
-
-  // Quantum computing: the Compute button glows when the chips are bright
-  // and goes dashed when computing now would cost ops.
-  var qButton = $('btnQcompute');
-  (function qGlow() {
-    if (onScreen(qButton) && qFlag == 1) {
-      var sum = 0;
-      var active = 0;
-      for (var q = 0; q < qChips.length; q++) {
-        if (qChips[q].active) { sum += qChips[q].value; active++; }
-      }
-      var level = active ? sum / active : 0;
-      qButton.style.setProperty('--q', Math.max(0, level).toFixed(2));
-      qButton.classList.toggle('cold', active > 0 && level < 0);
-      qButton.classList.toggle('hot', level > 0.5);
-    }
-    requestAnimationFrame(qGlow);
-  })();
 
   // ---------------------------------------------------------------------------
   // Project cards: split out the price, and add a bar for each thing it costs.
+  // "(25 creat, 2,500 ops)" is written out as "25 creativity, 2,500 ops".
+  function priceLabel(tag) {
+    return String(tag).trim().replace(/^\(|\)$/g, '').replace(/ creat\b/g, ' creativity');
+  }
+  if (window.UP) UP.priceLabel = priceLabel;
   function dressProject(btn) {
     if (btn.dataset.dressed) return;
     btn.dataset.dressed = '1';
+    if (btn.id === 'projectButton217') btn.classList.add('danger');
     var n = btn.childNodes[1];
     if (!n || n.nodeType !== 3 || !n.nodeValue.trim()) return;
+    var tag = n.nodeValue.trim();
     var price = document.createElement('span');
     price.className = 'cost';
-    price.textContent = n.nodeValue.trim();
+    price.textContent = priceLabel(tag);
     btn.replaceChild(price, n);
 
-    var costs = parseCosts(price.textContent);
+    var costs = parseCosts(tag);
     if (!costs.length) return;
     var box = document.createElement('span');
     box.className = 'needs';
@@ -928,13 +803,36 @@
   });
 
   // ---------------------------------------------------------------------------
-  // Message log: tap to show the last five messages. New messages type out.
+  // Message log. The latest message types out; tap to see the ones before it.
+  // The log is kept with the save, so a reload doesn't wipe it.
   var consoleEl = $('consoleDiv');
   var readout = $('readout1');
   var typed = $('ui-typed');
+  var history = $('ui-history');
+  var LOG_MAX = 30;
+  var saved = window.UP ? UP.data.log : [];
+  if (saved.length) setText(readout, saved[saved.length - 1]);
+  if (window.UP) {
+    UP.on('message', function (msg) {
+      var log = UP.data.log;
+      log.push(msg);
+      if (log.length > LOG_MAX) log.splice(0, log.length - LOG_MAX);
+      if (consoleEl.classList.contains('open')) paintHistory();
+    });
+  }
+  function paintHistory() {
+    history.textContent = '';
+    var log = window.UP ? UP.data.log : [];
+    log.slice(0, -1).slice(-12).forEach(function (msg) {
+      var line = document.createElement('div');
+      line.textContent = msg;
+      history.appendChild(line);
+    });
+  }
   function toggleConsole() {
     var open = consoleEl.classList.toggle('open');
     consoleEl.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) paintHistory();
   }
   consoleEl.addEventListener('click', toggleConsole);
   consoleEl.addEventListener('keydown', function (e) {
@@ -1072,18 +970,34 @@
   });
 
   // ---------------------------------------------------------------------------
-  // Keep the big clip number on one line for as long as it reasonably can.
+  // The big clip number. Every digit up to a million; after that, words
+  // ("2.02 billion"), since a row of racing digits says less than a word does.
+  // In the very end every digit is back: the last clips are counted one by one.
   var clipsEl = $('clips');
+  var countEl = $('ui-count-num');
+  var BIG = ['thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion',
+    'septillion', 'octillion', 'nonillion', 'decillion', 'undecillion', 'duodecillion', 'tredecillion',
+    'quattuordecillion', 'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion',
+    'novemdecillion', 'vigintillion'];
+  function words(n) {
+    var k = Math.min(BIG.length, Math.floor(Math.log10(n) / 3));
+    var v = n / Math.pow(1000, k);
+    var text = v >= 100 ? String(Math.floor(v)) : (Math.floor(v * (v >= 10 ? 10 : 100)) / (v >= 10 ? 10 : 100)).toString();
+    return text + ' ' + BIG[k - 1];
+  }
+  function countText() {
+    return clips >= 1e6 && milestoneFlag < 15 ? words(clips) : clipsEl.textContent;
+  }
   var lastClipText = '';
   function fitCount() {
-    var text = clipsEl.textContent;
+    var text = countText();
     if (text === lastClipText) return;
     lastClipText = text;
+    countEl.textContent = text;
     var digits = text.replace(/[^0-9]/g, '').length;
-    var commas = text.length - digits;
-    var em = digits * 0.62 + commas * 0.3;
-    var size = Math.max(19, Math.min(46, clipsEl.clientWidth / Math.max(em, 1)));
-    clipsEl.style.fontSize = Math.floor(size) + 'px';
+    var em = /[a-z]/.test(text) ? text.length * 0.58 : digits * 0.62 + (text.length - digits) * 0.3;
+    var size = Math.max(19, Math.min(46, countEl.clientWidth / Math.max(em, 1)));
+    countEl.style.fontSize = Math.floor(size) + 'px';
   }
   window.addEventListener('resize', function () { lastClipText = ''; fitCount(); placePill(); });
 
@@ -1096,8 +1010,8 @@
   var sideNum = $('ui-side-num');
   var sideLabel = $('ui-side-label');
   function updateMini() {
-    var full = clipsEl.textContent;
-    setText(miniNum, full.length <= 15 ? full : $('clipCountCrunched').textContent.trim());
+    var full = countText();
+    setText(miniNum, full.length <= 15 ? full : words(clips));
     setText(miniSide, sideNum.textContent ? sideNum.textContent + (sideLabel.textContent === 'funds' ? '' : ' unused') : '');
     setText(miniMsg, readout.textContent);
   }
@@ -1107,13 +1021,12 @@
       if (off) updateMini();
       mini.classList.toggle('on', off);
       mini.setAttribute('aria-hidden', off ? 'false' : 'true');
-    }).observe(clipsEl);
+    }).observe(countEl);
   }
   mini.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: calm() ? 'auto' : 'smooth' }); });
 
   // ---------------------------------------------------------------------------
   // Everything that just mirrors engine numbers onto the new layout.
-  var topEl = $('ui-top');
   var opsBar = $('ui-ops-bar');
   var creatRate = $('ui-creat-rate');
   var storageBar = $('ui-storage-bar');
@@ -1122,12 +1035,10 @@
   var pickWrap = stratPicker.closest('.select');
   var wireBuyerPill = $('wireBuyerStatus');
   var autoTourneyPill = $('autoTourneyStatus');
-  var unusedMirror = $('ui-unused-mirror');
   var profitCells = [1, 2, 3, 4, 5].map(function (n) { return $('stock' + n + 'Profit'); });
 
   function mirror() {
     fitCount();
-    topEl.classList.toggle('show-crunched', clips >= 1e6 || milestoneFlag >= 15);
 
     if (shown($('businessDiv'))) {
       setText(sideNum, '$' + $('funds').textContent);
@@ -1175,8 +1086,6 @@
 
     pickWrap.classList.toggle('needs-pick', stratPicker.value === '10');
 
-    setText(unusedMirror, $('unusedClipsDisplay').textContent);
-
     profitCells.forEach(function (td) {
       var v = parseFloat(td.textContent);
       td.classList.toggle('up', v > 0);
@@ -1187,8 +1096,8 @@
   }
 
   function tick() {
+    stageLayout();
     updateTabs();
-    updateNudges();
     fillProgress();
     updateBadges();
     mirror();

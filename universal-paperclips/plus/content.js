@@ -70,6 +70,16 @@
   UP.on('project', function (p) { if (p === project35) setTimeout(clearMoneyProjects, 0); });
   setTimeout(clearMoneyProjects, 0);
 
+  // Quantum Temporal Reversion (start over) only makes sense while operations
+  // are stuck far below zero. The rest of the time it stays off the list.
+  UP.on('second', function () {
+    var at = activeProjects.indexOf(project217);
+    if (at < 0 || operations <= -10000) return;
+    if (project217.element && project217.element.parentNode) project217.element.parentNode.removeChild(project217.element);
+    activeProjects.splice(at, 1);
+    project217.uses = 1;
+  });
+
   // Projects for features that were removed (lucky paperclips), left over in old saves.
   setTimeout(function () {
     [project300, project301].forEach(function (p) {
@@ -107,7 +117,7 @@
   var card = project328.element;
   if (card) {
     var cost = card.querySelector('.cost');
-    if (cost) cost.textContent = project328.priceTag;
+    if (cost) cost.textContent = UP.priceLabel ? UP.priceLabel(project328.priceTag) : project328.priceTag;
     else if (card.childNodes[1] && card.childNodes[1].nodeType === 3) card.childNodes[1].nodeValue = project328.priceTag;
   }
 })();

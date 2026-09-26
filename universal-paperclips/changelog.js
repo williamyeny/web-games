@@ -11,7 +11,14 @@ window.CHANGELOG = [
       'Trophies are down to 19 that mark real moments. They no longer pay Stardust; only finishing a universe does.',
       'Time away is noted in the message log instead of a pop-up.',
       'Laws of physics that only made a universe longer are gone.',
-      'The Threnody project finally plays its lament.'
+      'The Threnody project finally plays its lament.',
+      'No more glowing hints telling you which button to press. A tab shows a dot only when something new is inside.',
+      'The first screen is just the button; the rest appears as you need it.',
+      'Each stage opens on its own work. In space, the Space tab comes first and the production numbers move there. Rows stuck at zero stay hidden.',
+      'Past a million, the big counter shows words (2.02 billion) instead of racing digits.',
+      'The message log keeps its history through reloads. Tap it to see earlier messages.',
+      'A simpler menu: Records (stats and trophies), News and Settings. The way back to all games is in Settings.',
+      'Quantum Temporal Reversion only appears when operations are stuck below -10,000, and it looks as dangerous as it is.'
     ]
   },
   {

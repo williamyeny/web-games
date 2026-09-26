@@ -56,7 +56,7 @@
       kind: 'trophy', icon: ICON, time: 4500,
       title: t.name,
       text: t.desc,
-      onTap: function () { UP.openMenu('trophies'); }
+      onTap: function () { UP.openMenu('records'); }
     });
     UP.emit('trophy', t);
   }
@@ -84,7 +84,7 @@
             kind: 'trophy', icon: ICON, time: 6000,
             title: got === 1 ? '1 trophy already earned' : got + ' trophies already earned',
             text: 'Tap to see them',
-            onTap: function () { UP.openMenu('trophies'); }
+            onTap: function () { UP.openMenu('records'); }
           });
         }
       }, 2600);
@@ -103,13 +103,15 @@
   });
 
   // ---------------------------------------------------------------------------
-  // The trophy room.
+  // Records: stats, then the trophies.
   var GROUPS = [['business', 'Business'], ['earth', 'Earth'], ['space', 'Space'], ['multiverse', 'Multiverse']];
   UP.menuPage({
-    id: 'trophies', label: 'Trophies', order: 20,
+    id: 'records', label: 'Records', order: 10,
     badge: function () { return (D.newTrophies || 0) > 0; },
     render: function (box) {
       var el = UP.el;
+      if (UP.renderStats) UP.renderStats(box);
+      box.appendChild(el('h3', 'sheet-h', 'Trophies'));
       var have = count();
       var top = el('div', 'trophy-top');
       var nums = el('div', 'trophy-count');

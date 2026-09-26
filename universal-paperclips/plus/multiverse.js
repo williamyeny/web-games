@@ -332,6 +332,7 @@
     D.pending = null;
     D.startNew = true;
     D.run = UP.freshRun();
+    D.log = [];
     UP.save();
     UP.skipSaveOnExit = true; // don't let the old universe save itself on the way out
     engineReset();
@@ -355,7 +356,7 @@
   // ---------------------------------------------------------------------------
   // Menu page: blueprints can be bought any time once you've seen the multiverse.
   UP.menuPage({
-    id: 'multiverse', label: 'Multiverse', order: 25,
+    id: 'multiverse', label: 'Multiverse', order: 20,
     hidden: function () { return !D.stats.universes; },
     render: function (box) {
       var lawNow = D.laws.length ? law(D.laws[0]) : null;

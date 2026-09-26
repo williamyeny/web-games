@@ -1,4 +1,4 @@
-// Mobile edition additions: the menu sheet (What's new, trophies, stats, settings).
+// Mobile edition additions: the menu sheet (news, records, settings).
 // Other features add their own pages with UP.menuPage().
 (function () {
   'use strict';
@@ -37,15 +37,17 @@
   close.setAttribute('aria-label', 'Close menu');
   close.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
   head.appendChild(tabs);
-  head.appendChild(close);
   var body = el('div', 'sheet-body');
-  sheet.appendChild(el('div', 'sheet-grip'));
+  var top = el('div', 'sheet-top');
+  top.appendChild(el('div', 'sheet-grip'));
+  top.appendChild(close);
+  sheet.appendChild(top);
   sheet.appendChild(head);
   sheet.appendChild(body);
   document.body.appendChild(backdrop);
   document.body.appendChild(sheet);
 
-  var current = 'news';
+  var current = 'records';
   function renderTabs() {
     tabs.textContent = '';
     pages.forEach(function (p) {
@@ -115,7 +117,7 @@
   // What's new.
   function unseenNews() { return log.length && UP.data.seenLog !== log[0].id; }
   UP.menuPage({
-    id: 'news', label: 'What’s new', order: 10,
+    id: 'news', label: 'News', order: 40,
     badge: unseenNews,
     render: function (box) {
       var seen = UP.data.seenLog;
@@ -137,7 +139,7 @@
   });
 
   // ---------------------------------------------------------------------------
-  // Stats.
+  // Stats, shown at the top of Records (plus/trophies.js).
   function statRows(box, title, rows) {
     box.appendChild(el('h3', 'sheet-h', title));
     var dl = el('dl', 'stats');
@@ -147,27 +149,24 @@
     });
     box.appendChild(dl);
   }
-  UP.menuPage({
-    id: 'stats', label: 'Stats', order: 30,
-    render: function (box) {
-      var run = UP.data.run;
-      var all = UP.data.stats;
-      var fact = UP.funFact && UP.funFact();
-      if (fact) box.appendChild(el('p', 'sheet-fact', fact.text));
-      statRows(box, UP.data.universe > 1 ? 'This universe' : 'This game', [
-        ['Time played', UP.duration(run.playSeconds)],
-        ['Paperclips', UP.fmt(clips)],
-        ['Made by hand', UP.fmt(run.handClips)],
-        ['Projects finished', UP.fmt(run.projects)]
-      ]);
-      statRows(box, 'All time', [
-        ['Time played', UP.duration(all.playSeconds)],
-        ['Made by hand', UP.fmt(all.handClips)],
-        ['Projects finished', UP.fmt(all.projects)],
-        ['Universes finished', UP.fmt(all.universes)]
-      ].concat(all.fastestUniverse ? [['Fastest universe', UP.duration(all.fastestUniverse)]] : []));
-    }
-  });
+  UP.renderStats = function (box) {
+    var run = UP.data.run;
+    var all = UP.data.stats;
+    var fact = UP.funFact && UP.funFact();
+    if (fact) box.appendChild(el('p', 'sheet-fact', fact.text));
+    statRows(box, UP.data.universe > 1 ? 'This universe' : 'This game', [
+      ['Time played', UP.duration(run.playSeconds)],
+      ['Paperclips', UP.fmt(clips)],
+      ['Made by hand', UP.fmt(run.handClips)],
+      ['Projects finished', UP.fmt(run.projects)]
+    ]);
+    statRows(box, 'All time', [
+      ['Time played', UP.duration(all.playSeconds)],
+      ['Made by hand', UP.fmt(all.handClips)],
+      ['Projects finished', UP.fmt(all.projects)],
+      ['Universes finished', UP.fmt(all.universes)]
+    ].concat(all.fastestUniverse ? [['Fastest universe', UP.duration(all.fastestUniverse)]] : []));
+  };
 
   // ---------------------------------------------------------------------------
   // Settings.
@@ -233,8 +232,11 @@
   }
 
   UP.menuPage({
-    id: 'settings', label: 'Settings', order: 40,
+    id: 'settings', label: 'Settings', order: 50,
     render: function (box) {
+      var games = el('a', 'btn wide games-link', 'All games');
+      games.href = '../';
+      box.appendChild(games);
       toggleRow(box, 'Sound', 'Clicks and tones', 'sound');
       toggleRow(box, 'Vibration', 'A tiny buzz when you tap (on phones that can)', 'haptics');
 

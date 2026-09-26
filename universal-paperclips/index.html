@@ -36,15 +36,13 @@
 <!-- ============ HEADER ============ -->
 <header class="top" id="ui-top">
   <div class="count" id="ui-count">
-    <div id="clips" class="count-num">0</div>
+    <div id="clips" class="sr">0</div>
+    <div id="ui-count-num" class="count-num" aria-hidden="true">0</div>
     <div class="top-buttons">
       <button class="icon-btn" id="ui-menu" aria-label="Menu">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg>
         <i class="dot" hidden></i>
       </button>
-      <a class="icon-btn" href="../" aria-label="Back to all games">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 4.5l8 7M6.5 9.5V19h11V9.5"/></svg>
-      </a>
     </div>
     <div class="count-meta">
       <div class="count-label">paperclips <span id="clipCountCrunched" class="crunched"></span></div>
@@ -54,12 +52,9 @@
   </div>
 
   <div id="consoleDiv" class="console" role="button" tabindex="0" aria-expanded="false" aria-label="Messages. Tap to show more.">
-    <div class="console-old">
-      <div><span id="readout5"></span></div>
-      <div><span id="readout4"></span></div>
-      <div><span id="readout3"></span></div>
-      <div><span id="readout2"></span></div>
-    </div>
+    <!-- The engine keeps four older lines here; the log shown on tap is #ui-history. -->
+    <div class="console-engine" hidden><span id="readout5"></span><span id="readout4"></span><span id="readout3"></span><span id="readout2"></span></div>
+    <div class="console-old" id="ui-history"></div>
     <!-- The engine writes to #readout1; the visible line is typed out from it. -->
     <div class="console-new"><span class="prompt">&gt;</span> <span id="readout1" class="sr">Welcome to Universal Paperclips</span><span id="ui-typed" aria-hidden="true"></span><span id="cursor" class="pulsate">_</span></div>
   </div>
@@ -84,7 +79,7 @@
 
   <div id="businessDiv" class="sec">
     <h2>Business</h2>
-    <div class="row big"><span>Available funds</span><b>$<span id="funds">0.00</span></b></div>
+    <div class="row big dup"><span>Available funds</span><b>$<span id="funds">0.00</span></b></div>
     <div id="revPerSecDiv">
       <div class="row"><span>Avg. revenue per sec</span><b>$<span id="avgRev">0.00</span></b></div>
       <div class="row"><span>Avg. clips sold per sec</span><b><span id="avgSales">0</span></b></div>
@@ -157,7 +152,7 @@
     <h2>Manufacturing</h2>
     <div id="factoryUpgradeDisplay"><p class="note">Next upgrade at <b><span id="nextFactoryUpgrade">0</span></b> factories</p></div>
     <div id="clipsPerSecDiv"><div class="row big"><span>Clips per second</span><b><span id="clipmakerRate2">0</span></b></div></div>
-    <div id="tothDiv"><div class="row big"><span>Unused clips</span><b><span id="unusedClipsDisplay">0</span></b></div></div>
+    <div id="tothDiv"><div class="row big dup"><span>Unused clips</span><b><span id="unusedClipsDisplay">0</span></b></div></div>
 
     <div id="factoryDiv" class="buygroup">
       <button class="buy" id="btnMakeFactory" onclick="makeFactory()" data-repeat>
@@ -453,7 +448,6 @@
   <div id="spaceDiv" class="sec">
     <h2>Space exploration</h2>
     <div class="explored"><b><span id="colonizedDisplay">0</span>%</b> of the universe explored</div>
-    <div class="row"><span>Unused clips</span><b id="ui-unused-mirror">0</b></div>
 
     <div id="probeDiv">
       <button class="buy" id="btnMakeProbe" onclick="makeProbe()" data-repeat>

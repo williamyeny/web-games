@@ -134,7 +134,6 @@
     [[220, 0, 1.4], [261.6, 1.2, 1.4], [329.6, 2.4, 1.8], [293.7, 4, 1.2], [261.6, 5, 1.2], [246.9, 6, 1.4], [220, 7.2, 2.6]]
       .forEach(function (n) { tone(n[0], t + n[1], n[2], { type: 'triangle', gain: 0.09 }); });
   };
-  window.loadThrenody = function () {};
   window.playThrenody = function () { UP.sound('threnody'); };
 
   UP.sound = function (name) {

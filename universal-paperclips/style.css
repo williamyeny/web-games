@@ -218,13 +218,6 @@ button:disabled { cursor: default; }
 }
 .count-label { font-size: 0.9375rem; font-weight: 600; color: var(--ink-2); }
 .crunched { display: none; }
-.show-crunched .crunched {
-  display: inline-block;
-  margin-left: 4px; padding: 0 8px;
-  border-radius: 999px;
-  background: var(--card); border: 1.5px solid var(--edge);
-  color: var(--ink); font-weight: 750;
-}
 
 .count-side { font-size: 0.9375rem; font-weight: 600; color: var(--ink-2); text-align: right; }
 .count-side b {
@@ -248,8 +241,8 @@ button:disabled { cursor: default; }
 .console-old { display: none; opacity: 0.6; }
 .console-old > div { padding-left: 1.2em; text-indent: -1.2em; }
 .console-old > div::before { content: "\00B7  "; white-space: pre; }
-.console-old > div:has(> span:empty) { display: none; }
 .console.open .console-old { display: block; margin-bottom: 4px; }
+.console.open .console-old:empty { display: none; }
 .console-new {
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden;
@@ -284,8 +277,8 @@ h2, h3 {
   line-height: 1.1;
   letter-spacing: -0.01em;
 }
-h2 { font-size: 27px; font-weight: 900; }
-h3 { font-size: 20px; font-weight: 850; }
+h2 { font-size: 21px; font-weight: 850; }
+h3 { font-size: 18px; font-weight: 850; }
 
 /* When a section unlocks, a highlighter stroke swipes under its heading, then fades. */
 h2::after, h3::after {
@@ -303,6 +296,11 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
   70% { transform: scaleX(1); opacity: 1; }
   100% { transform: scaleX(1); opacity: 0; }
 }
+
+/* Numbers already shown elsewhere (funds, unused clips are in the header), rows
+   stuck at zero in a new stage, sections with nothing in them yet, and the
+   first screen before the first paperclip. See ui.js. */
+.dup, .ui-zero, .ui-empty, .ui-held { display: none !important; }
 
 /* Parts of the game the engine hides (at big turning points and in the ending)
    fade away instead of blinking out. */
@@ -380,12 +378,10 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
 }
 
 /* ---------- showing the way ----------
-   One visual language instead of instructions:
-   dashed = not yet, yellow filling up inside = getting closer,
-   solid = you can buy it, highlighter yellow = worth doing right now. */
+   What you can afford, never which thing to do:
+   dashed = not yet, yellow filling up inside = getting closer, solid = you can buy it. */
 
 @property --p { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --q { syntax: "<number>"; inherits: false; initial-value: 0; }
 
 /* A buy button you can't afford yet fills with yellow as you save up. */
 .buy { transition: transform 0.06s, box-shadow 0.06s, --p 0.5s ease-out; }
@@ -393,18 +389,6 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
   background: linear-gradient(90deg, var(--fill) calc(var(--p) * 100%), transparent calc(var(--p) * 100%));
 }
 
-/* The button that fixes whatever is holding you back, e.g. Wire when you're out. */
-.buy.nudge:not(:disabled), .step.nudge:not(:disabled), .btn.ghost.nudge:not(:disabled):not(.armed) {
-  background: var(--hi); color: var(--on-hi);
-  animation: nudge-hop 0.5s cubic-bezier(.3,1.6,.5,1);
-}
-.buy.nudge:not(:disabled) .buy-cost,
-.buy.nudge:not(:disabled) .buy-count small { color: var(--on-hi); }
-@keyframes nudge-hop {
-  0% { translate: 0 0; }
-  40% { translate: 0 -6px; }
-  100% { translate: 0 0; }
-}
 
 /* An unaffordable project shows one bar per thing it costs. Striped past the
    point your current memory or batteries can reach. */
@@ -433,14 +417,6 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
   background: repeating-linear-gradient(-45deg, var(--wire) 0 3px, transparent 3px 7px);
 }
 
-/* When the tab you're on has nothing left to do, tabs with something waiting hop. */
-.tabbar button.beckon svg { animation: beckon 2.8s ease-in-out 0.6s infinite; }
-@keyframes beckon {
-  0%, 20%, 100% { translate: 0 0; }
-  6% { translate: 0 -7px; }
-  12% { translate: 0 0; }
-  16% { translate: 0 -3px; }
-}
 
 /* A thing you can buy: name + cost on the left, how many you have on the right. */
 .buy {
@@ -497,7 +473,7 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
 .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0 6px; }
 .pair > div { min-width: 0; }
 
-/* Processors / memory: yellow when there's trust to spend. */
+/* Processors / memory: buttons that add one; solid when there's trust to spend. */
 .chip-btn {
   position: relative;
   display: flex; flex-direction: column; align-items: flex-start;
@@ -505,7 +481,6 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
   border-radius: var(--radius);
   text-align: left;
 }
-.chip-btn:not(:disabled) { background: var(--hi); color: var(--on-hi); border-color: var(--edge); }
 .chip-num { --casl: 1; font-size: 32px; font-weight: 950; line-height: 1; font-variant-numeric: tabular-nums; }
 .chip-name { font-weight: 750; margin-top: 4px; }
 .chip-plus {
@@ -514,7 +489,7 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
   padding: 1px 8px; border-radius: 999px;
   border: 2px solid currentColor;
 }
-.chip-btn:disabled .chip-plus { display: none; }
+.chip-btn:disabled .chip-plus { border-style: dashed; opacity: 0.7; }
 
 /* Price / probe steppers */
 .stepper { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 14px 0 6px; }
@@ -589,7 +564,6 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
   border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink);
   transform: rotate(45deg); pointer-events: none;
 }
-.select.needs-pick select { background: var(--hi); color: var(--on-hi); }
 
 /* Swarm work/think slider */
 .slider-wrap {
@@ -623,8 +597,6 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
 
 .swarm-act { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 10px; }
 .swarm-act > span { font-size: 0.875rem; color: var(--ink-2); }
-/* The swarm asking for something is a "do this now". */
-.swarm-act .btn:not(:disabled) { background: var(--hi); color: var(--on-hi); }
 
 /* Quantum computing */
 .qchips { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin: 6px 0 14px; }
@@ -641,13 +613,6 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
 .ui-ready .qChip[style*="display: none"] { scale: 0; }
 .qrow { display: flex; align-items: center; gap: 14px; }
 .qrow .btn { flex: 0 0 55%; }
-/* Compute glows as the chips brighten, and goes dashed when computing now would cost ops. */
-#btnQcompute { background: color-mix(in srgb, var(--hi) calc(var(--q) * 100%), var(--card)); }
-#btnQcompute.hot { color: var(--on-hi); }
-#btnQcompute.cold {
-  background: transparent; border-style: dashed; border-color: var(--wire);
-  box-shadow: none; color: var(--ink-2);
-}
 #qCompDisplay { --casl: 1; font-weight: 850; font-variant-numeric: tabular-nums; }
 
 /* ---------- projects ---------- */
@@ -662,7 +627,6 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
   text-align: left;
   font-size: 0.9375rem; line-height: 1.35;
 }
-.projectButton:not(:disabled) { background: var(--hi); color: var(--on-hi); }
 .projectButton > span:first-child { --casl: 1; font-size: 1.125rem; font-weight: 900; }
 .projectButton .cost {
   display: inline-block; margin: 0 0 0 4px;
@@ -678,6 +642,9 @@ h2.marked::after, h3.marked::after { animation: marker 2.6s cubic-bezier(.3,.7,.
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 34'%3E%3Cpath d='M9.5 8v17a2.5 2.5 0 0 1-5 0V5.5a3.5 3.5 0 0 1 7 0V27a4.5 4.5 0 0 1-9 0V10' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 .projectButton:not(:disabled)::before { background: var(--edge); }
+/* Starting over is the one project that destroys something. */
+.projectButton.danger { border-color: var(--red); box-shadow: 0 4px 0 var(--red); }
+.projectButton.danger::before { background: var(--red); }
 
 /* The engine flickers new projects by toggling visibility; keep them steady.
    ui.js gives them a proper entrance instead. */
@@ -904,7 +871,7 @@ table.payoff {
   text-align: center;
   display: none;
 }
-.badge.count, .badge.dot { display: block; animation: badge-pop 0.4s cubic-bezier(.3,1.7,.5,1) both; }
+.badge.dot { display: block; animation: badge-pop 0.4s cubic-bezier(.3,1.7,.5,1) both; }
 @keyframes badge-pop { from { scale: 0; } }
 .badge.dot { min-width: 14px; width: 14px; height: 14px; padding: 0; top: 2px; left: calc(50% + 14px); }
 
@@ -1046,9 +1013,11 @@ table.payoff {
   background: var(--paper);
   box-shadow: 0 -10px 40px rgba(8, 14, 40, 0.25);
 }
-.sheet-grip { width: 44px; height: 5px; margin: 8px auto 2px; border-radius: 999px; background: var(--wire); }
-.sheet-head { display: flex; align-items: center; gap: 8px; padding: 6px 12px 10px 16px; border-bottom: 2px solid var(--edge); }
-.sheet-tabs { display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 auto; }
+.sheet-top { position: relative; flex: 0 0 40px; }
+.sheet-head { flex: 0 0 auto; }
+.sheet-grip { width: 44px; height: 5px; margin: 0 auto; position: relative; top: 8px; border-radius: 999px; background: var(--wire); }
+.sheet-head { display: flex; align-items: center; padding: 4px 12px 10px; border-bottom: 2px solid var(--edge); }
+.sheet-tabs { display: flex; flex-wrap: nowrap; gap: 4px; flex: 1 1 auto; overflow-x: auto; scrollbar-width: none; }
 .sheet-tabs::-webkit-scrollbar { display: none; }
 .sheet-tab {
   position: relative; flex: 0 0 auto;
@@ -1064,7 +1033,7 @@ table.payoff {
   background: var(--hi); border: 2px solid var(--edge);
 }
 .sheet-close {
-  flex: 0 0 auto;
+  position: absolute; top: 2px; right: 8px;
   display: grid; place-items: center;
   width: 40px; height: 40px; border: 0; border-radius: 12px;
   background: transparent; color: var(--ink-2);
@@ -1079,9 +1048,9 @@ table.payoff {
 .sheet-h:first-child { margin-top: 4px; }
 .sheet-p { margin: 0 0 10px; color: var(--ink-2); font-size: 0.9375rem; }
 .sheet-fact {
-  margin: 0 0 16px; padding: 12px 14px; border-radius: 14px;
-  background: var(--hi); color: var(--on-hi);
-  font-weight: 700; line-height: 1.4;
+  margin: 0 0 16px; padding: 10px 14px;
+  border-left: 3px solid var(--edge);
+  color: var(--ink); font-weight: 650; line-height: 1.4;
 }
 
 .news {
@@ -1110,6 +1079,7 @@ table.payoff {
 .setting-text { display: flex; flex-direction: column; }
 .setting-text small { color: var(--ink-2); }
 .btn.wide { width: 100%; margin: 6px 0; }
+.games-link { display: flex; align-items: center; justify-content: center; margin: 0 0 16px; text-decoration: none; box-shadow: 0 4px 0 var(--drop); }
 .code {
   width: 100%; margin: 6px 0;
   padding: 10px 12px;
@@ -1351,14 +1321,6 @@ table.payoff {
 .law-bonus { flex: 0 0 auto; font-size: 0.8125rem; font-weight: 800; color: #FFE141; }
 .law-bonus.minus { color: #FF8F7D; }
 
-/* The swarm slider, when moving it toward Think would start the gifts. */
-.slider-wrap.nudge span:last-child {
-  padding: 2px 10px; border-radius: 999px;
-  background: var(--hi); color: var(--on-hi);
-  animation: nudge-hop 0.5s cubic-bezier(.3,1.6,.5,1);
-}
-.slider-wrap.nudge .slider::-webkit-slider-thumb { animation: thumb-glow 1.6s ease-in-out infinite; }
-@keyframes thumb-glow { 50% { box-shadow: 0 3px 0 var(--drop), 0 0 0 8px rgba(255, 225, 65, 0.45); } }
 
 /* Tapping something you can't afford yet: a bubble says what's missing. */
 .projectButton:disabled, .buy:disabled, .chip-btn:disabled, [id^="btnRaiseProbe"]:disabled { pointer-events: none; }

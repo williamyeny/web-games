@@ -8,8 +8,8 @@ function threnodyLoaded()
 var threnodyAudio;
 
 function loadThrenody() {
-    threnodyAudio.src = "test.mp3";
-    threnodyAudio.addEventListener('canplaythrough', threnodyLoaded);
+    // Added: the recording isn't part of this edition; plus/fx.js plays a
+    // synthesized threnody instead (see playThrenody there).
 }
 
 function playThrenody(){
