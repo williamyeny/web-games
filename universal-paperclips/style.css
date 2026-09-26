@@ -735,6 +735,9 @@ table.stocks {
   transition: width 0.3s linear;
 }
 .strat[aria-checked="true"] .strat-bar { background: var(--fill); }
+@media (prefers-color-scheme: dark) {
+  .strat[aria-checked="true"] .strat-bar { background: rgba(220, 227, 255, 0.2); }
+}
 .strat-text { display: flex; flex-direction: column; min-width: 0; }
 .strat-text b { font-size: 0.9375rem; font-weight: 850; letter-spacing: 0.01em; }
 .strat-text small { color: var(--ink-2); line-height: 1.3; }

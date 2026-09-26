@@ -211,7 +211,7 @@
     rows.forEach(function (r) {
       dl.appendChild(el('dt', null, r[0]));
       var dd = dl.appendChild(el('dd', null, r[1]));
-      if (r[0] === 'Time' && p.record) dd.appendChild(el('span', 'mv-record', 'New record!'));
+      if (r[0] === 'Time' && p.record) dd.appendChild(el('span', 'mv-record', 'Best yet'));
     });
     inner.appendChild(dl);
     var reward = el('div', 'mv-reward');

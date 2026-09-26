@@ -62,6 +62,16 @@
     ctx.stroke();
     ctx.restore();
   }
+  // "37%", or "1 part in 10¹⁹" while it's tiny. (The pictures use a log scale
+  // so they move the whole time; the words give the real share.)
+  var SUP = { '-': '\u207B', 0: '\u2070', 1: '\u00B9', 2: '\u00B2', 3: '\u00B3', 4: '\u2074', 5: '\u2075', 6: '\u2076', 7: '\u2077', 8: '\u2078', 9: '\u2079' };
+  function share(x, of) {
+    if (x >= 0.995) return 'All of ' + of;
+    if (x >= 0.01) return Math.round(x * 100) + '% of ' + of;
+    if (!(x > 0)) return 'None of ' + of + ' yet';
+    var zeros = Math.round(-Math.log10(x));
+    return '1 part in 10' + String(zeros).split('').map(function (c) { return SUP[c]; }).join('') + ' of ' + of;
+  }
   // Repeatable pseudo-random numbers, so the heap and the stars stay put.
   function rng(seed) {
     return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
@@ -259,7 +269,7 @@
     g.font = '600 12px Recursive, system-ui, sans-serif';
     g.fillStyle = 'rgba(220,227,255,0.85)';
     g.textAlign = 'left';
-    g.fillText(p >= 1 ? 'The whole planet' : Math.round(p * 100) + '% of the way to the whole planet', 12, H - 8);
+    g.fillText(p >= 1 ? 'All of the planet' : share(clips / EARTH_GRAMS, 'the planet'), 12, H - 8);
   }
 
   // ---------------------------------------------------------------------------
@@ -318,7 +328,7 @@
     g.font = '600 12px Recursive, system-ui, sans-serif';
     g.fillStyle = 'rgba(220,227,255,0.85)';
     g.textAlign = 'left';
-    g.fillText(f >= 1 ? 'Every star' : claimed <= 1 ? 'Earth' : claimed + ' of ' + STARS.length + ' stars, on a log scale', 12, H - 8);
+    g.fillText(f >= 1 ? 'All of the universe' : share(totalMatter ? foundMatter / totalMatter : 0, 'the universe'), 12, H - 8);
   }
   function stars(alpha) {
     for (var i = 0; i < STARS.length; i += 9) {
@@ -336,8 +346,8 @@
   }
   function describe(st) {
     return st === 1 ? 'A heap of ' + UP.fmt(unsoldClips) + ' unsold paperclips'
-      : st === 2 ? 'The Earth, ' + Math.round(earthShare() * 100) + '% of the way to paperclips'
-      : 'A map of the universe, ' + Math.round(explored() * 100) + '% claimed on a log scale';
+      : st === 2 ? 'The Earth, partly covered in paperclips: ' + share(earthShare() >= 1 ? 1 : clips / EARTH_GRAMS, 'the planet')
+      : 'A map of the stars your probes have reached: ' + share(explored() >= 1 ? 1 : totalMatter ? foundMatter / totalMatter : 0, 'the universe');
   }
 
   var visible = false;

@@ -250,7 +250,7 @@
       copy.addEventListener('click', function () {
         var code = saveCode();
         area.value = code;
-        var done = function () { copy.textContent = 'Copied!'; setTimeout(function () { copy.textContent = 'Copy save code'; }, 2000); };
+        var done = function () { copy.textContent = 'Copied'; setTimeout(function () { copy.textContent = 'Copy save code'; }, 2000); };
         if (navigator.clipboard) navigator.clipboard.writeText(code).then(done, function () { area.select(); });
         else { area.select(); document.execCommand('copy'); done(); }
       });
